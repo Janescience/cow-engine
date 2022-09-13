@@ -33,7 +33,7 @@ app.all("*", (req,res) => {
 
 // connect db and start app 
 db.mongoose
-.connect(process.env.DB)
+.connect('mongodb+srv://janescience:Top2233223233@cluster0.xf552.mongodb.net/mern?retryWrites=true&w=majority')
 .then(() => {
     console.log("Successfully connect to MongoDB.")
     initial();
@@ -43,7 +43,7 @@ db.mongoose
 })
 
 function initial(){
-    const PORT = process.env.PORT
+    const PORT = 4000
     app.listen(PORT, () => {
         console.log("Server is running on port : ",PORT);
     })
