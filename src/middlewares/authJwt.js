@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
-const User = db.user;
+const User = db.user
 
 verifyToken =  (req, res, next) => {
-    const token = "";
-    const {cookiesToken} = req.cookies;
+    let token = "";
+    const {cookieToken} = req.cookies;
 
-    if(!cookiesToken){
+    if(!cookieToken){
       let headerToken = !req.headers["authorization"] ? req.body.headers["authorization"] : req.headers["authorization"];
       
       if (!headerToken) {
@@ -18,16 +18,17 @@ verifyToken =  (req, res, next) => {
       if(!token){
         return res.status(403).send({ message: "No token provided!" });
       }
-      
+
     }else{
-      token = cookiesToken
+      token = cookieToken
     }
 
     jwt.verify(token, config.secret, (err, decoded) => {
       if (err) {
         return res.status(401).send({ message: "Unauthorized!" });
       }
-      req.userId = decoded._id;
+      req.userId = decoded.id;
+      req.user = User.findById(req.userId)
       next();
     });
 

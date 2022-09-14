@@ -1,6 +1,4 @@
 const config = require("../config/auth.config");
-const { lineApi } = require("../services")
-
 const db = require("../models");
 const User = db.user;
 
@@ -11,7 +9,8 @@ exports.signup = async (req, res) => {
     const user = new User({
       username: req.body.username,
       name: req.body.name,
-      password: bcrypt.hashSync(req.body.password, 8)
+      password: bcrypt.hashSync(req.body.password, 8),
+      lineToken : null,
     });
 
     await user.save((err, user) => {
@@ -52,25 +51,24 @@ exports.signin =  (req, res) => {
         var accessToken = jwt.sign({ id: user.id }, config.secret, {
           expiresIn: 86400 // 24 hours
         });
-
-        res.cookie({"cookiesToken":accessToken});
-
-        lineApi.auth();
         
         res
+          .cookie('cookieToken',accessToken)
           .status(200)
           .send({
             id: user._id,
             username: user.username,
             name : user.name,
-            accessToken: accessToken
+            accessToken: accessToken,
+            lineToken : user.lineToken
           });
+
     });
 };
 
 exports.user = async (req,res) => {
   try {
-    const user = await User.find();
+    const user = await User.findOne({_id:req.userId});
     if(!user){
       return res.json({message:'No user found'})
     }

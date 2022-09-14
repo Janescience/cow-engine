@@ -15,6 +15,10 @@ const User = mongoose.model(
         name:{
             type:String,
             required:true
+        },
+        lineToken:{
+            type:String,
+            required:false
         }
     })
 )
