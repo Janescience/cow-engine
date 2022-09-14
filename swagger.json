@@ -1,0 +1,85 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "Cow-Engine API Document",
+      "description": "Application API",
+      "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    },
+    "host": "localhost:4000",
+    "basePath": "/",
+    "tags": [
+      {
+        "name": "Auth",
+        "description": "API for authorize in the system"
+      },
+      {
+        "name": "Line Notify",
+        "description": "API for line notification"
+      }
+    ],
+    "paths": {
+        "/auth/signin": {
+            "post": {
+                "tags": ["Auth"],
+                "summary": "Login",
+                "responses": {
+                    "200": {
+                    "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Signin"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sigup": {
+            "post": {
+                "tags": ["Auth"],
+                "summary": "Register",
+                "responses": {
+                    "200": {
+                    "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Signup"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/user": {
+            "get": {
+                "tags": ["Auth"],
+                "summary": "User data",
+                "responses": {
+                    "200": {
+                    "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/line/notify": {
+            "post": {
+                "tags": ["Line Notify"],
+                "summary": "Notification",
+                "responses": {
+                    "200": {
+                    "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Notify"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "schemes": ["http"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"]
+  }

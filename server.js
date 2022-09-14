@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require("cors")
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
 //Configure dotenv files above using any other library and files
 dotenv.config({path:'.env'}); 
@@ -18,7 +20,11 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended:true }))
 app.use(cookieParser())
-
+app.use(
+    '/api-docs',
+    swaggerUi.serve, 
+    swaggerUi.setup(swaggerDocument)
+);
 
 // routes
 require('./src/routes/auth.routes')(app);
