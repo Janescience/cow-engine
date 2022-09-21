@@ -5,7 +5,6 @@ const User = db.user;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-// const logger = require('../../logger')
 
 exports.signup = async (req, res) => {
     const user = new User({
@@ -20,7 +19,7 @@ exports.signup = async (req, res) => {
           res.status(500).send({ message: err });
           return;
         }
-        // logger.info("Registered : "+req.body.username)
+        console.info("Registered : "+req.body.username)
         res.send({ message: "ลงทะเบียนเรียบร้อยแล้ว" });
     })
 };
@@ -31,7 +30,7 @@ exports.signin =  (req, res) => {
         username: req.body.username
     }).exec((user) => {
         if (!user) {
-          // logger.info("Username not found : "+req.body.username)
+          console.info("Username not found : "+req.body.username)
           return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง กรุณาลองอีกครั้ง" });
         }
   
@@ -41,7 +40,7 @@ exports.signin =  (req, res) => {
         );
   
         if (!passwordIsValid) {
-          // logger.info("Invalid password : "+req.body.username)
+          console.info("Invalid password : "+req.body.username)
           return res.status(401).send({
             accessToken: null,
             message: "รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง"
@@ -52,7 +51,7 @@ exports.signin =  (req, res) => {
           expiresIn: 86400 // 24 hours
         });
         
-        // logger.info("Signined : "+req.body.username)
+        console.info("Signined : "+req.body.username)
 
         res
           .cookie('cookieToken',accessToken)
@@ -74,7 +73,7 @@ exports.user = async (req,res) => {
     if(!user){
       return res.json({message:'ไม่พบผู้ใช้งานในระบบ'})
     }
-    // logger.log("Get user : "+user.username)
+    console.log("Get user : "+user.username)
     return res.json({user:user})
   } catch (error) {
     return res.json({ error: error });  

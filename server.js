@@ -5,11 +5,6 @@ const dotenv = require('dotenv');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-const morgan = require('morgan')
-const path = require('path')
-const rfs = require('rotating-file-stream')
-
-const logger = require('./logger')
 const httpLogger = require('./http-logger')
 
 //Configure dotenv files above using any other library and files
@@ -59,7 +54,6 @@ app.use(logErrors)
 app.use(errorHandler)
 
 function logErrors (err, req, res, next) {
-  logger.error(err.message)
   console.error(err.stack)
   next(err)
 }
