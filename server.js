@@ -10,7 +10,7 @@ const path = require('path')
 const rfs = require('rotating-file-stream')
 
 // const logger = require('./logger')
-const httpLogger = require('./http-logger')
+// const httpLogger = require('./http-logger')
 
 //Configure dotenv files above using any other library and files
 dotenv.config({path:'.env'}); 
@@ -23,7 +23,7 @@ const app = express();
 //     origin: "http://localhost:3000"
 // };
 
-app.use(httpLogger)
+// app.use(httpLogger)
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended:true }))
