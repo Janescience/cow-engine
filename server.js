@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
-const mongoose = require('mongoose');
 
 const morgan = require('morgan')
 const path = require('path')
@@ -14,19 +13,12 @@ const rfs = require('rotating-file-stream')
 // const httpLogger = require('./http-logger')
 
 //Configure dotenv files above using any other library and files
-dotenv.config({path:'.env'}); 
+dotenv.config(); 
 // require('./src/config/conn');
 // require('./src/schedule/notify-cron');
 
 const app = express();
  
-mongoose.connect(process.env.URI, 
-    { useNewUrlParser: true,
-     useUnifiedTopology: true })
-    .then((data) => {
-        console.log(`Database connected to ${data.connection.host}`)
-})
-
 // var corsOptions = {
 //     origin: "http://localhost:3000"
 // };
