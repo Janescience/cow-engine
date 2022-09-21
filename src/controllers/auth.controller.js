@@ -18,8 +18,8 @@ exports.signup = async (req, res) => {
           res.status(500).send({ message: err });
           return;
         }
-
-        res.send({ message: "User was registered successfully!" });
+        console.log("Registered : ",req.body.username)
+        res.send({ message: "ลงทะเบียนเรียบร้อยแล้ว" });
     })
 };
 
@@ -28,12 +28,14 @@ exports.signin =  (req, res) => {
         username: req.body.username
     }).exec((err, user) => {
         if (err) {
+          console.error(err)
           res.status(500).send({ message: err });
           return;
         }
   
         if (!user) {
-          return res.status(404).send({ message: "User Not found." });
+          console.log("Username not found : ",req.body.username)
+          return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง กรุณาลองอีกครั้ง" });
         }
   
         var passwordIsValid = bcrypt.compareSync(
@@ -42,9 +44,10 @@ exports.signin =  (req, res) => {
         );
   
         if (!passwordIsValid) {
+          console.log("Invalid password : ",req.body.username)
           return res.status(401).send({
             accessToken: null,
-            message: "Invalid Password!"
+            message: "รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง"
           });
         }
   
@@ -52,6 +55,8 @@ exports.signin =  (req, res) => {
           expiresIn: 86400 // 24 hours
         });
         
+        console.log("Signined : ",req.body.username)
+
         res
           .cookie('cookieToken',accessToken)
           .status(200)
@@ -70,7 +75,7 @@ exports.user = async (req,res) => {
   try {
     const user = await User.findOne({_id:req.userId});
     if(!user){
-      return res.json({message:'No user found'})
+      return res.json({message:'ไม่พบผู้ใช้งานในระบบ'})
     }
     return res.json({user:user})
   } catch (error) {
