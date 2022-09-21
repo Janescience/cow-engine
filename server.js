@@ -15,7 +15,7 @@ const httpLogger = require('./http-logger')
 //Configure dotenv files above using any other library and files
 dotenv.config(); 
 require('./src/config/conn');
-require('./src/schedule/notify-cron');
+// require('./src/schedule/notify-cron');
 
 const app = express();
  

@@ -1,9 +1,11 @@
 const winston = require('winston')
+const dotenv = require('dotenv');
+dotenv.config()
 
 const options = {
   file: {
     level: 'info',
-    filename: './src/logs/app.log',
+    filename: process.env.FILE_LOG + '/app.log',
     handleExceptions: true,
     json: true,
     maxsize: 5242880, // 5MB
