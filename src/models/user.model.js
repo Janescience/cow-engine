@@ -10,16 +10,12 @@ const User = mongoose.model(
         },
         password:{
             type:String,
-            required:true
+            required:true,
         },
-        name:{
-            type:String,
-            required:true
+        farm:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "farm"
         },
-        lineToken:{
-            type:String,
-            required:false
-        }
     })
 )
 

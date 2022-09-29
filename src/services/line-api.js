@@ -3,6 +3,7 @@ const qs = require('qs');
 const dotenv = require('dotenv');
 const db = require("../models");
 const User = db.user;
+const Farm = db.farm;
 
 dotenv.config();
 
@@ -46,19 +47,23 @@ token = (code,username) => {
                 'Content-Type': 'application/x-www-form-urlencoded',
             }
         }
-    ).then(function (response) {
+    ).then(function  (response) {
         console.log('Get Token : ',response.data);
         
         if(response.data){
-            const filter = { username: username };
-            const update = { lineToken: response.data.access_token };
-            User.findOneAndUpdate(filter,{$set:update},{new : true })
+            User.findOne({username:username})
                 .exec((err, user) => {
-                    if (err) {
-                        console.error('Error : ',err);
-                    }
-                    console.log('Updated Successfully : ',user);
+                    const filter = { _id : user.farm._id };
+                    const update = { lineToken: response.data.access_token };
+                    Farm.findOneAndUpdate(filter,{$set:update},{new : true })
+                        .exec((err, user) => {
+                            if (err) {
+                                console.error('Error : ',err);
+                            }
+                            console.log('Updated Successfully : ',user);
+                        })
                 })
+            
         }
         return response.data;
     })

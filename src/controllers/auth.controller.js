@@ -1,18 +1,32 @@
 const config = require("../config/auth.config");
 const db = require("../models");
 const User = db.user;
+const Farm = db.farm;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 
 exports.signup = async (req, res) => {
+
+    const countF = await Farm.collection.countDocuments();
+    const farm = new Farm({
+      code : "F" + String(countF + 1).padStart(4,'0'),
+      name : req.body.farmName,
+      lineToken : null
+    })
     const user = new User({
       username: req.body.username,
-      name: req.body.name,
       password: bcrypt.hashSync(req.body.password, 8),
-      lineToken : null,
+      farm : farm,
     });
+
+    await farm.save((err, user) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+    })
 
     await user.save((err, user) => {
         if (err) {
@@ -24,11 +38,11 @@ exports.signup = async (req, res) => {
     })
 };
 
-exports.signin =  (req, res) => {
+exports.signin = (req, res) => {
 
     User.findOne({
         username: req.body.username
-    }).exec((user) => {
+    }).exec(async (error,user) => {
         if (!user) {
           console.info("Username not found : "+req.body.username)
           return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง กรุณาลองอีกครั้ง" });
@@ -53,13 +67,15 @@ exports.signin =  (req, res) => {
         
         console.info("Signined : "+req.body.username)
 
+        const farm = await Farm.findById(user.farm).exec();
+
         res
           .cookie('cookieToken',accessToken)
           .status(200)
           .send({
             id: user._id,
             username: user.username,
-            name : user.name,
+            farm : farm,
             accessToken: accessToken,
             lineToken : user.lineToken
           });
@@ -76,6 +92,7 @@ exports.user = async (req,res) => {
     console.log("Get user : "+user.username)
     return res.json({user:user})
   } catch (error) {
+    console.error("Error : ",error)
     return res.json({ error: error });  
   }
 }

@@ -32,6 +32,7 @@ app.use(
 // routes
 require('./src/routes/auth.routes')(app);
 require('./src/routes/line.routes')(app);
+require('./src/routes/cow.routes')(app);
 require('./src/routes/transaction.routes')(app);
 
 // basic route

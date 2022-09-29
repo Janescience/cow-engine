@@ -6,7 +6,7 @@ const User = db.user
 verifyToken =  (req, res, next) => {
     let token = "";
     const {cookieToken} = req.cookies;
-
+    console.log('Headers : ',req.headers)
     if(!cookieToken){
       let headerToken = !req.headers["authorization"] ? req.body.headers["authorization"] : req.headers["authorization"];
       
@@ -14,11 +14,7 @@ verifyToken =  (req, res, next) => {
         return res.status(403).send({ message: "No token provided!" });
       }
 
-      token = headerToken.split(" ")[1];
-      if(!token){
-        return res.status(403).send({ message: "No token provided!" });
-      }
-
+      token = headerToken
     }else{
       token = cookieToken
     }
