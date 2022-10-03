@@ -16,7 +16,7 @@ const Farm = mongoose.model(
             type:String,
             required:false
         }
-    })
+    }, { timestamps: true })
 )
 
 module.exports = Farm

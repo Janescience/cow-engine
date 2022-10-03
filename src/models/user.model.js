@@ -16,7 +16,7 @@ const User = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm"
         },
-    })
+    }, { timestamps: true })
 )
 
 module.exports = User

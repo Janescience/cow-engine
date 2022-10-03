@@ -6,7 +6,6 @@ const User = db.user
 verifyToken =  (req, res, next) => {
     let token = "";
     const {cookieToken} = req.cookies;
-    console.log('Headers : ',req.headers)
     if(!cookieToken){
       let headerToken = !req.headers["authorization"] ? req.body.headers["authorization"] : req.headers["authorization"];
       

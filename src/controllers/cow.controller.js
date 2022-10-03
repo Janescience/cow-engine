@@ -29,12 +29,6 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     const updatedCow = await Cow.updateOne({_id:id},data).exec();
-    await updatedCow.save((err, cow) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-    })
     res.status(200).send({updatedCow});
 };
 

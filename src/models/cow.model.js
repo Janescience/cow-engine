@@ -33,19 +33,19 @@ const Cow = mongoose.model(
             default : "Y"
         },
         dad:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "breederDad"
+            type:String,
+            required:false
         },
         mom:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "cow"
+            type:String,
+            required:false
         },
         farm:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm",
             required:true,
         },
-    })
+    }, { timestamps: true })
 )
 
 module.exports = Cow

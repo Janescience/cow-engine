@@ -1,11 +1,11 @@
 const db = require("../models");
-const Cow = db.cow;
+const Milking = db.milking;
 
 checkDuplicate = (req, res, next) => {
     // Username
-    Cow.findOne({
-      code: req.body.code,
-      farm : req.body.farm
+    Milking.findOne({
+      date: req.body.date,
+      cow : req.body.cow
     }).exec((err, cow) => {
       if (err) {
         res.status(500).send({ message: err });
@@ -13,7 +13,7 @@ checkDuplicate = (req, res, next) => {
       }
   
       if (cow) {
-        res.status(400).send({ message: "รหัสโคซ้ำ กรุณาใช้รหัสอื่น" });
+        res.status(400).send({ message: "ข้อมูลการรีดนมซ้ำ" });
         return;
       }
 
@@ -21,8 +21,8 @@ checkDuplicate = (req, res, next) => {
     });
 };
   
-const verifyCowCreate = {
+const verifyMilkingCreate = {
   checkDuplicate
 };
 
-module.exports = verifyCowCreate;
+module.exports = verifyMilkingCreate;
