@@ -4,7 +4,7 @@ const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
-    const milkings = await Milking.find(filter).exec();
+    const milkings = await Milking.find(filter).sort({date:-1}).exec();
 
     for(let milk of milkings){
         let cow = await Cow.findOne({_id:milk.cow})

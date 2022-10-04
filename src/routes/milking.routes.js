@@ -1,4 +1,4 @@
-const { verifyMilkingCreate,authJwt } = require("../middlewares");
+const { verifyCreate,authJwt } = require("../middlewares");
 const controller = require("../controllers/milking.controller");
 
 module.exports = function(app) {
@@ -12,15 +12,7 @@ module.exports = function(app) {
 
   app.get('/milking',[authJwt.verifyToken],controller.getAll);
   app.get('/milking/:id',[authJwt.verifyToken],controller.get);
-
-  app.post("/milking",
-    [
-      authJwt.verifyToken,
-      verifyMilkingCreate.checkDuplicate,
-    ],
-    controller.create
-  );
-
+  app.post("/milking",[authJwt.verifyToken,verifyCreate.milkingCheckDup,],controller.create);
   app.put("/milking/:id",[authJwt.verifyToken],controller.update);
   app.delete("/milking/:id",[authJwt.verifyToken],controller.delete);
 };

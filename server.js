@@ -34,6 +34,7 @@ require('./src/routes/auth.routes')(app);
 require('./src/routes/line.routes')(app);
 require('./src/routes/cow.routes')(app);
 require('./src/routes/milking.routes')(app);
+require('./src/routes/reproduction.routes')(app);
 
 // basic route
 app.get("/",(req,res) => {
