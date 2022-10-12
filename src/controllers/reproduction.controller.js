@@ -1,10 +1,11 @@
 const db = require("../models");
 const Reproduct = db.reproduction;
+const Birth = db.birth;
 const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
-    const reproducts = await Reproduct.find(filter).sort({LoginDate:-1}).exec();
+    const reproducts = await Reproduct.find(filter).sort({"status":1,"checkDate":1,'seq':-1}).exec();
 
     for(let reproduct of reproducts){
         let cow = await Cow.findOne({_id:reproduct.cow})
@@ -22,6 +23,10 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
+
+    const count = await Reproduct.find({cow:data.cow,farm:data.farm}).countDocuments();
+    data.seq = (count+1)
+
     const newReproduct = new Reproduct(data);
     await newReproduct.save((err, cow) => {
         if (err) {
@@ -35,7 +40,18 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
+    if(data.status == "2"){
+        const newBirth = new Birth({cow:data.cow,farm:data.farm,reproduction:id});
+        await newBirth.save((err, birth) => {
+            if (err) {
+              res.status(500).send({ message: err });
+              return;
+            }
+        })
+    }
+
     const updatedReproduct = await Reproduct.updateOne({_id:id},data).exec();
+
     res.status(200).send({updatedReproduct});
 };
 

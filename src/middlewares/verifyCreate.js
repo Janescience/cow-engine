@@ -45,18 +45,26 @@ milkingCheckDup = (req, res, next) => {
 
 reproCheckDup = (req, res, next) => {
 
-  Reproduction.findOne({
-    loginDate: req.body.loginDate,
+  Reproduction.find({
     cow : req.body.cow
-  }).exec((err, cow) => {
+  })
+  .sort({seq:-1})
+  .exec((err, repros) => {
+    
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
 
-    if (cow) {
-      res.status(400).send({ message: "ข้อมูลการสืบพันธุ์ซ้ำ" });
-      return;
+    if (repros.length > 0) {
+      if(repros[0].status != "3" && repros[0].status != "4"  ){
+        res.status(400).send({ message: "การผสมพันธุ์ครั้งล่าสุด ยังไม่เสร็จสิ้น ไม่สามารถผสมพันธุ์ครั้งต่อไปได้" });
+        return;
+      }else if(repros[0].loginDate == req.body.loginDate && repros[0].status != "4"){
+        res.status(400).send({ message: "ข้อมูลการผสมพันธุ์ซ้ำกับครั้งล่าสุด" });
+        return;
+      }
+      
     }
 
     next();
