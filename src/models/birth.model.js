@@ -41,6 +41,11 @@ const Birth = mongoose.model(
             ref: "cow",
             required:true,
         },
+        calf:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "cow",
+            required:true,
+        },
         farm:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm",
