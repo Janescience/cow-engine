@@ -41,7 +41,14 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     if(data.status == "2"){
-        const newBirth = new Birth({cow:data.cow,farm:data.farm,reproduction:id});
+        const count = await Birth.find({cow:data.cow,farm:data.farm}).countDocuments();
+        const newBirth = new Birth({
+            seq:(count+1),
+            pregnantDate:data.estrusDate,
+            cow:data.cow,
+            farm:data.farm,
+            reproduction:id
+        });
         await newBirth.save((err, birth) => {
             if (err) {
               res.status(500).send({ message: err });

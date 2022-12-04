@@ -3,11 +3,19 @@ const mongoose = require("mongoose")
 const Birth = mongoose.model(
     'birth',
     new mongoose.Schema({
+        seq:{
+            type:Number,
+            required:true
+        },
+        pregnantDate:{
+            type:Date,
+            required:true
+        },
         sex:{
             type:String,
             required:false
         },
-        date:{
+        birthDate:{
             type:Date,
             required:false
         },
