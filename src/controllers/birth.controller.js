@@ -50,6 +50,7 @@ exports.create = async (req, res) => {
             }
         })
     }
+    await Reproduct.updateOne({_id:data.reproduction},{status:3}); // ปรับสถานะ คลอดลูกแล้ว
     res.status(200).send({updatedBirth});
 };
 
