@@ -2,6 +2,7 @@ const db = require("../models");
 const Cow = db.cow;
 const Milking = db.milking;
 const Reproduction = db.reproduction;
+const Heal = db.heal;
 
 cowCheckDup = (req, res, next) => {
 
@@ -70,7 +71,7 @@ reproCheckDup = (req, res, next) => {
     next();
   });
 };
-  
+
 const verifyCreate = {
   cowCheckDup,
   milkingCheckDup,

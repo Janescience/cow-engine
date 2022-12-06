@@ -36,10 +36,11 @@ require('./src/routes/cow.routes')(app);
 require('./src/routes/milking.routes')(app);
 require('./src/routes/reproduction.routes')(app);
 require('./src/routes/birth.routes')(app);
+require('./src/routes/heal.routes')(app);
 
 // basic route
 app.get("/",(req,res) => {
-    res.send("Welcome Cow Application.") 
+    res.send("Welcome Dairy Farm Engine Application.") 
 })
 app.all("*", (req,res) => {
     res.send("404 not found.")
