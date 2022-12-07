@@ -2,7 +2,7 @@ const db = require("../models");
 const Cow = db.cow;
 const Milking = db.milking;
 const Reproduction = db.reproduction;
-const Heal = db.heal;
+const Protection = db.protection;
 
 cowCheckDup = (req, res, next) => {
 
@@ -72,10 +72,32 @@ reproCheckDup = (req, res, next) => {
   });
 };
 
+protectionCheckDup = (req, res, next) => {
+
+  Protection.findOne({
+    cow:{ $all: req.body.cows },
+    vaccine: req.body.vaccine,
+    farm : req.body.farm
+  }).exec((err, cow) => {
+    if (err) {
+      res.status(500).send({ message: err });
+      return;
+    }
+
+    if (cow) {
+      res.status(400).send({ message: "ข้อมูลโค และ วัคซีนซ้ำ" });
+      return;
+    }
+
+    next();
+  });
+};
+
 const verifyCreate = {
   cowCheckDup,
   milkingCheckDup,
-  reproCheckDup
+  reproCheckDup,
+  protectionCheckDup
 };
 
 module.exports = verifyCreate;

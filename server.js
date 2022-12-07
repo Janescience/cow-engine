@@ -37,6 +37,7 @@ require('./src/routes/milking.routes')(app);
 require('./src/routes/reproduction.routes')(app);
 require('./src/routes/birth.routes')(app);
 require('./src/routes/heal.routes')(app);
+require('./src/routes/protection.routes')(app);
 
 // basic route
 app.get("/",(req,res) => {
