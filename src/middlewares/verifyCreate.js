@@ -75,7 +75,6 @@ reproCheckDup = (req, res, next) => {
 protectionCheckDup = (req, res, next) => {
 
   Protection.findOne({
-    cow:{ $all: req.body.cows },
     vaccine: req.body.vaccine,
     farm : req.body.farm
   }).exec((err, cow) => {
@@ -85,7 +84,7 @@ protectionCheckDup = (req, res, next) => {
     }
 
     if (cow) {
-      res.status(400).send({ message: "ข้อมูลโค และ วัคซีนซ้ำ" });
+      res.status(400).send({ message: "วัคซีนซ้ำ" });
       return;
     }
 

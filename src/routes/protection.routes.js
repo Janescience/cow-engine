@@ -12,7 +12,7 @@ module.exports = function(app) {
 
   app.get('/protection',[authJwt.verifyToken],controller.getAll);
   app.get('/protection/:id',[authJwt.verifyToken],controller.get);
-  app.post("/protection",[authJwt.verifyToken,verifyCreate.protectionCheckDup,],controller.create);
+  app.post("/protection",[authJwt.verifyToken,verifyCreate.protectionCheckDup],controller.create);
   app.put("/protection/:id",[authJwt.verifyToken],controller.update);
   app.delete("/protection",[authJwt.verifyToken],controller.delete);
 };

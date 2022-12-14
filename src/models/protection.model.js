@@ -11,15 +11,17 @@ const Protection = mongoose.model(
             type:Date,
             required:true
         },
+        frequency:{
+            type:Number,
+            required:true
+        },
         vaccine:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "vaccine",
+            type: String,
             required:true,
         },
-        cow:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "cow",
-            required:true,
+        remark:{
+            type: String,
+            required:false,
         },
         farm:{
             type: mongoose.Schema.Types.ObjectId,
