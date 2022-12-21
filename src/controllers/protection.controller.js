@@ -4,6 +4,8 @@ const Protection = db.protection;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    let vaccine = filter.vaccine
+    filter.vaccine = {'$regex' : vaccine , '$options' : 'i'}
     const protections = await Protection.find(filter).exec();
     res.json({protections});
 };
