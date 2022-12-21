@@ -3,6 +3,7 @@ const Cow = db.cow;
 const Milking = db.milking;
 const Reproduction = db.reproduction;
 const Protection = db.protection;
+const Food = db.food;
 
 cowCheckDup = (req, res, next) => {
 
@@ -77,14 +78,34 @@ protectionCheckDup = (req, res, next) => {
   Protection.findOne({
     vaccine: req.body.vaccine,
     farm : req.body.farm
-  }).exec((err, cow) => {
+  }).exec((err, protection) => {
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
 
-    if (cow) {
+    if (protection) {
       res.status(400).send({ message: "วัคซีนซ้ำ" });
+      return;
+    }
+
+    next();
+  });
+};
+
+
+foodCheckDup = (req, res, next) => {
+
+  Food.findOne({
+    corral: req.body.corral,
+  }).exec((err, food) => {
+    if (err) {
+      res.status(500).send({ message: err });
+      return;
+    }
+
+    if (food) {
+      res.status(400).send({ message: "คอกซ้ำ" });
       return;
     }
 
@@ -96,7 +117,8 @@ const verifyCreate = {
   cowCheckDup,
   milkingCheckDup,
   reproCheckDup,
-  protectionCheckDup
+  protectionCheckDup,
+  foodCheckDup
 };
 
 module.exports = verifyCreate;

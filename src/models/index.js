@@ -8,5 +8,6 @@ db.reproduction = require("./reproduction.model");
 db.birth = require("./birth.model");
 db.heal = require("./heal.model");
 db.protection = require("./protection.model");
+db.food = require("./food.model");
 
 module.exports = db;
