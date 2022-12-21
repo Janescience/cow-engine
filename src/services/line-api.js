@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const db = require("../models");
 const User = db.user;
 const Farm = db.farm;
+const NotiLogs = db.notificationLogs;
 
 dotenv.config();
 
@@ -73,7 +74,7 @@ token = (code,username) => {
 }
 
 //Notification to Line
-notify = async (text,token) => {
+notify = async (text,type,farm,token) => {
     await axios.post(
         url_line_notification,
         qs.stringify({message:text}),
@@ -85,10 +86,26 @@ notify = async (text,token) => {
         },
         ).then(function (response) {
             console.log('Notify Successfully : ',response.data);
+            const newNotiLog = new NotiLogs({
+                message : text,
+                type : type,
+                status : 'S',
+                respMessage : 'status='+response.data.status + ',message='+response.data.message,
+                farm : farm
+            });
+            newNotiLog.save();
             return response.data;
         })
         .catch(function (error) {
             console.error('Error : ',error);
+            const newNotiLog = new NotiLogs({
+                message : text,
+                type : type,
+                status : 'F',
+                respMessage : 'status='+response.data.status + ',message='+response.data.message,
+                farm : farm
+            });
+            newNotiLog.save();
         });
 }
 

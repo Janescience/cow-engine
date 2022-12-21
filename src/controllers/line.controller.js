@@ -14,13 +14,8 @@ exports.redirect = (req, res) => {
 
 exports.notify = (req, res) => {
   try {
-      if(!req.user){
-        return res.status(404).send({ message: "User Not found." });
-      }
-      
-      lineApi.notify(req.body.message,req.user.lineToken)
-
-      return res.status(200).send({ message: "Notify Successfully." });
+    lineApi.notify(req.body.message,'T',req.body.farm,req.body.lineToken)
+    return res.status(200).send({ message: "Notify Successfully." });
   } catch (error) {
     return res.json({ error: error.response.data.message });  
   }
