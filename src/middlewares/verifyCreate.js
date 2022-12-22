@@ -4,6 +4,7 @@ const Milking = db.milking;
 const Reproduction = db.reproduction;
 const Protection = db.protection;
 const Food = db.food;
+const Recipe = db.recipe;
 
 cowCheckDup = (req, res, next) => {
 
@@ -113,12 +114,33 @@ foodCheckDup = (req, res, next) => {
   });
 };
 
+recipeCheckDup = (req, res, next) => {
+
+  Recipe.findOne({
+    code: req.body.code,
+    farm: req.body.farm,
+  }).exec((err, food) => {
+    if (err) {
+      res.status(500).send({ message: err });
+      return;
+    }
+
+    if (food) {
+      res.status(400).send({ message: "รหัสสูตรอาหารซ้ำ" });
+      return;
+    }
+
+    next();
+  });
+};
+
 const verifyCreate = {
   cowCheckDup,
   milkingCheckDup,
   reproCheckDup,
   protectionCheckDup,
-  foodCheckDup
+  foodCheckDup,
+  recipeCheckDup
 };
 
 module.exports = verifyCreate;
