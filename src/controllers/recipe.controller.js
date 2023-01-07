@@ -16,7 +16,7 @@ exports.get = async (req, res) => {
 exports.create = async (req, res) => {
     const data = req.body;
 
-    const newRecipe= new Recipe(data);
+    const newRecipe= new Recipe(data.recipe);
     await newRecipe.save((err, recipe) => {
         if (err) {
         res.status(500).send({ message: err });

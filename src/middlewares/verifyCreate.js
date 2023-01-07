@@ -117,7 +117,7 @@ foodCheckDup = (req, res, next) => {
 recipeCheckDup = (req, res, next) => {
 
   Recipe.findOne({
-    code: req.body.code,
+    name: req.body.name,
     farm: req.body.farm,
   }).exec((err, food) => {
     if (err) {
@@ -126,7 +126,7 @@ recipeCheckDup = (req, res, next) => {
     }
 
     if (food) {
-      res.status(400).send({ message: "รหัสสูตรอาหารซ้ำ" });
+      res.status(400).send({ message: "ชื่อสูตรอาหารซ้ำ" });
       return;
     }
 
