@@ -24,11 +24,6 @@ const RecipeDetail = mongoose.model(
             ref: "recipe",
             required:true,
         },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm",
-            required:true,
-        },
     }, { timestamps: true })
 )
 

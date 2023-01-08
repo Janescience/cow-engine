@@ -117,8 +117,8 @@ foodCheckDup = (req, res, next) => {
 recipeCheckDup = (req, res, next) => {
 
   Recipe.findOne({
-    name: req.body.name,
-    farm: req.body.farm,
+    name: req.body.recipe.name,
+    farm: req.body.recipe.farm,
   }).exec((err, food) => {
     if (err) {
       res.status(500).send({ message: err });

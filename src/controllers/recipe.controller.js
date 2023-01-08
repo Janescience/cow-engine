@@ -1,4 +1,5 @@
 const db = require("../models");
+const RecipeDetail = db.recipeDetail;
 const Recipe = db.recipe;
 
 exports.getAll = async (req, res) => {
@@ -16,12 +17,18 @@ exports.get = async (req, res) => {
 exports.create = async (req, res) => {
     const data = req.body;
 
-    const newRecipe= new Recipe(data.recipe);
+    const newRecipe = new Recipe(data.recipe);
     await newRecipe.save((err, recipe) => {
         if (err) {
-        res.status(500).send({ message: err });
-        return;
+            res.status(500).send({ message: err });
+            return;
         }
+
+        for(let detail of data.recipeDetail){
+            detail.recipe = recipe._id
+        }
+
+        RecipeDetail.create(data.recipeDetail)
     })
     
     res.status(200);

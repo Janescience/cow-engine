@@ -39,6 +39,7 @@ require('./src/routes/birth.routes')(app);
 require('./src/routes/heal.routes')(app);
 require('./src/routes/protection.routes')(app);
 require('./src/routes/food.routes')(app);
+require('./src/routes/recipe.routes')(app);
 
 // basic route
 app.get("/",(req,res) => {

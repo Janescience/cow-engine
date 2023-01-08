@@ -10,5 +10,7 @@ db.heal = require("./heal.model");
 db.protection = require("./protection.model");
 db.food = require("./food.model");
 db.notificationLogs = require("./notificationLogs.model");
+db.recipe = require("./recipe.model");
+db.recipeDetail = require("./recipeDetail.model");
 
 module.exports = db;
