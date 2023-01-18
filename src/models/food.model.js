@@ -11,6 +11,10 @@ const Food = mongoose.model(
             type:Number,
             required:true
         },
+        numCow:{
+            type:Number,
+            required:true
+        },
         amount:{
             type:Number,
             required:true
