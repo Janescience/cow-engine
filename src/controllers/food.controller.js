@@ -1,9 +1,13 @@
 const db = require("../models");
 const Food = db.food;
+const Recipe = db.recipe;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
     const foods = await Food.find(filter).exec();
+    for(let food of foods){
+        food.recipe = await Recipe.findOne({_id:food.recipe});
+    }
     res.json({foods});
 };
 

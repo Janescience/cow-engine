@@ -99,6 +99,7 @@ foodCheckDup = (req, res, next) => {
 
   Food.findOne({
     corral: req.body.corral,
+    recipe : req.body.recipe
   }).exec((err, food) => {
     if (err) {
       res.status(500).send({ message: err });
@@ -133,6 +134,8 @@ recipeCheckDup = (req, res, next) => {
     next();
   });
 };
+
+
 
 const verifyCreate = {
   cowCheckDup,
