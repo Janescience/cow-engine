@@ -27,6 +27,10 @@ const Cow = mongoose.model(
             type:Number,
             required:true
         },
+        quality:{
+            type:Number,
+            required:true
+        },
         flag:{
             type:String,
             required:true,
