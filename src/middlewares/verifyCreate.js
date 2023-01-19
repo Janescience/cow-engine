@@ -99,6 +99,8 @@ foodCheckDup = (req, res, next) => {
 
   Food.findOne({
     corral: req.body.corral,
+    recipe : req.body.recipe,
+    farm : req.body.farm
   }).exec((err, food) => {
     if (err) {
       res.status(500).send({ message: err });
@@ -106,7 +108,18 @@ foodCheckDup = (req, res, next) => {
     }
 
     if (food) {
-      res.status(400).send({ message: "คอกซ้ำ" });
+      res.status(400).send({ message: "การให้อาหารซ้ำ" });
+      return;
+    }
+
+  });
+
+  Cow.find({
+    corral : req.body.corral,
+    farm : req.body.farm
+  }).exec((err , cow) => {
+    if (cow.length == 0) {
+      res.status(400).send({ message: "คอก " + req.body.corral +" ไม่มีโค" });
       return;
     }
 
@@ -133,6 +146,8 @@ recipeCheckDup = (req, res, next) => {
     next();
   });
 };
+
+
 
 const verifyCreate = {
   cowCheckDup,

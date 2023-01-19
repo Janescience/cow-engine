@@ -14,5 +14,5 @@ module.exports = function(app) {
   app.get('/recipe/:id',[authJwt.verifyToken],controller.get);
   app.post("/recipe",[authJwt.verifyToken,verifyCreate.recipeCheckDup],controller.create);
   app.put("/recipe/:id",[authJwt.verifyToken],controller.update);
-  app.delete("/recipe",[authJwt.verifyToken],controller.delete);
+  app.delete("/recipe/:id",[authJwt.verifyToken],controller.delete);
 };

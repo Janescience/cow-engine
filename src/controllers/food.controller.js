@@ -1,9 +1,14 @@
 const db = require("../models");
 const Food = db.food;
+const Recipe = db.recipe;
+const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
     const foods = await Food.find(filter).exec();
+    for(let food of foods){
+        food.recipe = await Recipe.findOne({_id:food.recipe});
+    }
     res.json({foods});
 };
 
@@ -16,6 +21,11 @@ exports.get = async (req, res) => {
 exports.create = async (req, res) => {
     const data = req.body;
 
+    const numCow = await Cow.find({corral:data.corral,farm:data.farm}).countDocuments();
+    data.numCow = numCow;
+    data.amountAvg = data.amount/numCow;
+    data.recipe = data.recipe._id
+
     const newFood = new Food(data);
     await newFood.save((err, food) => {
         if (err) {
@@ -24,12 +34,18 @@ exports.create = async (req, res) => {
         }
     })
     
-    res.status(200);
+    res.status(200).send(newFood);
 };
 
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
+    
+    const numCow = await Cow.find({corral:data.corral,farm:data.farm}).countDocuments();
+    data.numCow = numCow;
+    data.amountAvg = data.amount/numCow;
+    data.recipe = data.recipe._id
+
     const updatedFood = await Food.updateOne({_id:id},data).exec();
     res.status(200).send({updatedFood});
 };

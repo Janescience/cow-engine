@@ -5,6 +5,10 @@ const Recipe = db.recipe;
 exports.getAll = async (req, res) => {
     const filter = req.query
     const recipes = await Recipe.find(filter).exec();
+    for(let recipe of recipes){
+        let recipeDetails = await RecipeDetail.find({recipe:recipe._id}).exec();
+        recipe.recipeDetails = recipeDetails
+    }
     res.json({recipes});
 };
 
@@ -31,18 +35,26 @@ exports.create = async (req, res) => {
         RecipeDetail.create(data.recipeDetail)
     })
     
-    res.status(200);
+    res.status(200).send(newRecipe);
 };
 
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
-    const updatedRecipe = await Recipe.updateOne({_id:id},data).exec();
+    await RecipeDetail.deleteMany({recipe:id});
+
+    for(let detail of data.recipeDetail){
+        detail.recipe = id
+    }
+    RecipeDetail.create(data.recipeDetail)
+
+    const updatedRecipe = await Recipe.updateOne({_id:id},data.recipe).exec();
     res.status(200).send({updatedRecipe});
 };
 
 exports.delete = async (req, res) => {
     const id = req.params.id;
+    await RecipeDetail.deleteMany({recipe:id});
     const deletedRecipe = await Recipe.deleteOne({_id:id});
     res.status(200).send({deletedRecipe});
 };

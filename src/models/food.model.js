@@ -7,22 +7,18 @@ const Food = mongoose.model(
             type:String,
             required:true
         },
-        change:{
-            type:Boolean,
+        qty:{
+            type:Number,
             required:true
         },
         numCow:{
             type:Number,
             required:true
         },
-        qty:{
-            type:Number,
-            required:true
-        },
         amount:{
             type:Number,
             required:true
-        },// รวมเป็นเงิน/วัน
+        },
         amountAvg:{
             type:Number,
             required:true

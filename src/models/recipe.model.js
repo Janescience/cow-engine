@@ -15,6 +15,9 @@ const Recipe = mongoose.model(
             type: Number,
             required:true,
         },
+        recipeDetails:{
+            type: Array
+        },
         farm:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm",
