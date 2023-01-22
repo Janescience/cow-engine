@@ -27,6 +27,12 @@ exports.create = async (req, res) => {
     const count = await Reproduct.find({cow:data.cow,farm:data.farm}).countDocuments();
     data.seq = (count+1)
 
+    if(data.result == "1"){//ผิดปกติ
+        data.estrusDate = null
+        data.matingDate = null
+        data.checkDate = null
+    }
+    
     const newReproduct = new Reproduct(data);
     await newReproduct.save((err, cow) => {
         if (err) {
@@ -40,7 +46,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
-    if(data.status == "2"){
+    if(data.status == "2"){//ตั้งครร
         const count = await Birth.find({cow:data.cow,farm:data.farm}).countDocuments();
         const newBirth = new Birth({
             seq:(count+1),
@@ -55,6 +61,12 @@ exports.update = async (req, res) => {
               return;
             }
         })
+    }
+
+    if(data.result == "1"){//ผิดปกติ
+        data.estrusDate = null
+        data.matingDate = null
+        data.checkDate = null
     }
 
     const updatedReproduct = await Reproduct.updateOne({_id:id},data).exec();

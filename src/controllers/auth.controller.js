@@ -2,6 +2,7 @@ const config = require("../config/auth.config");
 const db = require("../models");
 const User = db.user;
 const Farm = db.farm;
+const RefreshToken = db.refreshToken;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -21,20 +22,23 @@ exports.signup = async (req, res) => {
       farm : farm,
     });
 
-    await farm.save((err, user) => {
+     farm.save((err, farm) => {
       if (err) {
         res.status(500).send({ message: err });
         return;
       }
-    })
 
-    await user.save((err, user) => {
+      user.save((err, user) => {
+
         if (err) {
           res.status(500).send({ message: err });
           return;
         }
+
         console.info("Registered : "+req.body.username)
         res.send({ message: "ลงทะเบียนเรียบร้อยแล้ว" });
+      })
+
     })
 };
 
@@ -62,12 +66,14 @@ exports.signin = (req, res) => {
         }
   
         var accessToken = jwt.sign({ id: user.id }, config.secret, {
-          expiresIn: 86400 // 24 hours
+          expiresIn: config.jwtExpiration // 24 hours
         });
-        
-        console.info("Signined : "+req.body.username)
 
         const farm = await Farm.findById(user.farm).exec();
+
+        let refreshToken = await RefreshToken.createToken(user);
+
+        console.info("Signined : "+req.body.username)
 
         res
           .cookie('cookieToken',accessToken)
@@ -77,7 +83,8 @@ exports.signin = (req, res) => {
             username: user.username,
             farm : farm,
             accessToken: accessToken,
-            lineToken : user.lineToken
+            lineToken : user.lineToken,
+            refreshToken: refreshToken,
           });
 
     });
@@ -96,3 +103,40 @@ exports.user = async (req,res) => {
     return res.json({ error: error });  
   }
 }
+
+exports.refreshToken = async (req, res) => {
+  const { refreshToken: requestToken } = req.body;
+
+  if (requestToken == null) {
+    return res.status(403).json({ message: "Refresh Token is required!" });
+  }
+
+  try {
+    let refreshToken = await RefreshToken.findOne({ token: requestToken });
+
+    if (!refreshToken) {
+      res.status(403).json({ message: "Refresh token is not in database!" });
+      return;
+    }
+
+    if (RefreshToken.verifyExpiration(refreshToken)) {
+      RefreshToken.findByIdAndRemove(refreshToken._id, { useFindAndModify: false }).exec();
+      
+      res.status(403).json({
+        message: "Refresh token was expired. Please make a new signin request",
+      });
+      return;
+    }
+
+    let newAccessToken = jwt.sign({ id: refreshToken.user._id }, config.secret, {
+      expiresIn: config.jwtExpiration,
+    });
+
+    return res.status(200).json({
+      accessToken: newAccessToken,
+      refreshToken: refreshToken.token,
+    });
+  } catch (err) {
+    return res.status(500).send({ message: err });
+  }
+};

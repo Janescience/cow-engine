@@ -24,6 +24,11 @@ const Milking = mongoose.model(
             ref: "cow",
             required:true,
         },
+        farm:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "farm",
+            required:true,
+        },
     }, { timestamps: true })
 )
 

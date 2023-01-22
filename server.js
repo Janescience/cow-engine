@@ -12,24 +12,26 @@ dotenv.config();
 require('./src/config/conn');
 // require('./src/schedule/notify-cron');
 
+ // Initialize Express App 
 const app = express();
  
 // var corsOptions = {
 //     origin: "http://localhost:3000"
 // };
 
-// app.use(httpLogger)
-app.use(cors())
+ // Use Middlewares 
+app.use(httpLogger)
+app.use(cors())// CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
 app.use(express.json({limit:'50mb'}))
 app.use(express.urlencoded({limit: '50mb', extended:true }))
 app.use(cookieParser())
-app.use(
+app.use(// for serving Swagger UI static files and displaying the API docs in JSON format 
     '/api-docs',
     swaggerUi.serve, 
     swaggerUi.setup(swaggerDocument)
 );
 
-// routes
+ // Routes Setup  
 require('./src/routes/auth.routes')(app);
 require('./src/routes/line.routes')(app);
 require('./src/routes/cow.routes')(app);

@@ -37,8 +37,9 @@ exports.create = async (req, res) => {
             name : data.newCow.name,
             birthDate : new Date().setHours(0,0,0,0),
             status : 4,
+            quality : 3,
             mom : data.newCow.mom,
-            farm : data.newCow.farm
+            farm : data.farm
         });
         await newCow.save((err, cow) => {
             if(cow){
