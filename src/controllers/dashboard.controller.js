@@ -14,10 +14,21 @@ exports.get = async (req, res) => {
         dry : cows.filter(c => c.status === 2).length
     }
 
-    const milks = await Milk.find()
+    let year = new Date().getFullYear();
+
+    let start = new Date(year,0,1)
+    const startOffset = start.getTimezoneOffset();
+    let startDate = new Date(start.getTime() - (startOffset*60*1000))
+
+    let end = new Date(year, 11, 31);
+    const endOffset = end.getTimezoneOffset();
+    let endDate = new Date(end.getTime() - (endOffset*60*1000))
+
+    const milks = await Milk.find({date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },farm : farmId});
     res.json(
         {
-            cow
+            cow,
+            milks
         }
     );
 };
