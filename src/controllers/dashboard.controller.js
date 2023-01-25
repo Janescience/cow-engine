@@ -7,26 +7,16 @@ exports.get = async (req, res) => {
     const farmId = filter.farm;
     const ObjectID = require('mongodb').ObjectId;
 
-    const cows = await Cow.find(filter).exec();
-    const cow = {
-        all : cows.length,
-        milk : cows.filter(c => c.status === 3).length,
-        pregnant : cows.filter(c => c.status === 1).length,
-        baby : cows.filter(c => c.status === 4).length,
-        dry : cows.filter(c => c.status === 2).length,
-        maxMilk : maxMilk
-    }
-
-    const maxMilks = await Milk.aggregate(
+    const avgMaxMilks = await Milk.aggregate(
         [
             {
                 $group: {
                     _id: {cow:"$cow",farm:"$farm"},
-                    totalQty: { $avg: { $add : ["$morningQty","$afternoonQty"]} }
+                    avg: { $avg: { $add : ["$morningQty","$afternoonQty"]} },
                 }
             },
             {
-                $sort : { totalQty: -1 }
+                $sort : { avg: -1 }
             },
             { 
                 $match : { '_id.farm' : ObjectID(farmId) }
@@ -34,10 +24,44 @@ exports.get = async (req, res) => {
         ]
     );
 
-    let maxMilk = null;
-    if(maxMilks.length > 0){
-        const cow = await Cow.findOne({_id : maxMilks[0]._id.cow})
-        maxMilk = { cow : cow , qty :  maxMilks[0].totalQty }
+    let avgMaxMilk = null;
+    if(avgMaxMilks.length > 0){
+        const cow = await Cow.findOne({_id : avgMaxMilks[0]._id.cow})
+        avgMaxMilk = { cow : cow , avg :  avgMaxMilks[0].avg }
+    }
+
+    const sumMaxMilks = await Milk.aggregate(
+        [
+            {
+                $group: {
+                    _id: {cow:"$cow",farm:"$farm"},
+                    sum: { $sum: { $add : ["$morningQty","$afternoonQty"]} },
+                }
+            },
+            {
+                $sort : { sum: -1 }
+            },
+            { 
+                $match : { '_id.farm' : ObjectID(farmId) }
+            }
+        ]
+    );
+
+    let sumMaxMilk = null;
+    if(sumMaxMilks.length > 0){
+        const cow = await Cow.findOne({_id : sumMaxMilks[0]._id.cow})
+        sumMaxMilk = { cow : cow , sum :  sumMaxMilks[0].sum }
+    }
+
+    const cows = await Cow.find(filter).exec();
+    const cow = {
+        all : cows.length,
+        milk : cows.filter(c => c.status === 3).length,
+        pregnant : cows.filter(c => c.status === 1).length,
+        baby : cows.filter(c => c.status === 4).length,
+        dry : cows.filter(c => c.status === 2).length,
+        avgMaxMilk : avgMaxMilk,
+        sumMaxMilk : sumMaxMilk
     }
 
     let year = new Date().getFullYear();
