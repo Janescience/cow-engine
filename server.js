@@ -42,6 +42,7 @@ require('./src/routes/heal.routes')(app);
 require('./src/routes/protection.routes')(app);
 require('./src/routes/food.routes')(app);
 require('./src/routes/recipe.routes')(app);
+require('./src/routes/dashboard.routes')(app);
 
 // basic route
 app.get("/",(req,res) => {
