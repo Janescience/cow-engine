@@ -8,8 +8,8 @@ exports.getAll = async (req, res) => {
     let milkings = []
     for(let milk of milks){
         let cow = await Cow.findOne({_id:milk.cow,flag:'Y'})
-        milk.cow = cow    
         if(cow){
+            milk.relate = { cow : {code : cow.code , name : cow.name }}   
             milkings.push(milk)
         }
     }

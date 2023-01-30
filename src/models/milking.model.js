@@ -19,6 +19,9 @@ const Milking = mongoose.model(
             type:Number,
             required:false
         },
+        relate : {
+            type : Object
+        },
         cow:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "cow",
