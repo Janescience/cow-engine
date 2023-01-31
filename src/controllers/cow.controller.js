@@ -7,6 +7,26 @@ exports.getAll = async (req, res) => {
     res.json({cows});
 };
 
+exports.getAllDDL = async (req, res) => {
+    const ObjectID = require('mongodb').ObjectId;
+    const filter = req.query
+    const farmId = filter.farm
+    const cows = await Cow.aggregate([
+        {
+          $project: {
+            "code": 1,
+            "name": 1,
+            "_id": 1,
+            "farm" : 1
+          }
+        },
+        {
+          $match: { 'farm' : ObjectID(farmId) }
+        }
+    ])
+    res.json({cows});
+};
+
 exports.get = async (req, res) => {
     const id = req.params.id
     const cow = await Cow.findById(id).exec();;

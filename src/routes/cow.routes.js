@@ -11,6 +11,7 @@ module.exports = function(app) {
   });
 
   app.get('/cow',[authJwt.verifyToken],controller.getAll);
+  app.get('/cow/ddl',[authJwt.verifyToken],controller.getAllDDL);
   app.get('/cow/:id',[authJwt.verifyToken],controller.get);
   app.post("/cow",[authJwt.verifyToken,verifyCreate.cowCheckDup,],controller.create);
   app.put("/cow/:id",[authJwt.verifyToken],controller.update);
