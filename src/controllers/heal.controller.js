@@ -4,6 +4,7 @@ const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId
     const heals = await Heal.find(filter).sort({'seq':-1}).exec();
 
     for(let heal of heals){
@@ -22,7 +23,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
-
+    data.farm = req.farmId
     const count = await Heal.find({cow:data.cow,farm:data.farm}).countDocuments();
     data.seq = (count+1)
 

@@ -4,6 +4,7 @@ const Recipe = db.recipe;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId;
     const recipes = await Recipe.find(filter).exec();
     for(let recipe of recipes){
         let recipeDetails = await RecipeDetail.find({recipe:recipe._id}).exec();
@@ -20,7 +21,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
-
+    data.farm = req.farmId;
     const newRecipe = new Recipe(data.recipe);
     await newRecipe.save((err, recipe) => {
         if (err) {

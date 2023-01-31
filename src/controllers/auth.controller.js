@@ -65,7 +65,7 @@ exports.signin = (req, res) => {
           });
         }
   
-        var accessToken = jwt.sign({ id: user.id }, config.secret, {
+        var accessToken = jwt.sign({ id: user.farm }, config.secret, {
           expiresIn: config.jwtExpiration // 24 hours
         });
 
@@ -92,7 +92,7 @@ exports.signin = (req, res) => {
 
 exports.user = async (req,res) => {
   try {
-    const user = await User.findOne({_id:req.userId});
+    const user = await User.findOne({farm:req.farmId});
     if(!user){
       return res.json({message:'ไม่พบผู้ใช้งานในระบบ'})
     }
@@ -128,7 +128,7 @@ exports.refreshToken = async (req, res) => {
       return;
     }
 
-    let newAccessToken = jwt.sign({ id: refreshToken.user._id }, config.secret, {
+    let newAccessToken = jwt.sign({ id: refreshToken.user.farm }, config.secret, {
       expiresIn: config.jwtExpiration,
     });
 

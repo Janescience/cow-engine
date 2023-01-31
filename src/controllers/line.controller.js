@@ -14,7 +14,7 @@ exports.redirect = (req, res) => {
 
 exports.notify = (req, res) => {
   try {
-    lineApi.notify(req.body.message,'T',req.body.farm,req.body.lineToken)
+    lineApi.notify(req.body.message,'T',req.farmId,req.body.lineToken)
     return res.status(200).send({ message: "Notify Successfully." });
   } catch (error) {
     return res.json({ error: error.response.data.message });  

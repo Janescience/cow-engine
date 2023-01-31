@@ -1,4 +1,6 @@
 const { verifyCreate,authJwt } = require("../middlewares");
+const { logger } = require("../middlewares/log-events");
+
 const controller = require("../controllers/protection.controller");
 
 module.exports = function(app) {
@@ -12,7 +14,7 @@ module.exports = function(app) {
 
   app.get('/protection',[authJwt.verifyToken],controller.getAll);
   app.get('/protection/:id',[authJwt.verifyToken],controller.get);
-  app.post("/protection",[authJwt.verifyToken,verifyCreate.protectionCheckDup],controller.create);
-  app.put("/protection/:id",[authJwt.verifyToken],controller.update);
+  app.post("/protection",[authJwt.verifyToken,verifyCreate.protectionCheckDup,logger],controller.create);
+  app.put("/protection/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/protection",[authJwt.verifyToken],controller.delete);
 };

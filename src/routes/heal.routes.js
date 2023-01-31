@@ -1,4 +1,6 @@
 const { authJwt } = require("../middlewares");
+const { logger } = require("../middlewares/log-events");
+
 const controller = require("../controllers/heal.controller");
 
 module.exports = function(app) {
@@ -12,7 +14,7 @@ module.exports = function(app) {
 
   app.get('/heal',[authJwt.verifyToken],controller.getAll);
   app.get('/heal/:id',[authJwt.verifyToken],controller.get);
-  app.post("/heal",[authJwt.verifyToken],controller.create);
-  app.put("/heal/:id",[authJwt.verifyToken],controller.update);
+  app.post("/heal",[authJwt.verifyToken,logger],controller.create);
+  app.put("/heal/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/heal/:id",[authJwt.verifyToken],controller.delete);
 };

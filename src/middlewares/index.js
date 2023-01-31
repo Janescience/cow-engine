@@ -5,5 +5,5 @@ const verifyCreate = require("./verifyCreate");
 module.exports = {
   authJwt,
   verifySignUp,
-  verifyCreate,
+  verifyCreate
 };

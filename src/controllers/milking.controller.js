@@ -4,6 +4,7 @@ const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId
     const milks = await Milking.find(filter).sort({date:-1}).exec();
     let milkings = []
     for(let milk of milks){
@@ -25,6 +26,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
+    data.farm = req.farmId
     const newMilking = new Milking(data);
     await newMilking.save((err, cow) => {
         if (err) {

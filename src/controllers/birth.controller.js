@@ -5,6 +5,7 @@ const Reproduct = db.reproduction;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId
     const births = await Birth.find(filter).sort({createdAt:-1}).exec();
 
     for(let birth of births){

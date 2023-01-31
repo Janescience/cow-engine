@@ -2,10 +2,15 @@ const express = require('express');
 const cors = require("cors")
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-const httpLogger = require('./http-logger')
+const path = require('path');
+
+const { logger } = require('./src/middlewares/log-events');
+const errorHandler  = require('./src/middlewares/error-handler');
+
 
 //Configure dotenv files above using any other library and files
 dotenv.config(); 
@@ -14,16 +19,25 @@ require('./src/config/conn');
 
  // Initialize Express App 
 const app = express();
- 
-// var corsOptions = {
-//     origin: "http://localhost:3000"
-// };
 
  // Use Middlewares 
-app.use(httpLogger)
-app.use(cors())// CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
+app.use(logger);
+
+const whitelist = ['https://cow-app.vercel.app','http://localhost:5173','http://localhost:4000'];
+const corsOption = {
+  origin: (origin, callback) => {
+    if(whitelist.indexOf(origin) !== -1 || !origin){
+      callback(null,true)
+    }else{
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  optionsSuccessStatus : 200
+}
+app.use(cors(corsOption))// CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
 app.use(express.json({limit:'50mb'}))
 app.use(express.urlencoded({limit: '50mb', extended:true }))
+app.use(express.static(path.join(__dirname, '/public')))
 app.use(cookieParser())
 app.use(// for serving Swagger UI static files and displaying the API docs in JSON format 
     '/api-docs',
@@ -45,31 +59,22 @@ require('./src/routes/recipe.routes')(app);
 require('./src/routes/dashboard.routes')(app);
 
 // basic route
-app.get("/",(req,res) => {
-    res.send("Welcome Dairy Farm Engine Application.") 
+app.get(["/","/index.html"],(req,res) => {
+  res.sendFile(path.join(__dirname, 'views','index.html'));
 })
+
 app.all("*", (req,res) => {
-    res.send("404 not found.")
+  res.status(404);
+  if(req.accepts('html')){
+    res.sendFile(path.join(__dirname, 'views','404.html'));
+  } else if (req.accepts('json')) {
+    res.json({error : "404 Not Found"});
+  }else {
+    res.type('txt').send('404 Not Found')
+  }
 })
 
-app.get('/errorhandler', (req, res, next) => {
-    try {
-      throw new Error('Wowza!')
-    } catch (error) {
-      next(error)
-    }
-})
-
-app.use(logErrors)
 app.use(errorHandler)
-
-function logErrors (err, req, res, next) {
-  console.error(err.stack)
-  next(err)
-}
-function errorHandler (err, req, res, next) {
-  res.status(500).send({ message : err.message })
-}
 
 app.listen(process.env.PORT, () => {
     console.log("Server is running on port : ",process.env.PORT);

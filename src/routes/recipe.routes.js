@@ -1,4 +1,6 @@
 const { verifyCreate,authJwt } = require("../middlewares");
+const { logger } = require("../middlewares/log-events");
+
 const controller = require("../controllers/recipe.controller");
 
 module.exports = function(app) {
@@ -12,7 +14,7 @@ module.exports = function(app) {
 
   app.get('/recipe',[authJwt.verifyToken],controller.getAll);
   app.get('/recipe/:id',[authJwt.verifyToken],controller.get);
-  app.post("/recipe",[authJwt.verifyToken,verifyCreate.recipeCheckDup],controller.create);
-  app.put("/recipe/:id",[authJwt.verifyToken],controller.update);
+  app.post("/recipe",[authJwt.verifyToken,verifyCreate.recipeCheckDup,logger],controller.create);
+  app.put("/recipe/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/recipe/:id",[authJwt.verifyToken],controller.delete);
 };

@@ -3,6 +3,7 @@ const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId
     const cows = await Cow.find(filter).exec();
     res.json({cows});
 };
@@ -10,7 +11,7 @@ exports.getAll = async (req, res) => {
 exports.getAllDDL = async (req, res) => {
     const ObjectID = require('mongodb').ObjectId;
     const filter = req.query
-    const farmId = filter.farm
+    const farmId = req.farmId
     const cows = await Cow.aggregate([
         {
           $project: {
@@ -35,6 +36,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
+    data.farm = req.farmId;
     const newCow = new Cow(data);
     await newCow.save((err, cow) => {
         if (err) {

@@ -1,4 +1,6 @@
 const controller = require("../controllers/line.controller");
+const { logger } = require("../middlewares/log-events");
+
 const { authJwt } = require("../middlewares")
 module.exports = function(app) {
   app.use(function(req, res, next) {
@@ -10,5 +12,5 @@ module.exports = function(app) {
   });
 
   app.get("/line/redirect",controller.redirect);
-  app.post("/line/notify",[authJwt.verifyToken],controller.notify);
+  app.post("/line/notify",[authJwt.verifyToken,logger],controller.notify);
 };

@@ -5,6 +5,7 @@ const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId
     const foods = await Food.find(filter).exec();
     for(let food of foods){
         food.recipe = await Recipe.findOne({_id:food.recipe});
@@ -20,6 +21,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
+    data.farm = req.farmId
 
     const numCow = await Cow.find({corral:data.corral,farm:data.farm}).countDocuments();
     data.numCow = numCow;
@@ -40,7 +42,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
-    
+    data.farm = req.farmId
     const numCow = await Cow.find({corral:data.corral,farm:data.farm}).countDocuments();
     data.numCow = numCow;
     data.amountAvg = data.amount/numCow;

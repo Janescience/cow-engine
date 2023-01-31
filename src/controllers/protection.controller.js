@@ -4,6 +4,7 @@ const Protection = db.protection;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId
     if(filter.vaccine && filter.vaccine != ''){
         let vaccine = filter.vaccine
         filter.vaccine = {'$regex' :  vaccine , '$options' : 'i'}
@@ -20,7 +21,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
-
+    data.farm = req.farmId
     const newProtection = new Protection(data);
     await newProtection.save((err, protection) => {
         if (err) {

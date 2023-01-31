@@ -5,6 +5,7 @@ const Cow = db.cow;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
+    filter.farm = req.farmId
     const reproducts = await Reproduct.find(filter).sort({"status":1,"checkDate":1,'seq':-1}).exec();
 
     for(let reproduct of reproducts){
@@ -23,6 +24,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
+    data.farm = req.farmId
 
     const count = await Reproduct.find({cow:data.cow,farm:data.farm}).countDocuments();
     data.seq = (count+1)
@@ -46,6 +48,8 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
+    data.farm = req.farmId
+    
     if(data.status == "2"){//ตั้งครร
         const count = await Birth.find({cow:data.cow,farm:data.farm}).countDocuments();
         const newBirth = new Birth({

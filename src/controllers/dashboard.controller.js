@@ -4,7 +4,7 @@ const Milk = db.milking;
 
 exports.get = async (req, res) => {
     const filter = req.query
-    const farmId = filter.farm;
+    const farmId = req.farmId;
     const ObjectID = require('mongodb').ObjectId;
 
     const avgMaxMilks = await Milk.aggregate(

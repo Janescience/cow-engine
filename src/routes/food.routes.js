@@ -1,4 +1,6 @@
 const { verifyCreate,authJwt } = require("../middlewares");
+const { logger } = require("../middlewares/log-events");
+
 const controller = require("../controllers/food.controller");
 
 module.exports = function(app) {
@@ -12,7 +14,7 @@ module.exports = function(app) {
 
   app.get('/food',[authJwt.verifyToken],controller.getAll);
   app.get('/food/:id',[authJwt.verifyToken],controller.get);
-  app.post("/food",[authJwt.verifyToken,verifyCreate.foodCheckDup],controller.create);
-  app.put("/food/:id",[authJwt.verifyToken],controller.update);
+  app.post("/food",[authJwt.verifyToken,verifyCreate.foodCheckDup,logger],controller.create);
+  app.put("/food/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/food/:id",[authJwt.verifyToken],controller.delete);
 };

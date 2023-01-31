@@ -1,4 +1,6 @@
 const { authJwt } = require("../middlewares");
+const { logger } = require("../middlewares/log-events");
+
 const controller = require("../controllers/transaction.controller");
 
 module.exports = function(app) {
@@ -12,7 +14,7 @@ module.exports = function(app) {
 
   app.get("/expTrackEngine/transactions",[authJwt.verifyToken],controller.getTransactions);
   app.get("/expTrackEngine/transaction/:id",[authJwt.verifyToken], controller.getTransaction);
-  app.post("/expTrackEngine/transaction", [authJwt.verifyToken],controller.createTransaction);
-  app.put("/expTrackEngine/transaction/:id",[authJwt.verifyToken], controller.updateTransaction);
+  app.post("/expTrackEngine/transaction", [authJwt.verifyToken,logger],controller.createTransaction);
+  app.put("/expTrackEngine/transaction/:id",[authJwt.verifyToken,logger], controller.updateTransaction);
   app.delete("/expTrackEngine/transaction/:id",[authJwt.verifyToken], controller.deleteTransaction);
 };
