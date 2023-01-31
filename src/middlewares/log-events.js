@@ -20,11 +20,11 @@ const logEvents = async (message,logName) => {
 
 const logger = (req,res,next) => {
     if(req.body){
-        logEvents(`${req.method}\t${req.headers.origin}\t${req.url}\t${JSON.stringify(req.body)}`,'req-log.txt');
+        // logEvents(`${req.method}\t${req.headers.origin}\t${req.url}\t${JSON.stringify(req.body)}`,'req-log.txt');
         console.log(`${req.method} ${req.path} ${JSON.stringify(req.body)}`);
 
     }else{
-        logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`,'req-log.txt');
+        // logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`,'req-log.txt');
         console.log(`${req.method} ${req.path}`);
     }
     next();
