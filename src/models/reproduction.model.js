@@ -31,7 +31,7 @@ const Reproduction = mongoose.model(
             type:Number,
             required:false
         },
-        status:{
+        status:{ // 1=อยู่ในกระบวนการสืบพันธุ์ , 2=ตั้งครร 3=คลอดลูกแล้ว 4=สืบพันธุ์ไม่สำเร็จ
             type:Number,
             required:true
         },

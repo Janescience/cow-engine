@@ -31,11 +31,14 @@ exports.create = async (req, res) => {
     const newFood = new Food(data);
     await newFood.save((err, food) => {
         if (err) {
-        res.status(500).send({ message: err });
-        return;
+            console.error("Food save error : ",err)
+            res.status(500).send({ message: err });
+            return;
         }
     })
     
+    console.log("Food saved : ",newFood);
+
     res.status(200).send(newFood);
 };
 
@@ -43,17 +46,22 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     data.farm = req.farmId
+
     const numCow = await Cow.find({corral:data.corral,farm:data.farm}).countDocuments();
     data.numCow = numCow;
     data.amountAvg = data.amount/numCow;
     data.recipe = data.recipe._id
 
     const updatedFood = await Food.updateOne({_id:id},data).exec();
+    console.log("Food updated : ",updatedFood);
+
     res.status(200).send({updatedFood});
 };
 
 exports.delete = async (req, res) => {
     const id = req.params.id;
     const deletedFood = await Food.deleteOne({_id:id});
+    console.log("Food deleted : ",deletedFood);
+
     res.status(200).send({deletedFood});
 };

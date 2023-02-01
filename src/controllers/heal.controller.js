@@ -9,7 +9,7 @@ exports.getAll = async (req, res) => {
 
     for(let heal of heals){
         let cow = await Cow.findOne({_id:heal.cow})
-        heal.cow = cow    
+        heal.relate = { cow : { code : cow.code , name : cow.name , _id : cow._id }}   
     }
 
     res.json({heals});
@@ -24,28 +24,38 @@ exports.get = async (req, res) => {
 exports.create = async (req, res) => {
     const data = req.body;
     data.farm = req.farmId
+
     const count = await Heal.find({cow:data.cow,farm:data.farm}).countDocuments();
     data.seq = (count+1)
 
     const newHeal = new Heal(data);
     await newHeal.save((err, heal) => {
         if (err) {
-          res.status(500).send({ message: err });
-          return;
+            console.error("Heal save error : ",err)
+            res.status(500).send({ message: err });
+            return;
         }
     })
+
+    console.log("Heal created : ",newHeal);
     res.status(200).send({newHeal});
 };
 
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
+
     const updatedHeal = await Heal.updateOne({_id:id},data).exec();
+    console.log("Heal updated : ",updatedHeal);
+
     res.status(200).send({updatedHeal});
 };
 
 exports.delete = async (req, res) => {
     const id = req.params.id;
+
     const deletedHeal = await Heal.deleteOne({_id:id});
+    console.log("Heal deleted : ",deletedHeal);
+
     res.status(200).send({deletedHeal});
 };

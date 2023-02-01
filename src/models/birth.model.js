@@ -31,6 +31,9 @@ const Birth = mongoose.model(
             type:Date,
             required:false
         },
+        relate : {
+            type : Object
+        },
         reproduction : {
             type: mongoose.Schema.Types.ObjectId,
             ref: "reproduction",

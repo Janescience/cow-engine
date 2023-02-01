@@ -23,6 +23,12 @@ const Heal = mongoose.model(
             type:Number,
             required:true
         },
+        amount :{
+            type:Number
+        },
+        relate : {
+            type : Object
+        },
         cow:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "cow",

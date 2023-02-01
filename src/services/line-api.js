@@ -94,10 +94,12 @@ notify = async (text,type,farm,token) => {
                 farm : farm
             });
             newNotiLog.save();
+
+            console.log('Notification log saved : ',newNotiLog);
             return response.data;
         })
         .catch(function (error) {
-            console.error('Error : ',error);
+            console.error('Notification Error : ',error);
             const newNotiLog = new NotiLogs({
                 message : text,
                 type : type,
@@ -106,6 +108,7 @@ notify = async (text,type,farm,token) => {
                 farm : farm
             });
             newNotiLog.save();
+            console.log('Notification log saved : ',newNotiLog);
         });
 }
 

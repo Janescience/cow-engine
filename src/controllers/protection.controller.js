@@ -22,12 +22,16 @@ exports.get = async (req, res) => {
 exports.create = async (req, res) => {
     const data = req.body;
     data.farm = req.farmId
+
     const newProtection = new Protection(data);
     await newProtection.save((err, protection) => {
         if (err) {
-        res.status(500).send({ message: err });
-        return;
+            console.error("Protection save error : ",err)
+            res.status(500).send({ message: err });
+            return;
         }
+
+        console.log("Protection saved : ",protection)
     })
     
     res.status(200);
@@ -37,11 +41,15 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     const updatedProtection = await Protection.updateOne({_id:id},data).exec();
+    console.log("Protection updated : ",updatedProtection)
+
     res.status(200).send({updatedProtection});
 };
 
 exports.delete = async (req, res) => {
     const id = req.params.id;
     const deletedProtection = await Protection.deleteOne({_id:id});
+    console.log("Protection deleted : ",deletedProtection)
+
     res.status(200).send({deletedProtection});
 };
