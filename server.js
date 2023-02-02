@@ -57,6 +57,7 @@ require('./src/routes/protection.routes')(app);
 require('./src/routes/food.routes')(app);
 require('./src/routes/recipe.routes')(app);
 require('./src/routes/dashboard.routes')(app);
+require('./src/routes/report.routes')(app);
 
 // basic route
 app.get(["/","/index.html"],(req,res) => {
