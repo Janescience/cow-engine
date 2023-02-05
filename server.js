@@ -15,6 +15,7 @@ const errorHandler  = require('./src/middlewares/error-handler');
 //Configure dotenv files above using any other library and files
 dotenv.config(); 
 require('./src/config/conn');
+// require('./src/config/conn.memory');
 // require('./src/schedule/notify-cron');
 
  // Initialize Express App 
@@ -58,6 +59,7 @@ require('./src/routes/food.routes')(app);
 require('./src/routes/recipe.routes')(app);
 require('./src/routes/dashboard.routes')(app);
 require('./src/routes/report.routes')(app);
+require('./src/routes/notification.routes')(app);
 
 // basic route
 app.get(["/","/index.html"],(req,res) => {

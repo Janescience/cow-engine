@@ -10,7 +10,9 @@ checkDuplicateUsername = (req, res, next) => {
         res.status(500).send({ message: err });
         return;
       }
-  
+
+      console.log('Check dup : ',user)
+
       if (user) {
         res.status(400).send({ message: "Failed! Username is already in use!" });
         return;

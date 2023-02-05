@@ -53,6 +53,7 @@ exports.get = async (req, res) => {
         sumMaxMilk = { cow : cow , sum :  sumMaxMilks[0].sum }
     }
 
+    filter.farm = farmId
     const cows = await Cow.find(filter).exec();
     const cow = {
         all : cows.length,

@@ -24,9 +24,9 @@ exports.signup = async (req, res) => {
       farm : farm,
     });
 
-    farm.save((err, farm) => {
+    farm.save((err, farm) => {  
       if (err) {
-        console.log("Farm save error : ",err);
+        console.error("Farm save error : ",err);
         res.status(500).send({ message: err });
         return;
       }
@@ -35,15 +35,17 @@ exports.signup = async (req, res) => {
       user.save((err, user) => {
 
         if (err) {
-          console.log("User save error : ",err);
+          console.error("User save error : ",err);
           res.status(500).send({ message: err });
           return;
         }
-        console.log("User saved : ",user);
-        res.send({ message: "ลงทะเบียนเรียบร้อยแล้ว" });
-      })
 
+        console.log("User saved : ",user);
+        res.status(200).send({message:"ลงทะเบียนเรียบร้อยแล้ว"});
+
+      })
     })
+
 };
 
 exports.signin = (req, res) => {
@@ -53,7 +55,7 @@ exports.signin = (req, res) => {
     }).exec(async (error,user) => {
         if (!user) {
           console.log("Username not found : "+req.body.username)
-          return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง กรุณาลองอีกครั้ง" });
+          return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง หรือ ไม่มีผู้ใช้ในระบบ กรุณาลองอีกครั้ง" });
         }
   
         var passwordIsValid = bcrypt.compareSync(
@@ -99,6 +101,8 @@ exports.user = async (req,res) => {
     if(!user){
       return res.json({message:'ไม่พบผู้ใช้งานในระบบ'})
     }
+    user.farm = await Farm.findOne({_id:req.farmId});
+
     console.log("Get user : "+user.username)
     return res.json({user:user})
   } catch (error) {

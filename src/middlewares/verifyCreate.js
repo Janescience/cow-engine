@@ -10,7 +10,7 @@ cowCheckDup = (req, res, next) => {
 
     Cow.findOne({
       code: req.body.code,
-      farm : req.body.farm
+      farm : req.farmId
     }).exec((err, cow) => {
       if (err) {
         res.status(500).send({ message: err });
@@ -30,7 +30,8 @@ milkingCheckDup = (req, res, next) => {
 
   Milking.findOne({
     date: req.body.date,
-    cow : req.body.cow
+    cow : req.body.cow,
+    farm : req.farmId
   }).exec((err, cow) => {
     if (err) {
       res.status(500).send({ message: err });
@@ -49,7 +50,8 @@ milkingCheckDup = (req, res, next) => {
 reproCheckDup = (req, res, next) => {
 
   Reproduction.find({
-    cow : req.body.cow
+    cow : req.body.cow,
+    farm : req.farmId
   })
   .sort({seq:-1})
   .exec((err, repros) => {
@@ -78,7 +80,7 @@ protectionCheckDup = (req, res, next) => {
 
   Protection.findOne({
     vaccine: req.body.vaccine,
-    farm : req.body.farm
+    farm : req.farmId
   }).exec((err, protection) => {
     if (err) {
       res.status(500).send({ message: err });
@@ -96,11 +98,12 @@ protectionCheckDup = (req, res, next) => {
 
 
 foodCheckDup = (req, res, next) => {
-
+  console.log('Food check dup : ',req.body)
+  console.log('Food check dup , farm id : ',req.farmId)
   Food.findOne({
     corral: req.body.corral,
     recipe : req.body.recipe,
-    farm : req.body.farm
+    farm : req.farmId
   }).exec((err, food) => {
     if (err) {
       res.status(500).send({ message: err });
@@ -116,7 +119,7 @@ foodCheckDup = (req, res, next) => {
 
   Cow.find({
     corral : req.body.corral,
-    farm : req.body.farm
+    farm : req.farmId
   }).exec((err , cow) => {
     if (cow.length == 0) {
       res.status(400).send({ message: "คอก " + req.body.corral +" ไม่มีโค" });
@@ -131,7 +134,7 @@ recipeCheckDup = (req, res, next) => {
 
   Recipe.findOne({
     name: req.body.recipe.name,
-    farm: req.body.recipe.farm,
+    farm: req.farmId,
   }).exec((err, food) => {
     if (err) {
       res.status(500).send({ message: err });

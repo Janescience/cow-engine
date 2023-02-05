@@ -1,14 +1,16 @@
 
 const { lineApi } = require("../services")
 const db = require("../models");
+const path = require("path")
 const User = db.user;
 
-exports.redirect = (req, res) => {
+exports.redirect = async (req, res) => {
   try {
-    lineApi.token(req.query.code,req.query.state)
-    return res.status(200).send({ message: "Created Line Access Token Successfully." });
+    await lineApi.token(req.query.code,req.query.state);
+    console.log("Created Line Access Token Successfully.");
+    res.sendFile(path.join(__dirname, '../../views','line-connected.html'));
   } catch (error) {
-    return res.json({ error: error.response.data.message });  
+    return res.json(error);  
   }
 };
 

@@ -21,7 +21,7 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
-    data.farm = req.farmId;
+    data.recipe.farm = req.farmId;
     const newRecipe = new Recipe(data.recipe);
     await newRecipe.save((err, recipe) => {
         if (err) {

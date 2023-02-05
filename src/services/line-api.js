@@ -33,7 +33,7 @@ auth = async () => {
 }
 
 //Get Token
-token = (code,username) => {
+token =  async (code,username) => {
     axios.post(
         url_line_token,
         qs.stringify({
@@ -48,20 +48,22 @@ token = (code,username) => {
                 'Content-Type': 'application/x-www-form-urlencoded',
             }
         }
-    ).then(function  (response) {
+    ).then( (response) => {
         console.log('Get Token : ',response.data);
         
         if(response.data){
-            User.findOne({username:username})
+              User.findOne({username:username})
                 .exec((err, user) => {
                     const filter = { _id : user.farm._id };
                     const update = { lineToken: response.data.access_token };
                     Farm.findOneAndUpdate(filter,{$set:update},{new : true })
-                        .exec((err, user) => {
+                        .exec((err, farm) => {
                             if (err) {
                                 console.error('Error : ',err);
                             }
                             console.log('Updated Successfully : ',user);
+
+                            lineNotify.notify('เชื่อมต่อสำเร็จ','S',user.farm,response.data.access_token)
                         })
                 })
             
@@ -70,6 +72,7 @@ token = (code,username) => {
     })
     .catch(function (error) {
         console.error('Error : ',error.response.data.message);
+        return error;
     });
 }
 
