@@ -10,7 +10,7 @@ var bcrypt = require("bcryptjs");
 exports.signup = async (req, res) => {
 
     const countF = await Farm.collection.countDocuments();
-    console.log("Farm count : ",countF);
+    console.log("farm count : ",countF);
 
     const farm = new Farm({
       code : "F" + String(countF + 1).padStart(4,'0'),
@@ -24,27 +24,13 @@ exports.signup = async (req, res) => {
       farm : farm,
     });
 
-    farm.save((err, farm) => {  
-      if (err) {
-        console.error("Farm save error : ",err);
-        res.status(500).send({ message: err });
-        return;
-      }
-      console.log("Farm saved : ",farm);
+    const farmResp = await farm.save();
+    console.log("farm saved : ",farmResp);
 
-      user.save((err, user) => {
+    const userResp = await user.save();
+    console.log("user saved : ",userResp);
 
-        if (err) {
-          console.error("User save error : ",err);
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        console.log("User saved : ",user);
-        res.status(200).send({message:"ลงทะเบียนเรียบร้อยแล้ว"});
-
-      })
-    })
+    res.status(200).send({message:"Registered Successfully."});
 
 };
 
@@ -52,7 +38,7 @@ exports.signin = (req, res) => {
 
     User.findOne({
         username: req.body.username
-    }).exec(async (error,user) => {
+    }).select('+password').exec(async (error,user) => {
         if (!user) {
           console.log("Username not found : "+req.body.username)
           return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง หรือ ไม่มีผู้ใช้ในระบบ กรุณาลองอีกครั้ง" });
@@ -77,7 +63,7 @@ exports.signin = (req, res) => {
 
         const farm = await Farm.findById(user.farm).exec();
 
-        let refreshToken = await RefreshToken.createToken(user);
+        let refreshToken = await RefreshToken.createToken(user,config.jwtRefreshExpiration);
 
         console.log("Signined : "+req.body.username)
 
@@ -88,7 +74,7 @@ exports.signin = (req, res) => {
             username: user.username,
             farm : farm,
             accessToken: accessToken,
-            lineToken : user.lineToken,
+            lineToken : farm.lineToken,
             refreshToken: refreshToken,
           });
 
@@ -96,19 +82,11 @@ exports.signin = (req, res) => {
 };
 
 exports.user = async (req,res) => {
-  try {
     const user = await User.findOne({farm:req.farmId});
-    if(!user){
-      return res.json({message:'ไม่พบผู้ใช้งานในระบบ'})
-    }
     user.farm = await Farm.findOne({_id:req.farmId});
 
     console.log("Get user : "+user.username)
-    return res.json({user:user})
-  } catch (error) {
-    console.error("Error : ",error)
-    return res.json({ error: error });  
-  }
+    return res.status(200).json({user:user})
 }
 
 exports.refreshToken = async (req, res) => {
@@ -119,36 +97,32 @@ exports.refreshToken = async (req, res) => {
     return res.status(403).json({ message: "Refresh Token is required!" });
   }
 
-  try {
-    let refreshToken = await RefreshToken.findOne({ token: requestToken });
+  let refreshToken = await RefreshToken.findOne({ token: requestToken });
 
-    if (!refreshToken) {
-      res.status(403).json({ message: "Refresh token is not in database!" });
-      console.log("Refresh token is not in database!");
-      return;
-    }
-
-    if (RefreshToken.verifyExpiration(refreshToken)) {
-      RefreshToken.findByIdAndRemove(refreshToken._id, { useFindAndModify: false }).exec();
-
-      console.log("Refresh token was expired. Please make a new signin request");
-      res.status(403).json({
-        message: "Refresh token was expired. Please make a new signin request",
-      });
-      return;
-    }
-
-    let newAccessToken = jwt.sign({ id: refreshToken.user.farm }, config.secret, {
-      expiresIn: config.jwtExpiration,
-    });
-
-    console.log("Refreshed token");
-
-    return res.status(200).json({
-      accessToken: newAccessToken,
-      refreshToken: refreshToken.token,
-    });
-  } catch (err) {
-    return res.status(500).send({ message: err });
+  if (!refreshToken) {
+    res.status(403).json({ message: "Refresh token is not in database!" });
+    console.log("Refresh token is not in database!");
+    return;
   }
+
+  if (RefreshToken.verifyExpiration(refreshToken)) {
+    RefreshToken.findByIdAndRemove(refreshToken._id, { useFindAndModify: false }).exec();
+
+    console.log("Refresh token was expired. Please make a new signin request");
+    res.status(403).json({
+      message: "Refresh token was expired. Please make a new signin request",
+    });
+    return;
+  }
+
+  let newAccessToken = jwt.sign({ id: refreshToken.user.farm }, config.secret, {
+    expiresIn: config.jwtExpiration,
+  });
+
+  console.log("Refreshed token");
+
+  return res.status(200).json({
+    accessToken: newAccessToken,
+    refreshToken: refreshToken.token,
+  });
 };

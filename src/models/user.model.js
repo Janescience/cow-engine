@@ -11,6 +11,7 @@ const User = mongoose.model(
         password:{
             type:String,
             required:true,
+            select: false
         },
         farm:{
             type: mongoose.Schema.Types.ObjectId,
