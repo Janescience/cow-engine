@@ -1,57 +1,11 @@
 const db = require("../models");
 const Cow = db.cow;
-const Milk = db.milking;
+const Milk = db.milk;
 
 exports.get = async (req, res) => {
     const filter = req.query
     const farmId = req.farmId;
     const ObjectID = require('mongodb').ObjectId;
-
-    const avgMaxMilks = await Milk.aggregate(
-        [
-            {
-                $group: {
-                    _id: {cow:"$cow",farm:"$farm"},
-                    avg: { $avg: { $add : ["$morningQty","$afternoonQty"]} },
-                }
-            },
-            {
-                $sort : { avg: -1 }
-            },
-            { 
-                $match : { '_id.farm' : ObjectID(farmId) }
-            }
-        ]
-    );
-
-    let avgMaxMilk = null;
-    if(avgMaxMilks.length > 0){
-        const cow = await Cow.findOne({_id : avgMaxMilks[0]._id.cow})
-        avgMaxMilk = { cow : cow , avg :  avgMaxMilks[0].avg }
-    }
-
-    const sumMaxMilks = await Milk.aggregate(
-        [
-            {
-                $group: {
-                    _id: {cow:"$cow",farm:"$farm"},
-                    sum: { $sum: { $add : ["$morningQty","$afternoonQty"]} },
-                }
-            },
-            {
-                $sort : { sum: -1 }
-            },
-            { 
-                $match : { '_id.farm' : ObjectID(farmId) }
-            }
-        ]
-    );
-
-    let sumMaxMilk = null;
-    if(sumMaxMilks.length > 0){
-        const cow = await Cow.findOne({_id : sumMaxMilks[0]._id.cow})
-        sumMaxMilk = { cow : cow , sum :  sumMaxMilks[0].sum }
-    }
 
     filter.farm = farmId
     const cows = await Cow.find(filter).exec();
@@ -61,8 +15,8 @@ exports.get = async (req, res) => {
         pregnant : cows.filter(c => c.status === 1).length,
         baby : cows.filter(c => c.status === 4).length,
         dry : cows.filter(c => c.status === 2).length,
-        avgMaxMilk : avgMaxMilk,
-        sumMaxMilk : sumMaxMilk
+        avgMaxMilk : null,
+        sumMaxMilk : null
     }
 
     let year = new Date().getFullYear();

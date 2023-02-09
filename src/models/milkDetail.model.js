@@ -1,18 +1,10 @@
 const mongoose = require("mongoose")
 
-const Milking = mongoose.model(
-    'milking',
+const MilkDetail = mongoose.model(
+    'milkDetail',
     new mongoose.Schema({
-        morningQty:{
+        qty:{
             type:Number,
-            required:true
-        },
-        afternoonQty:{
-            type:Number,
-            required:true
-        },
-        date:{
-            type:Date,
             required:true
         },
         amount:{
@@ -27,12 +19,12 @@ const Milking = mongoose.model(
             ref: "cow",
             required:true,
         },
-        farm:{
+        milk:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "farm",
+            ref: "milk",
             required:true,
         },
     }, { timestamps: true })
 )
 
-module.exports = Milking
+module.exports = MilkDetail

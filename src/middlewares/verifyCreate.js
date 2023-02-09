@@ -1,12 +1,12 @@
 const db = require("../models");
 const Cow = db.cow;
-const Milking = db.milking;
+const Milk = db.milk;
 const Reproduction = db.reproduction;
 const Protection = db.protection;
 const Food = db.food;
 const Recipe = db.recipe;
 
-cowCheckDup = (req, res, next) => {
+const cowCheckDup = (req, res, next) => {
 
     Cow.findOne({
       code: req.body.code,
@@ -26,11 +26,11 @@ cowCheckDup = (req, res, next) => {
     });
 };
 
-milkingCheckDup = (req, res, next) => {
+const milkingCheckDup = (req, res, next) => {
 
-  Milking.findOne({
+  Milk.findOne({
     date: req.body.date,
-    cow : req.body.cow,
+    time : req.body.time,
     farm : req.farmId
   }).exec((err, cow) => {
     if (err) {
@@ -47,7 +47,7 @@ milkingCheckDup = (req, res, next) => {
   });
 };
 
-reproCheckDup = (req, res, next) => {
+const reproCheckDup = (req, res, next) => {
 
   Reproduction.find({
     cow : req.body.cow,
@@ -76,7 +76,7 @@ reproCheckDup = (req, res, next) => {
   });
 };
 
-protectionCheckDup = (req, res, next) => {
+const protectionCheckDup = (req, res, next) => {
 
   Protection.findOne({
     vaccine: req.body.vaccine,
@@ -97,7 +97,7 @@ protectionCheckDup = (req, res, next) => {
 };
 
 
-foodCheckDup = (req, res, next) => {
+const foodCheckDup = (req, res, next) => {
   console.log('Food check dup : ',req.body)
   console.log('Food check dup , farm id : ',req.farmId)
   Food.findOne({
@@ -130,7 +130,7 @@ foodCheckDup = (req, res, next) => {
   });
 };
 
-recipeCheckDup = (req, res, next) => {
+const recipeCheckDup = (req, res, next) => {
 
   Recipe.findOne({
     name: req.body.recipe.name,

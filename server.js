@@ -51,7 +51,7 @@ app.use(// for serving Swagger UI static files and displaying the API docs in JS
 require('./src/routes/auth.routes')(app);
 require('./src/routes/line.routes')(app);
 require('./src/routes/cow.routes')(app);
-require('./src/routes/milking.routes')(app);
+require('./src/routes/milk.routes')(app);
 require('./src/routes/reproduction.routes')(app);
 require('./src/routes/birth.routes')(app);
 require('./src/routes/heal.routes')(app);

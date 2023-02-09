@@ -1,6 +1,6 @@
 const { verifyCreate,authJwt } = require("../middlewares");
 const { logger } = require("../middlewares/log-events");
-const controller = require("../controllers/milking.controller");
+const controller = require("../controllers/milk.controller");
 
 module.exports = function(app) {
   app.use(function(req, res, next) {
