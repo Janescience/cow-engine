@@ -9,31 +9,10 @@ const NotiLogs = db.notificationLogs;
 dotenv.config();
 
 const url_line_notification = "https://notify-api.line.me/api/notify";
-const url_line_authorize = "https://notify-bot.line.me/oauth/authorize";
 const url_line_token = "https://notify-bot.line.me/oauth/token";
 
-//Authentication
-auth = async () => {
-    axios.get(url_line_authorize,
-        {
-            params: {
-                response_type : 'code',
-                client_id : 'oXiT9LVmeywPufRQwwlUfV',
-                redirect_uri : 'http://localhost:4000/line/redirect',
-                scope : 'notify',
-                state : '9xZ6CmqcX2gECK4bZH8cyzkAH8BjEzRIuyo6E5Vo3Vw'
-            }
-        }
-    ).then(function (response) {
-        // console.log('Line Auth : ',response);
-    })
-    .catch(function (error) {
-        console.log('Error : ',error);
-    });
-}
-
 //Get Token
-token =  async (code,username) => {
+const token =  async (code,username) => {
     axios.post(
         url_line_token,
         qs.stringify({
@@ -77,7 +56,7 @@ token =  async (code,username) => {
 }
 
 //Notification to Line
-notify = async (text,type,farm,token) => {
+const notify = async (text,type,farm,token) => {
     await axios.post(
         url_line_notification,
         qs.stringify({message:text}),
@@ -103,11 +82,12 @@ notify = async (text,type,farm,token) => {
         })
         .catch(function (error) {
             console.error('Notification Error : ',error);
+            
             const newNotiLog = new NotiLogs({
                 message : text,
                 type : type,
                 status : 'F',
-                respMessage : 'status='+response.data.status + ',message='+response.data.message,
+                respMessage : JSON.stringify(error),
                 farm : farm
             });
             newNotiLog.save();
@@ -117,7 +97,6 @@ notify = async (text,type,farm,token) => {
 
 const lineNotify = {
     notify,
-    auth,
     token
 };
 
