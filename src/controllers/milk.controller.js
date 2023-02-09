@@ -10,7 +10,7 @@ exports.getAll = async (req, res) => {
     const milks = await Milk.find(filter).sort({date:-1}).exec();
 
     for(let milk of milks){
-        let milkDetails = MilkDetail.find({milk:milk._id}).exec();
+        let milkDetails = await MilkDetail.find({milk:milk._id}).exec();
         for(let milkDetail of milkDetails){
             let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
             if(cow){
