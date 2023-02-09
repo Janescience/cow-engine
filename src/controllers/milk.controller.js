@@ -14,7 +14,7 @@ exports.getAll = async (req, res) => {
         for(let milkDetail of milkDetails){
             let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
             if(cow){
-                milk.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
+                milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
             }
         }
         milk.milkDetails = milkDetails
@@ -59,10 +59,7 @@ exports.update = async (req, res) => {
     }
     MilkDetail.create(data.milkDetails)
 
-    const updatedMilk = await Milk.updateOne({_id:id},data).exec();
-    console.log("Milk updated : ",updatedMilk)
-
-    res.status(200).send({updatedMilk});
+    res.status(200).send({message:'Milk detail updated success.'});
 };
 
 exports.delete = async (req, res) => {
