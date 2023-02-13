@@ -8,19 +8,23 @@ exports.getAll = async (req, res) => {
     filter.farm = req.farmId
 
     const milks = await Milk.find(filter).sort({date:-1}).exec();
-
+    let result = [];
     for(let milk of milks){
-        let milkDetails = await MilkDetail.find({milk:milk._id}).exec();
-        for(let milkDetail of milkDetails){
-            let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
-            if(cow){
-                milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
+        let milkDetails = await MilkDetail.find({milk:milk._id,...filter}).exec();
+        if(milkDetails.length > 0){
+            for(let milkDetail of milkDetails){
+                let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
+                if(cow){
+                    milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
+                }
             }
+            milk.milkDetails = milkDetails
+            result.push(milk)
         }
-        milk.milkDetails = milkDetails
+        
     }
 
-    res.status(200).send({milks});
+    res.status(200).send({milks:result});
 };
 
 exports.get = async (req, res) => {

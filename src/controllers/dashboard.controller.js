@@ -1,6 +1,7 @@
 const db = require("../models");
 const Cow = db.cow;
 const Milk = db.milk;
+const MilkDetail = db.milkDetail;
 
 exports.get = async (req, res) => {
     const filter = req.query
@@ -35,6 +36,10 @@ exports.get = async (req, res) => {
             farm : farmId
         }
     );
+
+    for(let milk of milks){
+        milk.milkDetails = await MilkDetail.find({milk:milk._id}).exec();
+    }
 
     res.json(
         {
