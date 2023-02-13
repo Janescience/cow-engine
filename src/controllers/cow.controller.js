@@ -49,6 +49,7 @@ exports.getDetails = async (req, res) => {
   const foods = await Food.find({cow:id}).exec();
   // const foods = []
   const milks = await Milk.find({farm:farmId}).exec();
+  console.log('get details : ',milks)
   // const milks = []
   const protections = await Protection.find({cow:id}).exec();
   // const protections = []
