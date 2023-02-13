@@ -51,7 +51,9 @@ exports.getDetails = async (req, res) => {
   // const foods = []
   const milks = await MilkDetail.find({cow:id}).exec();
   for(let detail of milks){
-    detail.milk = await Milk.find({_id : detail.milk}).exec();
+    let milk = await Milk.find({_id : detail.milk}).exec();
+    let cow = await Cow.find({_id : detail.cow}).exec();
+    detail.relate = { milk : milk, cow : { _id : cow._id , code : cow.code , name : cow.anem} }
   }
   // const milks = []
   const protections = await Protection.find({cow:id}).exec();
