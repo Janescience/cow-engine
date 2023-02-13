@@ -11,9 +11,6 @@ const Milk = mongoose.model(
             type:Date,
             required:true
         },
-        milkDetails :{
-            type : Array
-        },
         farm:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm",

@@ -3,6 +3,7 @@ const Cow = db.cow;
 const Birth = db.birth;
 const Food = db.food;
 const Heal = db.heal;
+const MilkDetail = db.milkDetail;
 const Milk = db.milk;
 const Protection = db.protection;
 const Reproduction = db.reproduction;
@@ -48,8 +49,10 @@ exports.getDetails = async (req, res) => {
   const heals = await Heal.find({cow:id}).exec();
   const foods = await Food.find({cow:id}).exec();
   // const foods = []
-  const milks = await Milk.find({farm:farmId}).exec();
-  console.log('get details : ',milks)
+  const milks = await MilkDetail.find({cow:id}).exec();
+  for(let detail of milks){
+    detail.milk = await Milk.find({_id : detail.milk}).exec();
+  }
   // const milks = []
   const protections = await Protection.find({cow:id}).exec();
   // const protections = []
