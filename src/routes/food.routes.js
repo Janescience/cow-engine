@@ -12,9 +12,9 @@ module.exports = function(app) {
     next();
   });
 
-  app.get('/food',[authJwt.verifyToken],controller.getAll);
-  app.get('/food/:id',[authJwt.verifyToken],controller.get);
+  app.get('/food',[authJwt.verifyToken,logger],controller.getAll);
+  app.get('/food/:id',[authJwt.verifyToken,logger],controller.get);
   app.post("/food",[authJwt.verifyToken,verifyCreate.foodCheckDup,logger],controller.create);
   app.put("/food/:id",[authJwt.verifyToken,logger],controller.update);
-  app.delete("/food/:id",[authJwt.verifyToken],controller.delete);
+  app.delete("/food/:id",[authJwt.verifyToken,logger],controller.delete);
 };

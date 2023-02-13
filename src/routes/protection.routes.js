@@ -12,9 +12,9 @@ module.exports = function(app) {
     next();
   });
 
-  app.get('/protection',[authJwt.verifyToken],controller.getAll);
-  app.get('/protection/:id',[authJwt.verifyToken],controller.get);
+  app.get('/protection',[authJwt.verifyToken,logger],controller.getAll);
+  app.get('/protection/:id',[authJwt.verifyToken,logger],controller.get);
   app.post("/protection",[authJwt.verifyToken,verifyCreate.protectionCheckDup,logger],controller.create);
   app.put("/protection/:id",[authJwt.verifyToken,logger],controller.update);
-  app.delete("/protection",[authJwt.verifyToken],controller.delete);
+  app.delete("/protection",[authJwt.verifyToken,logger],controller.delete);
 };

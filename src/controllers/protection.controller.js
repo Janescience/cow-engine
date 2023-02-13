@@ -10,6 +10,7 @@ exports.getAll = async (req, res) => {
         filter.vaccine = {'$regex' :  vaccine , '$options' : 'i'}
     }
     const protections = await Protection.find(filter).exec();
+    console.log('Protections : ',protections)
     res.json({protections});
 };
 

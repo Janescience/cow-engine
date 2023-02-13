@@ -10,6 +10,7 @@ exports.getAll = async (req, res) => {
     for(let food of foods){
         food.recipe = await Recipe.findOne({_id:food.recipe});
     }
+    console.log('Foods : ',foods);
     res.json({foods});
 };
 
