@@ -1,5 +1,11 @@
 const db = require("../models");
 const Cow = db.cow;
+const Birth = db.birth;
+const Food = db.food;
+const Heal = db.heal;
+const Milk = db.milk;
+const Protection = db.protection;
+const Reproduction = db.reproduction;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
@@ -34,16 +40,34 @@ exports.get = async (req, res) => {
     res.status(200).send({cow});
 };
 
+exports.getDetails = async (req, res) => {
+  const id = req.params.id
+
+  const cow = await Cow.findById(id).exec();;
+  const births = await Birth.find({cow:id}).exec();
+  const heals = await Heal.find({cow:id}).exec();
+  const foods = await Food.find({cow:id}).exec();
+  const milks = await Milk.find({cow:id}).exec();
+  const protections = await Protection.find({cow:id}).exec();
+  const reproductions = await Reproduction.find({cow:id}).exec();
+
+  res.status(200).send({
+    cow,
+    births,
+    heals,
+    foods,
+    milks,
+    protections,
+    reproductions
+  });
+  
+};
+
 exports.create = async (req, res) => {
     const data = req.body;
     data.farm = req.farmId;
     const newCow = new Cow(data);
-    await newCow.save((err, cow) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-    })
+    await newCow.save();
     res.status(200).send({newCow});
 };
 
