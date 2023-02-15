@@ -48,7 +48,8 @@ exports.getDetails = async (req, res) => {
   const births = await Birth.find({cow:id}).exec();
   const heals = await Heal.find({cow:id}).exec();
   const foods = await Food.find({cow:id}).exec();
-  const milks = await Milk.find({farm :farmId}).populate({path:'milkDetails',match:{cow:id}}).exec();
+  // const milks = await Milk.find({farm :farmId}).populate({path:'milkDetails',match:{cow:id}}).exec();
+  const milks = []
   const protections = await Protection.find({cow:id}).exec();
   const reproductions = await Reproduction.find({cow:id}).exec();
 
