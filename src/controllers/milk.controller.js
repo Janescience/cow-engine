@@ -8,7 +8,7 @@ exports.getAll = async (req, res) => {
     filter.farm = req.farmId
 
     const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
-    let result = [];
+    
     for(let milk of milks){
         for(let milkDetail of milk.milkDetails){
             let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
