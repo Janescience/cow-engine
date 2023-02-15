@@ -62,13 +62,13 @@ exports.getDetails = async (req, res) => {
   const reproductions = []
 
   res.status(200).send({
-    cow,
-    births,
-    heals,
-    foods,
-    milks,
-    protections,
-    reproductions
+    // cow,
+    // births,
+    // heals,
+    // foods,
+    milks
+    // protections,
+    // reproductions
   });
   
 };
