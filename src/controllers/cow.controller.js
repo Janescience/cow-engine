@@ -44,10 +44,10 @@ exports.get = async (req, res) => {
 exports.getDetails = async (req, res) => {
   const id = req.params.id
   const farmId =  req.farmId
-  const cow = await Cow.findById(id).exec();
+  // const cow = await Cow.findById(id).exec();
   // const cow = {}
-  // const births = await Birth.find({cow:id}).exec();
-  const births = []
+  const births = await Birth.find({cow:id}).exec();
+  // const births = []
   // const heals = await Heal.find({cow:id}).exec();
   const heals = []
   // const foods = await Food.find({cow:id}).exec();
@@ -62,8 +62,8 @@ exports.getDetails = async (req, res) => {
   const reproductions = []
 
   res.status(200).send({
-    cow,
-    // births,
+    // cow,
+    births,
     // heals,
     // foods,
     milks
