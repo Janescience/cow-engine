@@ -12,7 +12,6 @@ const path = require('path');
 const { logger } = require('./src/middlewares/log-events');
 const errorHandler  = require('./src/middlewares/error-handler');
 
-var timeout = require('connect-timeout');
 
 
 //Configure dotenv files above using any other library and files
@@ -38,7 +37,6 @@ const corsOption = {
   },
   optionsSuccessStatus : 200
 }
-app.use(timeout('30s'))
 app.use(cors(corsOption))// CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
 app.use(express.json({limit:'50mb'}))
 app.use(express.urlencoded({limit: '50mb', extended:true }))

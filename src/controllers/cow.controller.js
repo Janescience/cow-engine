@@ -48,18 +48,9 @@ exports.getDetails = async (req, res) => {
   const births = await Birth.find({cow:id}).exec();
   const heals = await Heal.find({cow:id}).exec();
   const foods = await Food.find({cow:id}).exec();
-  // const foods = []
-  const milks = await MilkDetail.find({cow:id}).exec();
-  for(let detail of milks){
-    let milk = await Milk.find({_id : detail.milk}).exec();
-    let cow = await Cow.find({_id : detail.cow}).exec();
-    detail.relate = { milk : milk, cow : { _id : cow._id , code : cow.code , name : cow.anem} }
-  }
-  // const milks = []
+  const milks = await Milk.find({farm :farmId}).populate({path:'milkDetails',match:{cow:id}}).exec();
   const protections = await Protection.find({cow:id}).exec();
-  // const protections = []
   const reproductions = await Reproduction.find({cow:id}).exec();
-  // const reproductions = []
 
   res.status(200).send({
     cow,
