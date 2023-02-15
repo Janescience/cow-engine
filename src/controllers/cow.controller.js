@@ -47,28 +47,27 @@ exports.getDetails = async (req, res) => {
   // const cow = await Cow.findById(id).exec();
   // const cow = {}
   const births = await Birth.find({cow:id}).exec();
-  // const births = []
-  // const heals = await Heal.find({cow:id}).exec();
-  const heals = []
-  // const foods = await Food.find({cow:id}).exec();
-  const foods = []
+  const heals = await Heal.find({cow:id}).exec();
+  // const heals = []
+  const foods = await Food.find({cow:id}).exec();
+  // const foods = []
 
   const filter = req.query
   filter.farm = req.farmId
   const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
-  // const protections = await Protection.find({cow:id}).exec();
-  const protections = []
-  // const reproductions = await Reproduction.find({cow:id}).exec();
-  const reproductions = []
+  const protections = await Protection.find({cow:id}).exec();
+  // const protections = []
+  const reproductions = await Reproduction.find({cow:id}).exec();
+  // const reproductions = []
 
   res.status(200).send({
     // cow,
     births,
-    // heals,
-    // foods,
-    milks
-    // protections,
-    // reproductions
+    heals,
+    foods,
+    milks,
+    protections,
+    reproductions
   });
   
 };
