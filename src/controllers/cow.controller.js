@@ -48,8 +48,8 @@ exports.getDetails = async (req, res) => {
   // cow.image = "";
 
   const births = await Birth.find({cow:id}).exec();
-  const births2 = await Birth.find({cow:id}).exec();
   const heals = await Heal.find({cow:id}).exec();
+  const heals2 = await Heal.find({cow:id}).exec();
   const foods = await Food.find({cow:id}).exec();
   const milks = await Milk.find({farm:farmId}).populate('milkDetails').sort({date:-1}).exec();
   const protections = await Protection.find({cow:id}).exec();
@@ -58,7 +58,7 @@ exports.getDetails = async (req, res) => {
   res.status(200).send({
     // cow,
     births,
-    births2,
+    heals2,
     heals,
     foods,
     milks,
