@@ -23,8 +23,16 @@ exports.getAll = async (req, res) => {
 
 exports.get = async (req, res) => {
     const filter = req.query
-    const milk = await Milk.find(filter).populate('milkDetails').exec();
-    res.status(200).send({milk});
+    filter.farm = req.farmId;
+    // const milks = await Milk.find(filter).populate({path:'milkDetails',match : { cow : filter.cow }}).exec();
+    // for(let milk of milks){
+    //     for(let detail of milk.milkDetails){
+    //         detail.milk = ""
+    //         detail.cow = ""
+    //     }    
+    // }
+    const milks = await Milk.find(filter).exec();
+    res.status(200).send({milks});
 };
 
 exports.create = async (req, res) => {
