@@ -56,10 +56,10 @@ exports.getDetails = async (req, res) => {
     cow,
     births,
     heals,
-    // foods,
-    // milks,
-    // protections,
-    // reproductions
+    foods,
+    milks,
+    protections,
+    reproductions
   });
   
 };
