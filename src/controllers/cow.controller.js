@@ -46,7 +46,7 @@ exports.getDetails = async (req, res) => {
   const farmId =  req.farmId
   // const cow = await Cow.findOne({_id:id}).exec();
   // cow.image = "";
-  const cow = {}
+  const cow = []
   const births = await Birth.find({cow:id}).exec();
   const heals = await Heal.find({cow:id}).exec();
   const foods = await Food.find({cow:id}).exec();
