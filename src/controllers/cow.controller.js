@@ -47,6 +47,12 @@ exports.getDetails = async (req, res) => {
   // const cow = await Cow.findOne({_id:id}).exec();
   // cow.image = "";
   const cow = []
+  const cow1 = []
+  const cow2 = []
+  const cow3 = []
+  const cow4 = []
+  const cow5 = []
+  const cow6 = []
   const births = await Birth.find({cow:id}).exec();
   const heals = await Heal.find({cow:id}).exec();
   const foods = await Food.find({cow:id}).exec();
@@ -56,12 +62,18 @@ exports.getDetails = async (req, res) => {
 
   res.status(200).send({
     cow,
-    births,
-    heals,
-    foods,
-    milks,
-    protections,
-    reproductions
+    cow1,
+    cow2,
+    cow3,
+    cow4,
+    cow5,
+    cow6,
+    // births,
+    // heals,
+    // foods,
+    // milks,
+    // protections,
+    // reproductions
   });
   
 };
