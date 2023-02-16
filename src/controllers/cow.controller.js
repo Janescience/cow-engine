@@ -55,7 +55,7 @@ exports.getDetails = async (req, res) => {
   const reproductions = await Reproduction.find({cow:id}).exec();
 
   res.status(200).send({
-    cow
+    cow,
     births,
     heals,
     foods,
