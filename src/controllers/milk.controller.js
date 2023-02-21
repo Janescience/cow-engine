@@ -7,16 +7,17 @@ exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
 
-    const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
+    // const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
+    const milks = await Milk.find(filter).sort({date:-1}).exec();
     
-    for(let milk of milks){
-        for(let milkDetail of milk.milkDetails){
-            let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
-            if(cow){
-                milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
-            }
-        }
-    }
+    // for(let milk of milks){
+    //     for(let milkDetail of milk.milkDetails){
+    //         let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
+    //         if(cow){
+    //             milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
+    //         }
+    //     }
+    // }
 
     res.status(200).send({milks});
 };

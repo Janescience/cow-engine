@@ -16,7 +16,7 @@ const Milk = mongoose.model(
             ref: "farm",
             required:true,
         },
-        milkDetails: [{ type: mongoose.Schema.Types.ObjectId, ref: 'milkDetail' }]
+        // milkDetails: [{ type: mongoose.Schema.Types.ObjectId, ref: 'milkDetail' }]
     }, { timestamps: true })
 )
 
