@@ -38,7 +38,7 @@ exports.get = async (req, res) => {
     );
 
     for(let milk of milks){
-        milk.milkDetails = await MilkDetail.find({milk:milk._id}).exec();
+        milk.details = await MilkDetail.find({milk:milk._id}).exec();
     }
 
     res.json(
