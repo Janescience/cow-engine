@@ -9,7 +9,7 @@ exports.getAll = async (req, res) => {
 
     // const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
     const milks = await Milk.find(filter).sort({date:-1}).exec();
-    
+
     // for(let milk of milks){
     //     for(let milkDetail of milk.milkDetails){
     //         let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
@@ -18,6 +18,10 @@ exports.getAll = async (req, res) => {
     //         }
     //     }
     // }
+
+    for(let milk of milks){
+        milk.details = await MilkDetail.find({milk:milk._id}).exec();
+    }
 
     res.status(200).send({milks});
 };
@@ -44,17 +48,11 @@ exports.create = async (req, res) => {
     const newMilk = new Milk(milkSave);
     
     newMilk.save(async (err,milk) => {
-        const detailIds = [];
         for(let detail of data.milkDetails){
             detail.milk = milk._id;
             const newMilkDetail = new MilkDetail(detail);
-
-            const milkDetail = await newMilkDetail.save();
-            detailIds.push(milkDetail._id)
+            await newMilkDetail.save();
         }
-
-        milk.milkDetails = detailIds;
-        await milk.save();
     });
 
     res.status(200).send({newMilk});
