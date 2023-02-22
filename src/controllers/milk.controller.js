@@ -33,6 +33,16 @@ exports.get = async (req, res) => {
     res.status(200).send({milks});
 };
 
+exports.getDetail = async (req, res) => {
+    const filter = req.query
+    filter.farm = req.farmId;
+    const milkDetails = await MilkDetail.find(filter).exec();
+    // for(let milk of milks){
+    //     milk.details = await MilkDetail.find({milk:milk._id,cow : filter.cow}).exec();
+    // }
+    res.status(200).send({milkDetails});
+};
+
 exports.create = async (req, res) => {
     const data = req.body;
     const farmId = req.farmId
