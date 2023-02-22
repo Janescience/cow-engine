@@ -25,7 +25,7 @@ exports.create = async (req, res) => {
     data.farm = req.farmId
 
     const newProtection = new Protection(data);
-    await newProtection.save((err, protection) => {
+    newProtection.save((err, protection) => {
         if (err) {
             console.error("Protection save error : ",err)
             res.status(500).send({ message: err });
@@ -35,7 +35,7 @@ exports.create = async (req, res) => {
         console.log("Protection saved : ",protection)
     })
     
-    res.status(200);
+    res.status(200).send({newProtection});
 };
 
 exports.update = async (req, res) => {
