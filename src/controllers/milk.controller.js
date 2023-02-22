@@ -41,11 +41,11 @@ exports.create = async (req, res) => {
     const newMilk = new Milk(milkSave);
     
     newMilk.save(async (err,milk) => {
-        for(let detail of data.milkDetails){
-            detail.milk = milk._id;
-            const newMilkDetail = new MilkDetail(detail);
-            await newMilkDetail.save();
-        }
+        // for(let detail of data.milkDetails){
+        //     detail.milk = milk._id;
+        //     const newMilkDetail = new MilkDetail(detail);
+        //     await newMilkDetail.save();
+        // }
     });
 
     res.status(200).send({newMilk});
