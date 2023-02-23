@@ -1,7 +1,7 @@
 const db = require("../models");
 const Cow = db.cow;
 const Milk = db.milk;
-const MilkDetail = db.milkDetail;
+const Heal = db.heal;
 
 exports.get = async (req, res) => {
     const filter = req.query
@@ -10,12 +10,15 @@ exports.get = async (req, res) => {
 
     filter.farm = farmId
     const cows = await Cow.find(filter).exec();
+    const heals = await Heal.find(filter).exec();
     const cow = {
         all : cows.length,
         milk : cows.filter(c => c.status === 3).length,
         pregnant : cows.filter(c => c.status === 1).length,
         baby : cows.filter(c => c.status === 4).length,
         dry : cows.filter(c => c.status === 2).length,
+        premiuem : cows.filter(c => c.quality === 2).length,
+        sick : heals.length,
         avgMaxMilk : null,
         sumMaxMilk : null
     }
