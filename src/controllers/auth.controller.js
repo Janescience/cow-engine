@@ -63,6 +63,8 @@ exports.signin = (req, res) => {
 
         const farm = await Farm.findById(user.farm).exec();
 
+        await RefreshToken.deleteMany({user:user._id}).exec();
+
         let refreshToken = await RefreshToken.createToken(user,config.jwtRefreshExpiration);
 
         console.log("Signined : "+req.body.username)
@@ -115,7 +117,9 @@ exports.refreshToken = async (req, res) => {
     return;
   }
 
-  let newAccessToken = jwt.sign({ id: refreshToken.user.farm }, config.secret, {
+  const user = await User.findOne(refreshToken.user).exec();
+
+  let newAccessToken = jwt.sign({ id: user.farm }, config.secret, {
     expiresIn: config.jwtExpiration,
   });
 
