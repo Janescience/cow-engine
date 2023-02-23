@@ -7,12 +7,10 @@ exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
 
-    // const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
-    const milks = await Milk.find(filter).sort({date:-1}).exec();
+    const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
 
     for(let milk of milks){
-        milk.details = await MilkDetail.find({milk:milk._id}).exec();
-        for(let milkDetail of milk.details){
+        for(let milkDetail of milk.milkDetails){
             let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
             if(cow){
                 milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
@@ -25,16 +23,9 @@ exports.getAll = async (req, res) => {
 
 exports.get = async (req, res) => {
     const filter = req.query
-    filter.farm = req.farmId;
-    const milks = await Milk.find(filter).exec();
+    const farmId = req.farmId;
+    const milks = await Milk.find({farm:farmId}).populate({path:'milkDetails',match : { cow : filter.cow }}).exec();
     res.status(200).send({milks});
-};
-
-exports.getDetail = async (req, res) => {
-    const filter = req.query
-    filter.farm = req.farmId;
-    const milkDetails = await MilkDetail.find(filter).exec();
-    res.status(200).send({milkDetails});
 };
 
 exports.create = async (req, res) => {
@@ -45,11 +36,17 @@ exports.create = async (req, res) => {
     const newMilk = new Milk(milkSave);
     
     newMilk.save(async (err,milk) => {
+        const detailIds = [];
         for(let detail of data.milkDetails){
             detail.milk = milk._id;
             const newMilkDetail = new MilkDetail(detail);
-            await newMilkDetail.save();
+            
+            const milkDetail = await newMilkDetail.save();
+            detailIds.push(milkDetail._id)
         }
+
+        milk.milkDetails = detailIds;
+        await milk.save();
     });
 
     res.status(200).send({newMilk});

@@ -13,7 +13,6 @@ module.exports = function(app) {
 
   app.get('/milking/all',[authJwt.verifyToken,logger],controller.getAll);
   app.get('/milking',[authJwt.verifyToken,logger],controller.get);
-  app.get('/milking/detail',[authJwt.verifyToken,logger],controller.getDetail);
   app.post("/milking",[authJwt.verifyToken,verifyCreate.milkingCheckDup,logger],controller.create);
   app.put("/milking/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/milking/:id",[authJwt.verifyToken,logger],controller.delete);

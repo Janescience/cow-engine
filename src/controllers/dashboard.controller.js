@@ -35,16 +35,12 @@ exports.get = async (req, res) => {
             date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
             farm : farmId
         }
-    );
-
-    const milkDetails = await MilkDetail.find({farm:farmId}).exec();
-    
+    ).populate('milkDetails');
 
     res.json(
         {
             cow,
-            milks,
-            milkDetails
+            milks
         }
     );
 };
