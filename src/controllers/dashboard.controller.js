@@ -37,14 +37,14 @@ exports.get = async (req, res) => {
         }
     );
 
-    for(let milk of milks){
-        milk.details = await MilkDetail.find({milk:milk._id}).exec();
-    }
+    const milkDetails = await MilkDetail.find({farm:farmId}).exec();
+    
 
     res.json(
         {
             cow,
-            milks
+            milks,
+            milkDetails
         }
     );
 };
