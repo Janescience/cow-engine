@@ -14,5 +14,6 @@ db.notificationLogs = require("./notificationLogs.model");
 db.recipe = require("./recipe.model");
 db.recipeDetail = require("./recipeDetail.model");
 db.refreshToken = require("./refreshToken.model");
+db.param = require("./param.model");
 
 module.exports = db;

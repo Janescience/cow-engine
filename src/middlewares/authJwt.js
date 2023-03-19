@@ -23,8 +23,6 @@ const verifyToken =  (req, res, next) => {
       return catchError(err, res);
     }
     req.farmId = decoded.id;
-    console.log("decoded : ",decoded)
-    console.log("farm id : ",req.farmId)
     next();
   });
 

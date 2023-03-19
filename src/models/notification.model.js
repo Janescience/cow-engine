@@ -1,27 +1,19 @@
 const mongoose = require("mongoose")
 
-const NotificationLogs = mongoose.model(
-    'notificationLogs',
+const Notification = mongoose.model(
+    'notification',
     new mongoose.Schema({
-        respMessage:{
-            type:String,
-            required:false
-        },
-        status:{
+        status:{ // W : Wait , S : Success
             type:String,
             required:true
         },
-        type:{
+        dataId:{ 
             type:String,
             required:true
         },
-        message:{
-            type:String,
-            required:true
-        },
-        notification : {
+        notificationParam:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "notification",
+            ref: "notificationParam",
             required:true,
         },
         farm:{
@@ -32,4 +24,4 @@ const NotificationLogs = mongoose.model(
     }, { timestamps: true })
 )
 
-module.exports = NotificationLogs
+module.exports = Notification

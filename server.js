@@ -62,6 +62,7 @@ require('./src/routes/recipe.routes')(app);
 require('./src/routes/dashboard.routes')(app);
 require('./src/routes/report.routes')(app);
 require('./src/routes/notification.routes')(app);
+require('./src/routes/param.routes')(app);
 
 // basic route
 app.get(["/","/index.html"],(req,res) => {
