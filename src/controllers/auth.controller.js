@@ -3,6 +3,7 @@ const db = require("../models");
 const User = db.user;
 const Farm = db.farm;
 const RefreshToken = db.refreshToken;
+const NotiParam = db.notificationParam;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -29,6 +30,21 @@ exports.signup = async (req, res) => {
 
     const userResp = await user.save();
     console.log("user saved : ",userResp);
+
+    const notiParams = [
+      { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', farm : farm },
+      { code : 'REPRO_MATING' ,name : 'การผสม', farm : farm },
+      { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', farm : farm },
+      { code : 'BIRTH' ,name : 'การคลอด', farm : farm },
+      { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย(FMD)', farm : farm },
+      { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน(LUMPY SKIN)', farm : farm },
+      { code : 'VACCINE_CDT' ,name : 'วัคซีนลาดหลัง(CYDECTIN)', farm : farm },
+      { code : 'VACCINE_BIO' ,name : 'ยาบำรุง(BIO)', farm : farm },
+      { code : 'VACCINE_IVOMEC' ,name : 'ยาถ่ายพยาธิ(IVOMEC)', farm : farm },
+    ]
+
+    const notiParamRest = await NotiParam.insertMany(notiParams);
+    console.log("noti param saved : ",notiParamRest);
 
     res.status(200).send({message:"Registered Successfully."});
 

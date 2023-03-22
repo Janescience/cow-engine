@@ -12,9 +12,9 @@ module.exports = function(app) {
     next();
   });
 
-  app.get('/param',[authJwt.verifyToken],controller.getAll);
-  app.get('/param/:id',[authJwt.verifyToken],controller.get);
+  app.get('/param',[authJwt.verifyToken,logger],controller.getAll);
+  app.get('/param/:id',[authJwt.verifyToken,logger],controller.get);
   app.post("/param",[authJwt.verifyToken,logger],controller.create);
   app.put("/param/:id",[authJwt.verifyToken,logger],controller.update);
-  app.delete("/param/:id",[authJwt.verifyToken],controller.delete);
+  app.delete("/param/:id",[authJwt.verifyToken,logger],controller.delete);
 };

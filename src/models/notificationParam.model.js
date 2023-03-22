@@ -9,7 +9,8 @@ const NotificationParam = mongoose.model(
         },
         beforeType:{ // D : Day , M : Month
             type:String,
-            required:false
+            required:false,
+            default : 'D'
         },
         dueDate : { // Alert on due date ?
             type:Boolean,
@@ -22,9 +23,14 @@ const NotificationParam = mongoose.model(
         },
         afterType:{  // D : Day , M : Month
             type:String,
-            required:false
+            required:false,
+            default : 'D'
         },
         code:{ // REPRO_ESTRUST, REPRO_MATING , REPRO_CHECK, BIRTH, VACCINE
+            type:String,
+            required:true
+        },
+        name:{ 
             type:String,
             required:true
         },
