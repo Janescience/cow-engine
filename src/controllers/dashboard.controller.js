@@ -1,14 +1,21 @@
 const db = require("../models");
+const moment = require("moment");
 const Cow = db.cow;
 const Milk = db.milk;
 const Heal = db.heal;
+const Noti = db.notification;
+const Reproduction = db.reproduction;
 
 exports.get = async (req, res) => {
     const filter = req.query
     const farmId = req.farmId;
     const ObjectID = require('mongodb').ObjectId;
 
+    const today = moment(new Date()).startOf('day');
+
     filter.farm = farmId
+
+    //Cow
     const cows = await Cow.find(filter).exec();
     const heals = await Heal.find(filter).exec();
     const cow = {
@@ -23,6 +30,7 @@ exports.get = async (req, res) => {
         sumMaxMilk : null
     }
 
+    //Milks
     let year = new Date().getFullYear();
 
     let start = new Date(year,0,1)
@@ -40,10 +48,43 @@ exports.get = async (req, res) => {
         }
     ).populate('milkDetails');
 
+
+    // Events    
+    const notifications = await Noti.find({farm:farmId}).populate('notificationParam').sort({createdAt:-1}).exec();
+    let events = []
+    for(let noti of notifications){
+        const notiParam = noti.notificationParam;
+
+        let data = null;
+        if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
+            data = await Reproduction.findById(noti.dataId).populate('cow').exec();
+        }
+
+        if(data != null){
+            let dueDate = null;
+            if(notiParam.code === 'REPRO_ESTRUST'){
+                dueDate = moment(new Date(data.estrusDate)).startOf('day');
+            }else if(notiParam.code === 'REPRO_MATING'){
+                dueDate = moment(new Date(data.matingDate)).startOf('day');
+            }else if(notiParam.code === 'REPRO_CHECK'){
+                dueDate = moment(new Date(data.checkDate)).startOf('day');
+            }
+            if(today.isSameOrBefore(dueDate)){
+                const event = {
+                    title : notiParam.name + ' / ' + data.cow.name,
+                    date : dueDate,
+                }
+                events.push(event);
+            }
+            
+        }
+    }
+
     res.json(
         {
             cow,
-            milks
+            milks,
+            events
         }
     );
 };
