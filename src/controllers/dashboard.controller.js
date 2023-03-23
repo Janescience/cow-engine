@@ -71,10 +71,13 @@ exports.get = async (req, res) => {
             }
             if(today.isSameOrBefore(dueDate)){
                 const event = {
-                    title : notiParam.name + ' / ' + data.cow.name,
+                    title : notiParam.name ,
                     date : dueDate,
+                    cow : data.cow.name
                 }
-                events.push(event);
+                if(events.length < 10){
+                    events.push(event);
+                }
             }
             
         }
