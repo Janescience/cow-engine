@@ -11,5 +11,6 @@ module.exports = function(app) {
     next();
   });
 
-  app.get("/notification/logs",[authJwt.verifyToken,logger],controller.get);
+  app.get("/notification/logs",[authJwt.verifyToken,logger],controller.getLogs);
+  app.get("/notification/calendar",[authJwt.verifyToken,logger],controller.getCalendar);
 };
