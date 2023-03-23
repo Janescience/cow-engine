@@ -5,6 +5,10 @@ const db = require("../models");
 const User = db.user;
 const Farm = db.farm;
 const NotiLogs = db.notificationLogs;
+const Notification = db.notification;
+
+const { notiService } = require("../services")
+
 
 dotenv.config();
 
@@ -56,7 +60,7 @@ const token =  async (code,username) => {
 }
 
 //Notification to Line
-const notify = async (text,type,farm,token) => {
+const notify = async (text,type,farm,token,notiIds,time) => {
     await axios.post(
         url_line_notification,
         qs.stringify({message:text}),
@@ -68,30 +72,24 @@ const notify = async (text,type,farm,token) => {
         },
         ).then(function (response) {
             console.log('Notify Successfully : ',response.data);
-            const newNotiLog = new NotiLogs({
-                message : text,
-                type : type,
-                status : 'S',
-                respMessage : 'status='+response.data.status + ',message='+response.data.message,
-                farm : farm
-            });
-            newNotiLog.save();
 
-            console.log('Notification log saved : ',newNotiLog);
+            const respMsg = 'status='+response.data.status + ',message='+response.data.message;
+
+            notiService.saveLog(text,type,'S',respMsg,farm,notiIds);
+
+            if(time === 'Before'){
+                notiService.updateStatusBefore(notiIds,'S');
+            }
+
+            if(time === 'After'){
+                notiService.updateStatusAfter(notiIds,'S');
+            }
+
             return response.data;
         })
         .catch(function (error) {
             console.error('Notification Error : ',error);
-            
-            const newNotiLog = new NotiLogs({
-                message : text,
-                type : type,
-                status : 'F',
-                respMessage : JSON.stringify(error),
-                farm : farm
-            });
-            newNotiLog.save();
-            console.log('Notification log saved : ',newNotiLog);
+            notiService.saveLog(text,type,'F',JSON.stringify(error),farm,notiIds);
         });
 }
 

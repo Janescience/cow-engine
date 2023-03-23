@@ -2,6 +2,8 @@ const db = require("../models");
 const Reproduct = db.reproduction;
 const Birth = db.birth;
 const Cow = db.cow;
+const Notification = db.notification
+const NotificationParam = db.notificationParam
 
 exports.getAll = async (req, res) => {
     const filter = req.query
@@ -36,12 +38,30 @@ exports.create = async (req, res) => {
     }
     
     const newReproduct = new Reproduct(data);
-    await newReproduct.save((err, cow) => {
+    newReproduct.save(async (err, repro) => {
+
         if (err) {
           res.status(500).send({ message: err });
           return;
         }
+
+        const notiParams = await NotificationParam.find({code:{'$in' : ['REPRO_ESTRUST','REPRO_MATING','REPRO_CHECK']}}).exec();
+        for(let notiParam of notiParams){
+            const noti = new Notification(
+                {
+                    farm:req.farmId,
+                    notificationParam:notiParam._id,
+                    statusBefore : notiParam.before && notiParam.before > 0 ? 'W' : 'N',
+                    statusAfter : notiParam.after && notiParam.after > 0 ? 'W' : 'N',
+                    dataId : repro._id 
+                }
+            );
+            await noti.save();
+        }
+        
     })
+
+
     res.status(200).send({newReproduct});
 };
 
@@ -81,5 +101,6 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
     const id = req.params.id;
     const deletedReproduct = await Reproduct.deleteOne({_id:id});
+    await Notification.deleteMany({dataId : id}).exec();
     res.status(200).send({deletedReproduct});
 };

@@ -3,7 +3,11 @@ const mongoose = require("mongoose")
 const Notification = mongoose.model(
     'notification',
     new mongoose.Schema({
-        status:{ // W : Wait , S : Success
+        statusBefore:{ // W : Wait , S : Success , N : Not Alert
+            type:String,
+            required:true
+        },
+        statusAfter:{ // W : Wait , S : Success , N : Not Alert
             type:String,
             required:true
         },

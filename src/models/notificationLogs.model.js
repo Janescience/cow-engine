@@ -19,11 +19,11 @@ const NotificationLogs = mongoose.model(
             type:String,
             required:true
         },
-        notification : {
+        notification : [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "notification",
             required:true,
-        },
+        }],
         farm:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm",

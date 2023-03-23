@@ -11,8 +11,8 @@ const path = require('path');
 
 const { logger } = require('./src/middlewares/log-events');
 const errorHandler  = require('./src/middlewares/error-handler');
-
-
+const moment = require('moment');
+require('moment/locale/th');
 
 //Configure dotenv files above using any other library and files
 dotenv.config(); 
