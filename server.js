@@ -18,7 +18,7 @@ require('moment/locale/th');
 dotenv.config(); 
 require('./src/config/conn');
 // require('./src/config/conn.memory');
-// require('./src/schedule/notify-cron');
+require('./src/schedule/notify-cron');
 
  // Initialize Express App 
 const app = express();
@@ -64,6 +64,7 @@ require('./src/routes/report.routes')(app);
 require('./src/routes/notification.routes')(app);
 require('./src/routes/param.routes')(app);
 require('./src/routes/notificationParam.routes')(app);
+require('./src/routes/notification.routes')(app);
 
 // basic route
 app.get(["/","/index.html"],(req,res) => {

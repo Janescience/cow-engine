@@ -9,7 +9,7 @@ const Notification = db.notification;
 const Reproduction = db.reproduction;
 const Farm = db.farm;
 
-const notify = cron.schedule('*/10 * * * * *',  async function() {
+const notify = cron.schedule('0 0 2 * * *',  async function() {
     console.log('=======> Start schedule line notify <=======')
     console.log('-------> '+new Date()+' <-------')
 
@@ -17,23 +17,26 @@ const notify = cron.schedule('*/10 * * * * *',  async function() {
         const today = moment(new Date()).startOf('day');
         console.log('today : ',today);
 
-        let textAlertBefore = 'แจ้งเตือนก่อนครบกำหนด ('+today.format('dddd DD MMMM yyyy')+')';
-        let textAlertAfter = 'แจ้งเตือนหลังครบกำหนด ('+today.format('dddd DD MMMM yyyy')+')';
-
         const notis = await Notification.find({'$or':[{statusBefore : 'W'},{statusAfter : 'W'}]}).populate('notificationParam').exec();
         const notiGroupFarms = _.groupBy(notis,'farm');
 
-        for(let key of Array.prototype.keys.call(notiGroupFarms)){
+        for(let key of Object.keys(notiGroupFarms)){
             const notis =  notiGroupFarms[key];
 
-            const farm = await Farm.findById(key).exec();
+            const farm = await Farm.findOne({_id:key}).exec();
 
+            let textAlert = '\nแจ้งเตือนวันนี้ ('+today.format('dddd DD MMMM yyyy')+')\n';
+            let textAlertBefore = '\nแจ้งเตือนก่อนครบกำหนด ('+today.format('dddd DD MMMM yyyy')+')\n';
+            let textAlertAfter = '\nแจ้งเตือนหลังครบกำหนด ('+today.format('dddd DD MMMM yyyy')+')\n';
+
+            let notiIdToday = [];
             let notiIdBefores = [];
             let notiIdAfters = [];
+
+            console.log('\n---------------------------------------------------------');
+            console.log('=======> Farm : '+ farm.code +' - ' + farm.name +' <=======');
             
             for(let noti of notis){
-                const farm = noti.farm;
-
                 if(farm.lineToken != null){
 
                     const notiParam = noti.notificationParam;
@@ -41,71 +44,83 @@ const notify = cron.schedule('*/10 * * * * *',  async function() {
                     if(notiParam != null){
 
                         console.log('\n##################################################');
-                        console.log('=======> Notification : '+ notiParam.code +' <=======');
-                        console.log('noti param : ',notiParam);
+                        console.log('=======> Notification : '+ notiParam.code +' - ' + notiParam.name +' <=======');
 
                         let data = null;
                         if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
                             data = await Reproduction.findById(noti.dataId).populate('cow').exec();
                         }
 
-                            if(data != null){
-                                
-                                const numBefore = notiParam.before;
-                                const numAfter = notiParam.after;
+                        if(data != null){
+                            
+                            const alertToday = notiParam.dueDate;
+                            const numBefore = notiParam.before;
+                            const numAfter = notiParam.after;
 
-                                let dueDate = null;
-                                if(notiParam.code === 'REPRO_ESTRUST'){
-                                    dueDate = moment(new Date(repro.estrusDate));
-                                }else if(notiParam.code === 'REPRO_MATING'){
-                                    dueDate = moment(new Date(repro.matingDate));
-                                }else if(notiParam.code === 'REPRO_CHECK'){
-                                    dueDate = moment(new Date(repro.checkDate));
-                                }
-
+                            if(alertToday){
+                                console.log('\n////// Today //////');
+                                const dueDate = filterDueDate(notiParam,data);
                                 console.log('dueDate : ',dueDate);
+                                console.log('alert : ',today.isSame(dueDate.startOf('day')));
 
-                                if(noti.statusBefore === 'W'){
-                                    console.log('////// Before //////');
-
-                                    const dueDateBefore = dueDate.startOf('day').subtract(numBefore,'days')
-
-                                    console.log('dueDateBefore : ',dueDateBefore);
-                                    console.log('alert : ',dueDateBefore.isSame(today));
-
-                                    if(dueDateBefore.isSame(today)){
-                                        notiIdBefores.push(noti._id);
-                                        textAlertBefore += '\nเรื่อง : '+notiParam.name;
-                                        textAlertBefore += '\nโค : ' + data.cow.name ;
-                                        textAlertBefore += '\nครบกำหนด : ' + moment(dueDate).format('dddd DD MMMM yyyy');
-                                        textAlertBefore += '\nระยะเวลา : อีก ' +numBefore + ' วัน ';
-                                        textAlertBefore += '\n***************************\n';
-                                    }
-                                }
-
-                                if(noti.statusAfter === 'W'){
-                                    console.log('////// After //////');
-
-                                    const dueDateAfter = dueDate.startOf('day').add(numAfter,'days')
-
-                                    console.log('dueDateAfter : ',dueDateAfter);
-                                    console.log('alert : ',dueDateAfter.isSame(today));
-
-                                    if(dueDateAfter.isSame(today)){
-                                        notiIdAfters.push(noti._id);
-                                        textAlertAfter += '\nเรื่อง : '+notiParam.name;
-                                        textAlertAfter += '\nโค : ' + data.cow.name ;
-                                        textAlertAfter += '\nครบกำหนด : ' + moment(dueDate).format('dddd DD MMMM yyyy');
-                                        textAlertAfter += '\nระยะเวลา : ผ่านมาแล้ว ' +numBefore + ' วัน ';
-                                        textAlertAfter += '\n***************************\n';
-                                    }
+                                if(today.isSame(dueDate.startOf('day'))){
+                                    notiIdToday.push(noti._id);
+                                    textAlert += '\nเรื่อง : '+notiParam.name;
+                                    textAlert += '\nโค : ' + data.cow.name ;
+                                    textAlert += '\nครบกำหนด : วันนี้ !!';
+                                    textAlert += '\n*************************************';
                                 }
                             }
+
+                            if(noti.statusBefore === 'W' && numBefore){
+                                console.log('\n////// Before //////');
+
+                                const dueDate = filterDueDate(notiParam,data);
+                                const dueDateBefore = filterDueDate(notiParam,data).startOf('day').subtract(numBefore,'days')
+
+                                console.log('dueDate : ',dueDate);
+                                console.log('dueDateBefore : ',dueDateBefore);
+                                console.log('alert : ',dueDateBefore.isSame(today));
+
+                                if(dueDateBefore.isSame(today)){
+                                    notiIdBefores.push(noti._id);
+                                    textAlertBefore += '\nเรื่อง : '+notiParam.name;
+                                    textAlertBefore += '\nโค : ' + data.cow.name ;
+                                    textAlertBefore += '\nครบกำหนด : ' + moment(dueDate).format('dddd DD MMMM yyyy');
+                                    textAlertBefore += '\nระยะเวลา : อีก ' +numBefore + ' วัน ';
+                                    textAlertBefore += '\n*************************************';
+                                }
+                            }
+
+                            if(noti.statusAfter === 'W' && numAfter){
+                                console.log('////// After //////');
+
+                                const dueDate = filterDueDate(notiParam,data);
+                                const dueDateAfter = filterDueDate(notiParam,data).startOf('day').add(numAfter,'days')
+
+                                console.log('dueDate : ',dueDate);
+                                console.log('dueDateAfter : ',dueDateAfter);
+                                console.log('alert : ',dueDateAfter.isSame(today));
+
+                                if(dueDateAfter.isSame(today)){
+                                    notiIdAfters.push(noti._id);
+                                    textAlertAfter += '\nเรื่อง : '+notiParam.name;
+                                    textAlertAfter += '\nโค : ' + data.cow.name ;
+                                    textAlertAfter += '\nครบกำหนด : ' + moment(dueDate).format('dddd DD MMMM yyyy');
+                                    textAlertAfter += '\nระยะเวลา : ผ่านมาแล้ว ' +numBefore + ' วัน ';
+                                    textAlertAfter += '\n*************************************';
+                                }
+                            }
+                        }
                         
                     }
                 }else{
                     await notiService.saveLog('Farm value of lineToken is empty','B','F',null,farm._id,[noti._id])
                 }
+            }
+
+            if(notiIdToday.length > 0){
+                await lineApi.notify(textAlert,'B',farm._id,farm.lineToken,notiIdToday,'Today');
             }
             
             if(notiIdBefores.length > 0){
@@ -116,9 +131,8 @@ const notify = cron.schedule('*/10 * * * * *',  async function() {
                 await lineApi.notify(textAlertAfter,'B',farm._id,farm.lineToken,notiIdAfters,'After');
             }
 
+            console.log('\n---------------------------------------------------------');
         }
-
-
     } catch (error) {
         console.error('Error , schedule line notify : ',error)
     }
@@ -127,6 +141,19 @@ const notify = cron.schedule('*/10 * * * * *',  async function() {
     console.log('=======x End schedule line notify x=======')
 
 });
+
+const filterDueDate = (notiParam,data) => {
+
+    if(notiParam.code === 'REPRO_ESTRUST'){
+        return moment(new Date(data.estrusDate));
+    }else if(notiParam.code === 'REPRO_MATING'){
+        return moment(new Date(data.matingDate));
+    }else if(notiParam.code === 'REPRO_CHECK'){
+        return moment(new Date(data.checkDate));
+    }
+
+    return null;
+}
 
 const schedule = {
     notify

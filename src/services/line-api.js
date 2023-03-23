@@ -4,11 +4,8 @@ const dotenv = require('dotenv');
 const db = require("../models");
 const User = db.user;
 const Farm = db.farm;
-const NotiLogs = db.notificationLogs;
-const Notification = db.notification;
 
-const { notiService } = require("../services")
-
+const notiService = require("./notification.service")
 
 dotenv.config();
 
@@ -70,26 +67,26 @@ const notify = async (text,type,farm,token,notiIds,time) => {
                 'Authorization' : 'Bearer ' + token
             }
         },
-        ).then(function (response) {
+        ).then(async function (response) {
             console.log('Notify Successfully : ',response.data);
 
             const respMsg = 'status='+response.data.status + ',message='+response.data.message;
 
-            notiService.saveLog(text,type,'S',respMsg,farm,notiIds);
+            await notiService.saveLog(text,type,'S',respMsg,farm,notiIds);
 
             if(time === 'Before'){
-                notiService.updateStatusBefore(notiIds,'S');
+                await notiService.updateStatusBefore(notiIds,'S');
             }
 
             if(time === 'After'){
-                notiService.updateStatusAfter(notiIds,'S');
+                await notiService.updateStatusAfter(notiIds,'S');
             }
 
             return response.data;
         })
-        .catch(function (error) {
+        .catch(async function (error) {
             console.error('Notification Error : ',error);
-            notiService.saveLog(text,type,'F',JSON.stringify(error),farm,notiIds);
+            await notiService.saveLog(text,type,'F',JSON.stringify(error),farm,notiIds);
         });
 }
 

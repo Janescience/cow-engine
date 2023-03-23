@@ -1,8 +1,9 @@
 
 const db = require("../models");
-const NotificationLog = db.notificationLog;
+const NotificationLog = db.notificationLogs;
+const Notification = db.notification;
 
-const saveLog =  async (text,type,status,response,farm,notiIds) => {
+const saveLog =  async (text,type,status,responseMsg,farm,notiIds) => {
     const newNotiLog = new NotificationLog({
         message : text,
         type : type,
@@ -11,16 +12,16 @@ const saveLog =  async (text,type,status,response,farm,notiIds) => {
         farm : farm,
         notification : notiIds
     });
-    newNotiLog.save();
-    console.log('Notification log saved : ',newNotiLog);
+    await newNotiLog.save();
+    console.log('Notification log saved : ',text);
 }
 
 const updateStatusBefore =  async (notiIds,status) => {
-    await Notification.updateOne({_id:{'$in':notiIds}},{statusBefore : status}).exec();
+    await Notification.updateMany({_id:{'$in':notiIds}},{statusBefore : status}).exec();
 }
 
 const updateStatusAfter =  async (notiIds,status) => {
-    await Notification.updateOne({_id:{'$in':notiIds}},{statusAfter : status}).exec();
+    await Notification.updateMany({_id:{'$in':notiIds}},{statusAfter : status}).exec();
 }
 
 const notification = {
