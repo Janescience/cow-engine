@@ -72,5 +72,6 @@ exports.getCalendar = async (req, res) => {
 
 exports.notify = async (req, res) => {
     await notiService.notifyToLine();
+    res.status(200).end('Notification to line successfully.');
 };
 

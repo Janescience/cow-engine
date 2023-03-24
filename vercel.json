@@ -10,7 +10,7 @@
     "crons": [
       {
         "path": "/notification/job",
-        "schedule": "08 13 * * *"
+        "schedule": "20 14 * * *"
       }
     ]
   }
