@@ -9,8 +9,8 @@
     ],
     "crons": [
       {
-        "path": "/src/schedule/notify-cron",
-        "schedule": "03 13 * * *"
+        "path": "/notification/job",
+        "schedule": "08 13 * * *"
       }
     ]
   }
