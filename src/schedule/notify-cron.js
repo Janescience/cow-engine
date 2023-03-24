@@ -9,7 +9,7 @@ const Notification = db.notification;
 const Reproduction = db.reproduction;
 const Farm = db.farm;
 
-const notify = cron.schedule('0 0 2 * * *',  async function() {
+const notify = cron.schedule('* * * * *',  async function() {
     console.log('=======> Start schedule line notify <=======')
     console.log('-------> '+new Date()+' <-------')
 

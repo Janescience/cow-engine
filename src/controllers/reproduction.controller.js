@@ -20,8 +20,8 @@ exports.getAll = async (req, res) => {
 
 exports.get = async (req, res) => {
     const id = req.params.id
-    const Reproduct = await Reproduct.findById(id).exec();
-    res.status(200).send({Reproduct});
+    const reproduct = await Reproduct.findById(id).exec();
+    res.status(200).send({reproduct});
 };
 
 exports.create = async (req, res) => {
@@ -51,8 +51,8 @@ exports.create = async (req, res) => {
                 {
                     farm:req.farmId,
                     notificationParam:notiParam._id,
-                    statusBefore : notiParam.before && notiParam.before > 0 ? 'W' : 'N',
-                    statusAfter : notiParam.after && notiParam.after > 0 ? 'W' : 'N',
+                    statusBefore : 'W',
+                    statusAfter : 'W',
                     dataId : repro._id 
                 }
             );

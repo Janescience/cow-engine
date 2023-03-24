@@ -18,7 +18,7 @@ require('moment/locale/th');
 dotenv.config(); 
 require('./src/config/conn');
 // require('./src/config/conn.memory');
-require('./src/schedule/notify-cron');
+// require('./src/schedule/notify-cron');
 
  // Initialize Express App 
 const app = express();
