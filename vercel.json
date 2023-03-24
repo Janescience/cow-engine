@@ -10,7 +10,7 @@
     "crons": [
       {
         "path": "/src/schedule/notify-cron",
-        "schedule": "* * * * *"
+        "schedule": "03 13 * * *"
       }
     ]
   }
