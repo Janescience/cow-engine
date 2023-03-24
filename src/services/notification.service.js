@@ -36,11 +36,15 @@ const notifyToLine =  async () => {
     console.log('-------> '+new Date()+' <-------')
 
     try {
-        const today = moment(new Date()).startOf('day');
+        // Add 1 day because alert at 09.00 PM everyday but data is next day. 
+        const today = moment(new Date()).startOf('day').add(1,'days');
+
         console.log('today : ',today);
 
         const notis = await Notification.find({'$or':[{statusBefore : 'W'},{statusAfter : 'W'}]}).populate('notificationParam').exec();
         const notiGroupFarms = _.groupBy(notis,'farm');
+
+        console.log('notification size : ',notis.length);
 
         for(let key of Object.keys(notiGroupFarms)){
             const notis =  notiGroupFarms[key];

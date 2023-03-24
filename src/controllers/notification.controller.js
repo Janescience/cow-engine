@@ -71,7 +71,14 @@ exports.getCalendar = async (req, res) => {
 };
 
 exports.notify = async (req, res) => {
-    await notiService.notifyToLine();
+    const data = req.query;
+    if(data.key === 'dairy-farm-noti-to-line'){
+        await notiService.notifyToLine();
+    }else{
+        console.error('KEY is invalid !!')
+        res.status(500).end('KEY is invalid !!');
+        return;
+    }
     res.status(200).end('Notification to line successfully.');
 };
 
