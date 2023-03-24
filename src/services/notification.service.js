@@ -39,6 +39,7 @@ const notifyToLine =  async () => {
         // Add 1 day because alert at 09.00 PM everyday but data is next day. 
         const today = moment(new Date()).startOf('day').add(1,'days');
 
+        // Timezone on server is UTC 
         console.log('today : ',today);
 
         const notis = await Notification.find({'$or':[{statusBefore : 'W'},{statusAfter : 'W'}]}).populate('notificationParam').exec();
