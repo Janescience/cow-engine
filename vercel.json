@@ -9,7 +9,7 @@
     ],
     "crons": [
       {
-        "path": "/notification/job",
+        "path": "/src/schedule/notify-cron",
         "schedule": "* * * * *"
       }
     ]

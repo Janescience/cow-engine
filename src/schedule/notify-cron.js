@@ -1,4 +1,3 @@
-const cron = require('node-cron');
 const db = require("../models");
 const moment = require('moment');
 const _ = require('lodash');
@@ -9,7 +8,7 @@ const Notification = db.notification;
 const Reproduction = db.reproduction;
 const Farm = db.farm;
 
-const notify = cron.schedule('* * * * *',  async function() {
+export default async function notify(req, res) {
     console.log('=======> Start schedule line notify <=======')
     console.log('-------> '+new Date()+' <-------')
 
@@ -59,7 +58,7 @@ const notify = cron.schedule('* * * * *',  async function() {
 
                             if(alertToday){
                                 console.log('\n////// Today //////');
-                                const dueDate = filterDueDate(notiParam,data);
+                                const dueDate = notiService.filterDueDate(notiParam,data);
                                 console.log('dueDate : ',dueDate);
                                 console.log('alert : ',today.isSame(dueDate.startOf('day')));
 
@@ -75,8 +74,8 @@ const notify = cron.schedule('* * * * *',  async function() {
                             if(noti.statusBefore === 'W' && numBefore){
                                 console.log('\n////// Before //////');
 
-                                const dueDate = filterDueDate(notiParam,data);
-                                const dueDateBefore = filterDueDate(notiParam,data).startOf('day').subtract(numBefore,'days')
+                                const dueDate = notiService.filterDueDate(notiParam,data);
+                                const dueDateBefore = notiService.filterDueDate(notiParam,data).startOf('day').subtract(numBefore,'days')
 
                                 console.log('dueDate : ',dueDate);
                                 console.log('dueDateBefore : ',dueDateBefore);
@@ -95,8 +94,8 @@ const notify = cron.schedule('* * * * *',  async function() {
                             if(noti.statusAfter === 'W' && numAfter){
                                 console.log('////// After //////');
 
-                                const dueDate = filterDueDate(notiParam,data);
-                                const dueDateAfter = filterDueDate(notiParam,data).startOf('day').add(numAfter,'days')
+                                const dueDate = notiService.filterDueDate(notiParam,data);
+                                const dueDateAfter = notiService.filterDueDate(notiParam,data).startOf('day').add(numAfter,'days')
 
                                 console.log('dueDate : ',dueDate);
                                 console.log('dueDateAfter : ',dueDateAfter);
@@ -139,24 +138,6 @@ const notify = cron.schedule('* * * * *',  async function() {
 
     console.log('-------x '+new Date()+' x-------')
     console.log('=======x End schedule line notify x=======')
-
-});
-
-const filterDueDate = (notiParam,data) => {
-
-    if(notiParam.code === 'REPRO_ESTRUST'){
-        return moment(new Date(data.estrusDate));
-    }else if(notiParam.code === 'REPRO_MATING'){
-        return moment(new Date(data.matingDate));
-    }else if(notiParam.code === 'REPRO_CHECK'){
-        return moment(new Date(data.checkDate));
-    }
-
-    return null;
-}
-
-const schedule = {
-    notify
+    
+    res.status(200).end('Notification to line successfully.');
 };
-
-module.exports = schedule;
