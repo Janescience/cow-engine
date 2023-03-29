@@ -64,7 +64,7 @@ exports.getCalendar = async (req, res) => {
                 date : notiService.filterDueDate(notiParam,data).startOf('day').format("YYYY-MM-DD"),
                 time : { start : notiService.filterDueDate(notiParam,data).startOf('day').format("YYYY-MM-DD") },
                 description : 'โค : ' + data.cow.name,
-                alert : today.isSame(notiService.filterDueDate(notiParam,data).startOf('day'))
+                alert : today.isSame(notiService.filterDueDate(notiParam,data).startOf('day')) || today.isAfter(notiService.filterDueDate(notiParam,data).startOf('day'))
             }
             events.push(event);
         }
