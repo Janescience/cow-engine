@@ -80,7 +80,8 @@ exports.notify = async (req, res) => {
             console.log('-------> '+new Date()+' <-------')
         
             try {
-                const today = moment(new Date()).startOf('day')
+                // Add 1 day because cloud server time -7 (UTC) and cron job time is 03.00 AM (Thai)
+                const today = moment(new Date()).startOf('day').add(1,'days');
         
                 // Timezone on server is UTC 
                 console.log('today : ',today);
@@ -199,6 +200,10 @@ exports.notify = async (req, res) => {
         
                     if(notiIdAfters.length > 0){
                         await lineApi.notify(textAlertAfter,'B',farm._id,farm.lineToken,notiIdAfters,'After');
+                    }
+
+                    if(notiIdToday.length == 0 && notiIdBefores.length == 0 && notiIdAfters.length == 0){
+                        await lineApi.notify('วันนี้ไม่มีรายการแจ้งเตือน','B',farm._id,farm.lineToken,[],'Empty');
                     }
         
                     console.log('\n---------------------------------------------------------');
