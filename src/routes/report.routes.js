@@ -12,5 +12,6 @@ module.exports = function(app) {
   });
 
   app.get('/report/cow',[authJwt.verifyToken],controller.getCowAll);
+  app.get('/report/raw-milk',[authJwt.verifyToken],controller.getRawMilk);
   
 };
