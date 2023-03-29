@@ -5,7 +5,7 @@ const db = require("../models");
 const User = db.user;
 const Farm = db.farm;
 
-const notiService = require("./notification.service")
+const notiService  = require("./notification.service")
 
 dotenv.config();
 
