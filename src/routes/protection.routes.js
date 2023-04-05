@@ -16,5 +16,5 @@ module.exports = function(app) {
   app.get('/protection/:id',[authJwt.verifyToken,logger],controller.get);
   app.post("/protection",[authJwt.verifyToken,verifyCreate.protectionCheckDup,logger],controller.create);
   app.put("/protection/:id",[authJwt.verifyToken,logger],controller.update);
-  app.delete("/protection",[authJwt.verifyToken,logger],controller.delete);
+  app.delete("/protection/:id",[authJwt.verifyToken,logger],controller.delete);
 };

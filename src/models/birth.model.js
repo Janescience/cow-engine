@@ -15,6 +15,10 @@ const Birth = mongoose.model(
             type:String,
             required:false
         },
+        status:{//B:Born, P:Pregnant
+            type:String,
+            required:true
+        },
         birthDate:{
             type:Date,
             required:false
@@ -30,9 +34,6 @@ const Birth = mongoose.model(
         washDate:{
             type:Date,
             required:false
-        },
-        relate : {
-            type : Object
         },
         reproduction : {
             type: mongoose.Schema.Types.ObjectId,

@@ -1,35 +1,34 @@
 const db = require("../models");
 const Cow = db.cow;
-const Protection = db.protection;
 const Vaccine = db.vaccine;
+const NotiParam = db.notificationParam;
+const Protection = db.protection;
 
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const protections = await Protection.find(filter).populate('vaccine').exec();
-    console.log('Protections : ',protections)
-    res.json({protections});
+    const vaccines = await Vaccine.find(filter).populate('protections').exec();
+    console.log('vaccines : ',vaccines)
+    res.json({vaccines});
 };
 
 exports.get = async (req, res) => {
     const id = req.params.id
-    const cow = await Protection.findById(id).exec();
-    res.status(200).send({cow});
+    const vaccine = await Vaccine.findById(id).exec();
+    res.status(200).send({vaccine});
 };
 
 exports.create = async (req, res) => {
     const data = req.body;
     data.farm = req.farmId
 
-    const newProtection = new Protection(data);
-    await newProtection.save();
+    const newVaccine = new Vaccine(data);
+    await newVaccine.save()
 
-    const vaccine = await Vaccine.findOne({_id:data.vaccine._id}).populate('protections').exec();
-    const protections = vaccine.protections;
-    protections.push(newProtection);
-    await Vaccine.updateOne({_id:data.vaccine._id},{protections:protections}).exec();
-    
-    res.status(200).send({newProtection});
+    const newNotiParam = new NotiParam({code:data.code,name:data.name,farm:data.farm});
+    await newNotiParam.save()
+
+    res.status(200).send({newVaccine});
 };
 
 exports.update = async (req, res) => {

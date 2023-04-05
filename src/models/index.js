@@ -17,5 +17,11 @@ db.refreshToken = require("./refreshToken.model");
 db.param = require("./param.model");
 db.notificationParam = require("./notificationParam.model");
 db.notification = require("./notification.model");
+db.bill = require("./bill.model");
+db.building = require("./building.model");
+db.equipment = require("./equipment.model");
+db.maintenance = require("./maintenance.model");
+db.worker = require("./worker.model");
+db.vaccine = require("./vaccine.model");
 
 module.exports = db;

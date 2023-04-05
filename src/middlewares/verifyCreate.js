@@ -80,6 +80,7 @@ const protectionCheckDup = (req, res, next) => {
 
   Protection.findOne({
     vaccine: req.body.vaccine,
+    date: req.body.date,
     farm : req.farmId
   }).exec((err, protection) => {
     if (err) {
