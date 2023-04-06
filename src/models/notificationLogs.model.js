@@ -5,7 +5,6 @@ const NotificationLogs = mongoose.model(
     new mongoose.Schema({
         respMessage:{
             type:String,
-            required:false
         },
         status:{
             type:String,
@@ -22,7 +21,6 @@ const NotificationLogs = mongoose.model(
         notification : [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "notification",
-            required:false,
         }],
         farm:{
             type: mongoose.Schema.Types.ObjectId,

@@ -181,7 +181,7 @@ exports.notify = async (req, res) => {
                                 
                             }
                         }else{
-                            await saveLog('Farm value of lineToken is empty','B','F',null,farm._id,[noti._id])
+                            await notiService.saveLog('Farm value of lineToken is empty','B','F',null,farm._id,[noti._id])
                         }
                     }
         
