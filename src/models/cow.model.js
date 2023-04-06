@@ -23,7 +23,7 @@ const Cow = mongoose.model(
             type:String,
             required:false
         },
-        status:{
+        status:{//1:ท้อง,2:นมแห้ง,3:ให้ผลผลืต,4:วัวเด็ก
             type:Number,
             required:true
         },

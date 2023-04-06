@@ -6,23 +6,11 @@ const Reproduct = db.reproduction;
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const births = await Birth.find(filter).sort({createdAt:-1}).exec();
-
-    for(let birth of births){
-        let cow = await Cow.findOne({_id:birth.cow})
-        let cowRelate = { cow : { code : cow.code , name : cow.name , _id : cow._id } }
-        
-        let reproduct = await Reproduct.findOne({_id:birth.reproduction})
-        birth.reproduction = reproduct
-
-        let calfRelate = null ;
-        if(birth.calf){
-            let calf = await Cow.findOne({_id:birth.calf})
-            calfRelate = { calf : { code : calf.code , name : calf.name , _id : calf._id } }
-        }    
-
-        birth.relate = { cowRelate , calfRelate }
-    }
+    const births = await Birth.find(filter)
+    .populate('cow')
+    .populate('reproduction')
+    .populate('calf')
+    .sort({createdAt:-1}).exec();
 
     res.status(200).send({births});
 };

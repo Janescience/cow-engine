@@ -1,4 +1,5 @@
 const db = require("../models");
+const moment = require("moment");
 const Reproduct = db.reproduction;
 const Birth = db.birth;
 const Cow = db.cow;
@@ -71,20 +72,37 @@ exports.update = async (req, res) => {
     data.farm = req.farmId
     
     if(data.status == "2"){//ตั้งครร
+
+        const add9Months = moment(data.matingDate).add(9,'months');
+        const add15Days = moment(add9Months).add(15,'days');
+
         const count = await Birth.find({cow:data.cow,farm:data.farm}).countDocuments();
         const newBirth = new Birth({
             seq:(count+1),
-            pregnantDate:data.estrusDate,
+            pregnantDate:data.matingDate,
+            birthDate:add15Days,
+            status : 'P',
             cow:data.cow,
             farm:data.farm,
             reproduction:id
         });
-        await newBirth.save((err, birth) => {
-            if (err) {
-              res.status(500).send({ message: err });
-              return;
+        await newBirth.save();
+
+        // Update status cow to pregnant
+        await Cow.updateOne({_id:data.cow},{status:1}).exex();
+
+        const notiParam = await NotificationParam.findOne({code:'BIRTH'}).exec();
+        const noti = new Notification(
+            {
+                farm:req.farmId,
+                notificationParam:notiParam._id,
+                statusBefore : 'W',
+                statusAfter : 'W',
+                dataId : newBirth._id 
             }
-        })
+        );
+        await noti.save();
+        
     }
 
     if(data.result == "1"){//ผิดปกติ

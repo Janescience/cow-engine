@@ -8,6 +8,7 @@ const Logs = db.notificationLogs;
 const Noti = db.notification;
 const Reproduction = db.reproduction;
 const Farm = db.farm;
+const Birth = db.birth;
 
 exports.getLogs = async (req, res) => {
     const filter = req.query
@@ -25,10 +26,7 @@ exports.getCalendar = async (req, res) => {
     for(let noti of notifications){
         const notiParam = noti.notificationParam;
 
-        let data = null;
-        if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
-            data = await Reproduction.findById(noti.dataId).populate('cow').exec();
-        }
+        const data = await notiService.filterData(notiParam);
 
         if(data != null){
 
@@ -117,11 +115,8 @@ exports.notify = async (req, res) => {
                                 console.log('\n##################################################');
                                 console.log('=======> Notification : '+ notiParam.code +' - ' + notiParam.name +' <=======');
         
-                                let data = null;
-                                if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
-                                    data = await Reproduction.findById(noti.dataId).populate('cow').exec();
-                                }
-        
+                                const data = await notiService.filterData(notiParam);
+
                                 if(data != null){
                                     
                                     const alertToday = notiParam.dueDate;

@@ -3,25 +3,23 @@ const mongoose = require("mongoose")
 const Protection = mongoose.model(
     'protection',
     new mongoose.Schema({
-        dateCurrent:{
+        date:{
             type:Date,
             required:true
-        },
-        dateNext:{
-            type:Date,
-            required:true
-        },
-        frequency:{
-            type:Number,
-            required:true
-        },
-        vaccine:{
-            type: String,
-            required:true,
         },
         remark:{
             type: String,
-            required:false,
+        },
+        amount:{
+            type: Number,
+        },
+        qty:{
+            type: Number,
+        },
+        vaccine:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "vaccine",
+            required:true,
         },
         farm:{
             type: mongoose.Schema.Types.ObjectId,

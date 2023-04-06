@@ -34,6 +34,19 @@ const filterDueDate = (notiParam,data) => {
         return moment(new Date(data.matingDate));
     }else if(notiParam.code === 'REPRO_CHECK'){
         return moment(new Date(data.checkDate));
+    }else if(notiParam.code === 'BIRTH'){
+        return moment(new Date(data.birthDate));
+    }
+
+    return null;
+}
+
+const filterData = async (notiParam) => {
+
+    if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
+        return await Reproduction.findById(noti.dataId).populate('cow').exec();
+    }else if(notiParam.code === 'BIRTH'){
+        return await Birth.findById(noti.dataId).populate('cow').exec();
     }
 
     return null;
@@ -43,7 +56,8 @@ const notification = {
     saveLog,
     updateStatusBefore,
     updateStatusAfter,
-    filterDueDate
+    filterDueDate,
+    filterData
 };
 
 module.exports = notification;

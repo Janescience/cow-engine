@@ -5,6 +5,9 @@ const Milk = db.milk;
 const Heal = db.heal;
 const Noti = db.notification;
 const Reproduction = db.reproduction;
+const Birth = db.birth;
+
+const { notiService } = require("../services");
 
 exports.get = async (req, res) => {
     const filter = req.query
@@ -55,30 +58,23 @@ exports.get = async (req, res) => {
     for(let noti of notifications){
         const notiParam = noti.notificationParam;
 
-        let data = null;
-        if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
-            data = await Reproduction.findById(noti.dataId).populate('cow').exec();
-        }
+        const data = await notiService.filterData(notiParam);
 
         if(data != null){
-            let dueDate = null;
-            if(notiParam.code === 'REPRO_ESTRUST'){
-                dueDate = moment(new Date(data.estrusDate)).startOf('day');
-            }else if(notiParam.code === 'REPRO_MATING'){
-                dueDate = moment(new Date(data.matingDate)).startOf('day');
-            }else if(notiParam.code === 'REPRO_CHECK'){
-                dueDate = moment(new Date(data.checkDate)).startOf('day');
-            }
-            if(today.isSameOrBefore(dueDate)){
-                const event = {
-                    title : notiParam.name ,
-                    date : dueDate,
-                    cow : data.cow.name
-                }
-                if(events.length < 10){
-                    events.push(event);
+            const dueDate = notiService.filterDueDate(notiParam,data);
+            if(dueDate != null){
+                if(today.isSameOrBefore(dueDate)){
+                    const event = {
+                        title : notiParam.name ,
+                        date : dueDate,
+                        cow : data.cow.name
+                    }
+                    if(events.length < 10){
+                        events.push(event);
+                    }
                 }
             }
+            
             
         }
     }
