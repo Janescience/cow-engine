@@ -4,6 +4,8 @@ const moment = require('moment');
 
 const NotificationLog = db.notificationLogs;
 const Notification = db.notification;
+const Birth = db.birth;
+const Reproduction = db.reproduction;
 
 const saveLog =  async (text,type,status,responseMsg,farm,notiIds) => {
     const newNotiLog = new NotificationLog({
@@ -41,7 +43,7 @@ const filterDueDate = (notiParam,data) => {
     return null;
 }
 
-const filterData = async (notiParam) => {
+const filterData = async (notiParam,noti) => {
 
     if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
         return await Reproduction.findById(noti.dataId).populate('cow').exec();

@@ -26,7 +26,7 @@ exports.getCalendar = async (req, res) => {
     for(let noti of notifications){
         const notiParam = noti.notificationParam;
 
-        const data = await notiService.filterData(notiParam);
+        const data = await notiService.filterData(notiParam,noti);
 
         if(data != null){
 
@@ -115,7 +115,7 @@ exports.notify = async (req, res) => {
                                 console.log('\n##################################################');
                                 console.log('=======> Notification : '+ notiParam.code +' - ' + notiParam.name +' <=======');
         
-                                const data = await notiService.filterData(notiParam);
+                                const data = await notiService.filterData(notiParam,noti);
 
                                 if(data != null){
                                     
