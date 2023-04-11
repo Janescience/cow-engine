@@ -88,7 +88,7 @@ exports.getRawMilk = async (req, res) => {
             morningQty : morningDetail.qty,
             afternoonQty : 0
           }
-    
+
           let dataFilter =  milkFilters.filter(mf => mf.cow == cow.name)
           let dataDay = {};
           if(dataFilter.length == 0){
@@ -109,14 +109,39 @@ exports.getRawMilk = async (req, res) => {
         for(let afternoonDetail of milkAfternoon[0].milkDetails){
           const cow = await Cow.findById(afternoonDetail.cow).exec();
           let cowFilter =  milkFilters.filter(mf => mf.cow == cow.name);
-    
           if(cowFilter.length > 0){
             let dateFilter = cowFilter[0].milks.filter(m => moment(m.date).isSame(moment(milkAfternoon[0].date)));
+
             if(dateFilter.length > 0){
               dateFilter[0].afternoonQty = afternoonDetail.qty;
             }
+          }else{
+            const dataDay = {
+              cow : cow.name,
+              milks : [{
+                date :  milkAfternoon[0].date,
+                morningQty : 0,
+                afternoonQty : afternoonDetail.qty
+              }]
+            }
+            milkFilters.push(dataDay)
           }
           
+        }
+      }
+    }
+
+    //Day Summary
+    const sumDays = {};
+    for (const milkFilter of milkFilters) {
+      for(const milk of milkFilter.milks){
+        const day = moment(milk.date).format('D');
+        if(!sumDays[day]){
+          sumDays[day] = {sumMorning : milk.morningQty,sumAfternoon : milk.afternoonQty ,count:1};
+        }else{
+          sumDays[day].sumMorning += milk.morningQty
+          sumDays[day].sumAfternoon += milk.afternoonQty
+          sumDays[day].count++;
         }
       }
     }
@@ -162,7 +187,8 @@ exports.getRawMilk = async (req, res) => {
     for (const milkFilter of milkFilters) {
       const data = milkFilter;
 
-      sheet.getCell('B'+rowNumDataStart).value = data.cow;
+      valueCell(sheet,rowNumDataStart,2,data.cow)
+
       let total = 0;
 
       for (let j = 0; j < data.milks.length; j++) {
@@ -186,6 +212,22 @@ exports.getRawMilk = async (req, res) => {
 
       rowNumDataStart++;
     }
+
+    rowNumDataStart++;
+    //Summary day
+    valueCell(sheet,rowNumDataStart,2,'รวม')
+    valueCell(sheet,rowNumDataStart+1,2,'ค่าเฉลี่ย')
+    let sumTotal = 0;
+    for(let sumDay of Object.keys(sumDays)){
+      const sum = sumDays[sumDay];
+      valueCell(sheet,rowNumDataStart,Number(sumDay)*3,sum.sumMorning)
+      valueCell(sheet,rowNumDataStart,Number(sumDay)*3+1,sum.sumAfternoon)
+      valueCell(sheet,rowNumDataStart,Number(sumDay)*3+2,sum.sumMorning + sum.sumAfternoon)
+      valueCell(sheet,rowNumDataStart+1,Number(sumDay)*3+2,(sum.sumMorning + sum.sumAfternoon)/sum.count)
+      sumTotal += sum.sumMorning + sum.sumAfternoon;
+    }
+    valueCell(sheet,rowNumDataStart,dayColumns+3,sumTotal)
+    valueCell(sheet,rowNumDataStart,dayColumns+4,sumTotal/Object.keys(sumDays).length)
   }
   
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
