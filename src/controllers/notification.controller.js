@@ -20,9 +20,10 @@ exports.getLogs = async (req, res) => {
 exports.getCalendar = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
+
     const notifications = await Noti.find(filter).populate('notificationParam').sort({createdAt:-1}).exec();
     let events = []
-    const today = moment(new Date()).startOf('day');
+
     for(let noti of notifications){
         const notiParam = noti.notificationParam;
 
@@ -31,44 +32,71 @@ exports.getCalendar = async (req, res) => {
         if(data != null){
 
             if(notiParam.before && notiParam.before > 0){
-                const dueDateBefore = notiService.filterDueDate(notiParam,data).startOf('day').subtract(notiParam.before,'days')
-                const event = {
-                    id : noti._id+'_before',
-                    title : notiParam.name + ' (ก่อน)' + ' / ' + data.cow.name ,
-                    date : notiService.filterDueDate(notiParam,data).startOf('day').format("YYYY-MM-DD"),
-                    time : { start : dueDateBefore.format("YYYY-MM-DD") },
-                    description : 'โค : ' + data.cow.name+ ' | แจ้งเตือนก่อน ' +notiParam.before + ' วัน',
-                    alert : noti.statusBefore == 'S'
-                }
+                const event = filterEvent(noti,notiParam,data,'before')
                 events.push(event);
             }
 
             if(notiParam.after && notiParam.after > 0){
-                const dueDateAfter = notiService.filterDueDate(notiParam,data).startOf('day').add(notiParam.after,'days')
-                const event = {
-                    id : noti._id+'_after',
-                    title : notiParam.name+ ' (หลัง)' + ' / ' + data.cow.name,
-                    date : notiService.filterDueDate(notiParam,data).startOf('day').format("YYYY-MM-DD"),
-                    time : { start : dueDateAfter.format("YYYY-MM-DD") },
-                    description : 'โค : ' + data.cow.name + ' | แจ้งเตือนหลัง ' +notiParam.after + ' วัน',
-                    alert : noti.statusAfter == 'S'
-                }
+                const event = filterEvent(noti,notiParam,data,'after')
                 events.push(event);
             }
             
-            const event = {
-                id : noti._id,
-                title : notiParam.name + ' / ' + data.cow.name,
-                date : notiService.filterDueDate(notiParam,data).startOf('day').format("YYYY-MM-DD"),
-                time : { start : notiService.filterDueDate(notiParam,data).startOf('day').format("YYYY-MM-DD") },
-                description : 'โค : ' + data.cow.name,
-                alert : today.isSame(notiService.filterDueDate(notiParam,data).startOf('day')) || today.isAfter(notiService.filterDueDate(notiParam,data).startOf('day'))
-            }
+            const event = filterEvent(noti,notiParam,data,'today')
             events.push(event);
         }
     }
     res.json({events});
 };
+
+const filterEvent = (noti,notiParam,data,time) => {
+    const id = noti._id + '_' + time;
+    const type = notiParam.code.split('_')[0]
+
+    let title = notiParam.name;
+    let description = null;
+    let alert = null;
+
+    const date =  notiService.filterDueDate(notiParam,data).startOf('day');
+    const dueDate = notiService.filterDueDate(notiParam,data).startOf('day');
+    const today = moment(new Date()).startOf('day');
+    const cow = (type != 'VACCINE' ? ' / โค' + data.cow.name : '')
+    const desc = (type != 'VACCINE' 
+                    ? 'โค' + data.cow.name 
+                    : 'ครั้งที่ ' + data.seq + ' ฉีดทั้งหมด ' + data.qty + ' ตัว รวมเป็นเงิน ' + data.amount + ' บาท' )
+
+    switch (time) {
+        case 'before':
+            title += ' (ก่อน)' + cow;
+            dueDate.subtract(notiParam.before,'days')
+            description = desc + ' | แจ้งเตือนก่อน ' +notiParam.before + ' วัน'
+            alert = noti.statusBefore == 'S'
+            break;
+        case 'after':
+            title += ' (หลัง)' + cow;
+            dueDate.add(notiParam.after,'days')
+            description = desc + ' | แจ้งเตือนหลัง ' +notiParam.after + ' วัน'
+            alert = noti.statusAfter == 'S'
+            break;
+        case 'today':
+            title += cow;
+            description = desc
+            alert = today.isSame(dueDate) || today.isAfter(dueDate)
+            break;
+        default:
+            break;
+    }
+
+    return {
+        id : id,
+        title : title,
+        date : date ,
+        time : { start : dueDate.format("YYYY-MM-DD") },
+        description : description,
+        alert : alert,
+        type : type,
+        code : notiParam.code
+    }
+}
 
 exports.notify = async (req, res) => {
     const data = req.query;
@@ -221,4 +249,6 @@ exports.notify = async (req, res) => {
         return res.json({ error: error.response.data.message });  
     }
 };
+
+
 

@@ -6,6 +6,7 @@ const NotificationLog = db.notificationLogs;
 const Notification = db.notification;
 const Birth = db.birth;
 const Reproduction = db.reproduction;
+const Protection = db.protection;
 
 const saveLog =  async (text,type,status,responseMsg,farm,notiIds) => {
     const newNotiLog = new NotificationLog({
@@ -38,9 +39,9 @@ const filterDueDate = (notiParam,data) => {
         return moment(new Date(data.checkDate));
     }else if(notiParam.code === 'BIRTH'){
         return moment(new Date(data.birthDate));
+    }else{
+        return moment(new Date(data.date));
     }
-
-    return null;
 }
 
 const filterData = async (notiParam,noti) => {
@@ -49,9 +50,9 @@ const filterData = async (notiParam,noti) => {
         return await Reproduction.findById(noti.dataId).populate('cow').exec();
     }else if(notiParam.code === 'BIRTH'){
         return await Birth.findById(noti.dataId).populate('cow').exec();
+    }else{
+        return await Protection.findById(noti.dataId).populate('vaccine').exec();
     }
-
-    return null;
 }
 
 const notification = {

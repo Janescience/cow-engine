@@ -3,6 +3,9 @@ const mongoose = require("mongoose")
 const Protection = mongoose.model(
     'protection',
     new mongoose.Schema({
+        seq : {
+            type : Number
+        },
         date:{
             type:Date,
             required:true
@@ -16,6 +19,11 @@ const Protection = mongoose.model(
         qty:{
             type: Number,
         },
+        cows:[{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "cow",
+            required:true,
+        }],
         vaccine:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "vaccine",
