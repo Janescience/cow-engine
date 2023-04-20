@@ -10,7 +10,7 @@ const Vaccine = db.vaccine;
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const protections = await Protection.find(filter).populate('vaccine').sort({seq:-1}).exec();
+    const protections = await Protection.find(filter).populate('vaccine').populate('cows').sort({seq:-1}).exec();
     console.log('Protections : ',protections)
     res.json({protections});
 };
