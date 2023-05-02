@@ -17,8 +17,8 @@ exports.getAll = async (req, res) => {
 
 exports.get = async (req, res) => {
     const id = req.params.id
-    const cow = await Protection.findById(id).exec();
-    res.status(200).send({cow});
+    const protection = await Protection.findById(id).populate('vaccine').populate('cows').exec();
+    res.status(200).send({protection});
 };
 
 exports.create = async (req, res) => {
