@@ -44,12 +44,20 @@ const filterDueDate = (notiParam,data) => {
     }
 }
 
-const filterData = async (notiParam,noti) => {
+const filterData = async (notiParam,noti,cowId) => {
 
     if(notiParam.code === 'REPRO_ESTRUST' || notiParam.code === 'REPRO_MATING' || notiParam.code === 'REPRO_CHECK'){
-        return await Reproduction.findById(noti.dataId).populate('cow').exec();
+        if(cowId){
+            return await Reproduction.findOne({_id:noti.dataId,cow:cowId}).populate('cow').exec();
+        }else{
+            return await Reproduction.findById(noti.dataId).populate('cow').exec();
+        }
     }else if(notiParam.code === 'BIRTH'){
-        return await Birth.findById(noti.dataId).populate('cow').exec();
+        if(cowId){
+            return await Birth.findOne({_id:noti.dataId,cow:cowId}).populate('cow').exec();
+        }else{
+            return await Birth.findById(noti.dataId).populate('cow').exec();
+        }
     }else{
         return await Protection.findById(noti.dataId).populate('vaccine').exec();
     }

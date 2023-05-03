@@ -27,7 +27,7 @@ exports.getCalendar = async (req, res) => {
     for(let noti of notifications){
         const notiParam = noti.notificationParam;
 
-        const data = await notiService.filterData(notiParam,noti);
+        const data = await notiService.filterData(notiParam,noti,filter.cow);
 
         if(data != null){
 
@@ -59,9 +59,9 @@ const filterEvent = (noti,notiParam,data,time) => {
     const date =  notiService.filterDueDate(notiParam,data).startOf('day');
     const dueDate = notiService.filterDueDate(notiParam,data).startOf('day');
     const today = moment(new Date()).startOf('day');
-    const cow = (type != 'VACCINE' ? ' / โค' + data.cow.name : '')
+    const cow = (type != 'VACCINE' ? ' / โค' + data.cow?.name : '')
     const desc = (type != 'VACCINE' 
-                    ? 'โค' + data.cow.name 
+                    ? 'โค' + data.cow?.name 
                     : 'ครั้งที่ ' + data.seq + ' ฉีดทั้งหมด ' + data.qty + ' ตัว รวมเป็นเงิน ' + data.amount + ' บาท' )
 
     switch (time) {
@@ -94,6 +94,7 @@ const filterEvent = (noti,notiParam,data,time) => {
         description : description,
         alert : alert,
         type : type,
+        // cow : data.cow,
         code : notiParam.code
     }
 }

@@ -67,7 +67,7 @@ exports.get = async (req, res) => {
                     const event = {
                         title : notiParam.name ,
                         date : dueDate,
-                        cow : data.cow.name
+                        cow : data.cow?.name
                     }
                     if(events.length < 10){
                         events.push(event);
