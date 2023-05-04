@@ -55,6 +55,7 @@ const filterEvent = (noti,notiParam,data,time) => {
     let title = notiParam.name;
     let description = null;
     let alert = null;
+    let period = 'today';
 
     const date =  notiService.filterDueDate(notiParam,data).startOf('day');
     const dueDate = notiService.filterDueDate(notiParam,data).startOf('day');
@@ -70,12 +71,14 @@ const filterEvent = (noti,notiParam,data,time) => {
             dueDate.subtract(notiParam.before,'days')
             description = desc + ' | แจ้งเตือนก่อน ' +notiParam.before + ' วัน'
             alert = noti.statusBefore == 'S'
+            period = 'before';
             break;
         case 'after':
             title += ' (หลัง)' + cow;
             dueDate.add(notiParam.after,'days')
             description = desc + ' | แจ้งเตือนหลัง ' +notiParam.after + ' วัน'
             alert = noti.statusAfter == 'S'
+            period = 'after';
             break;
         case 'today':
             title += cow;
@@ -94,8 +97,9 @@ const filterEvent = (noti,notiParam,data,time) => {
         description : description,
         alert : alert,
         type : type,
-        // cow : data.cow,
-        code : notiParam.code
+        code : notiParam.code,
+        name : notiParam.name,
+        period : period
     }
 }
 
