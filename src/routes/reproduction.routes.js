@@ -15,6 +15,7 @@ module.exports = function(app) {
   app.get('/reproduction',[authJwt.verifyToken],controller.getAll);
   app.get('/reproduction/:id',[authJwt.verifyToken],controller.get);
   app.post("/reproduction",[authJwt.verifyToken,verifyCreate.reproCheckDup,logger],controller.create);
+  app.post("/reproduction/delete/selected",[authJwt.verifyToken,logger],controller.deletes);
   app.put("/reproduction/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/reproduction/:id",[authJwt.verifyToken],controller.delete);
 };

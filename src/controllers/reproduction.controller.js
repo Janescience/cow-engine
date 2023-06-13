@@ -89,7 +89,7 @@ exports.update = async (req, res) => {
         await newBirth.save();
 
         // Update status cow to pregnant
-        await Cow.updateOne({_id:data.cow},{status:1}).exex();
+        await Cow.updateOne({_id:data.cow},{status:1}).exec();
 
         const notiParam = await NotificationParam.findOne({code:'BIRTH'}).exec();
         const noti = new Notification(
@@ -121,4 +121,10 @@ exports.delete = async (req, res) => {
     const deletedReproduct = await Reproduct.deleteOne({_id:id});
     await Notification.deleteMany({dataId : id}).exec();
     res.status(200).send({deletedReproduct});
+};
+
+exports.deletes = async (req, res) => {
+    const datas = req.body;
+    await Reproduct.deleteMany({_id:{$in:datas}});
+    res.status(200).send('Delete selected successfully.');
 };
