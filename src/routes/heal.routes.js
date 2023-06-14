@@ -15,6 +15,7 @@ module.exports = function(app) {
   app.get('/heal',[authJwt.verifyToken],controller.getAll);
   app.get('/heal/:id',[authJwt.verifyToken],controller.get);
   app.post("/heal",[authJwt.verifyToken,logger],controller.create);
+  app.post("/heal/delete/selected",[authJwt.verifyToken,logger],controller.deletes);
   app.put("/heal/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/heal/:id",[authJwt.verifyToken],controller.delete);
 };

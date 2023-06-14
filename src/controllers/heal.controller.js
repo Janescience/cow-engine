@@ -5,13 +5,7 @@ const Cow = db.cow;
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const heals = await Heal.find(filter).sort({'seq':-1}).exec();
-
-    for(let heal of heals){
-        let cow = await Cow.findOne({_id:heal.cow})
-        heal.relate = { cow : { code : cow.code , name : cow.name , _id : cow._id }}   
-    }
-
+    const heals = await Heal.find(filter).populate('cow').sort({'seq':-1}).exec();
     res.json({heals});
 };
 
@@ -58,4 +52,10 @@ exports.delete = async (req, res) => {
     console.log("Heal deleted : ",deletedHeal);
 
     res.status(200).send({deletedHeal});
+};
+
+exports.deletes = async (req, res) => {
+    const datas = req.body;
+    await Heal.deleteMany({_id:{$in:datas}});
+    res.status(200).send('Delete selected successfully.');
 };
