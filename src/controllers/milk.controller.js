@@ -7,7 +7,26 @@ exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
 
-    const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
+    const year = filter?.year; 
+    const month = filter?.month;
+    const days = new Date(year, month-1, 0).getDate()
+
+    let start = new Date(year,month-1,1)
+    const startOffset = start.getTimezoneOffset();
+    let startDate = new Date(start.getTime() - (startOffset*60*1000))
+
+    let end = new Date(year, month-1, days);
+    const endOffset = end.getTimezoneOffset();
+    let endDate = new Date(end.getTime() - (endOffset*60*1000))
+
+    const milks = await Milk.find(
+        {   
+            date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
+            farm : filter.farm
+        }
+    ).populate('milkDetails').sort({date:-1}).exec();
+
+    // const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
 
     for(let milk of milks){
         for(let milkDetail of milk.milkDetails){

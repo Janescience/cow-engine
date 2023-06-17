@@ -15,6 +15,7 @@ module.exports = function(app) {
   app.get('/food',[authJwt.verifyToken,logger],controller.getAll);
   app.get('/food/:id',[authJwt.verifyToken,logger],controller.get);
   app.post("/food",[authJwt.verifyToken,verifyCreate.foodCheckDup,logger],controller.create);
+  app.post("/food/delete/selected",[authJwt.verifyToken,logger],controller.deletes);
   app.put("/food/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/food/:id",[authJwt.verifyToken,logger],controller.delete);
 };

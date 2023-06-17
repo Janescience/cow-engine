@@ -6,7 +6,7 @@ const Cow = db.cow;
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const foods = await Food.find(filter).exec();
+    const foods = await Food.find(filter).sort({corral:1}).exec();
     for(let food of foods){
         food.recipe = await Recipe.findOne({_id:food.recipe});
     }
@@ -65,4 +65,10 @@ exports.delete = async (req, res) => {
     console.log("Food deleted : ",deletedFood);
 
     res.status(200).send({deletedFood});
+};
+
+exports.deletes = async (req, res) => {
+    const datas = req.body;
+    await Food.deleteMany({_id:{$in:datas}});
+    res.status(200).send('Delete selected successfully.');
 };
