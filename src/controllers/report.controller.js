@@ -145,89 +145,100 @@ exports.getRawMilk = async (req, res) => {
         }
       }
     }
+    console.log('sumDays : ',sumDays)
 
     let monthStr = moment().month(month-1).format("MMMM");
 
-    const sheet = workbook.addWorksheet(monthStr);
-    sheet.state = 'visible';
-    const dayColumns = Object.keys(milkGroupDates).length * 3;
+    if(Object.keys(milkGroupDates).length > 0){
+      const sheet = workbook.addWorksheet(monthStr);
+      sheet.state = 'visible';
+      // const dayColumns = Object.keys(milkGroupDates).length * 3;
+      const daysInMonth = moment().month(month-1).daysInMonth()
+      const dayColumns = daysInMonth * 3;
 
-    //Header
-    mergeCell(sheet,1,1,1,dayColumns + 11,'แบบบันทึกผลผลิต(น้ำนมดิบ) ประจำวัน เดือน' + monthStr + ' ' + year);
-    valueCell(sheet,2,1,'ลำดับที่')
-    valueCell(sheet,2,2,'โค')
-    mergeCell(sheet,2,3,2,dayColumns + 2,'วันที่');
-    mergeCell(sheet,2,dayColumns + 3,3,dayColumns + 4,'สรุป');
-    mergeCell(sheet,2,dayColumns + 5,3,dayColumns + 6,'รายได้');
-    mergeCell(sheet,2,dayColumns + 7,3,dayColumns + 8,'ค่าอาหาร');
-    mergeCell(sheet,2,dayColumns + 9,3,dayColumns + 11,'สถานภาพของโค');
+      //Header
+      mergeCell(sheet,1,1,1,dayColumns + 11,'แบบบันทึกผลผลิต(น้ำนมดิบ) ประจำวัน เดือน' + monthStr + ' ' + year);
+      valueCell(sheet,2,1,'ลำดับที่')
+      valueCell(sheet,2,2,'โค')
+      mergeCell(sheet,2,3,2,dayColumns + 2,'วันที่');
+      mergeCell(sheet,2,dayColumns + 3,3,dayColumns + 4,'สรุป');
+      mergeCell(sheet,2,dayColumns + 5,3,dayColumns + 6,'รายได้');
+      mergeCell(sheet,2,dayColumns + 7,3,dayColumns + 8,'ค่าอาหาร');
+      mergeCell(sheet,2,dayColumns + 9,3,dayColumns + 11,'สถานภาพของโค');
 
-    //Sub Header
-    const dateKeys = Object.keys(milkGroupDates)
-    for (let i = 1; i <= Object.keys(milkGroupDates).length; i++) {
-      mergeCell(sheet,3,i * 3,3,(i * 3) + 2,moment(new Date(dateKeys[i-1])).format('DD'));
+      //Sub Header
+      const dateKeys = Object.keys(milkGroupDates)
+      for (let i = 1; i <= daysInMonth; i++) {
+        // mergeCell(sheet,3,i * 3,3,(i * 3) + 2,moment(new Date(dateKeys[i-1])).format('DD'));
+        mergeCell(sheet,3,i * 3,3,(i * 3) + 2,i);
 
-      valueCell(sheet,4,i * 3,'เช้า')
-      valueCell(sheet,4,i * 3 + 1,'บ่าย')
-      valueCell(sheet,4,i * 3 + 2,'รวม')
-    }
-
-    valueCell(sheet,4,dayColumns + 3,'รวม')
-    valueCell(sheet,4,dayColumns + 4,'เฉลี่ย')
-    valueCell(sheet,4,dayColumns + 5,'ราคา/กก.')
-    valueCell(sheet,4,dayColumns + 6,'เป็นเงิน')
-    valueCell(sheet,4,dayColumns + 7,'ต่อวัน')
-    valueCell(sheet,4,dayColumns + 8,'เป็นเงิน')
-    valueCell(sheet,4,dayColumns + 9,'ส่วนต่าง')
-    valueCell(sheet,4,dayColumns + 10,'คิดเป็น %')
-    valueCell(sheet,4,dayColumns + 11,'สถานภาพ')
-
-    //Data
-    let rowNumDataStart = 5;
-    for (const milkFilter of milkFilters) {
-      const data = milkFilter;
-
-      valueCell(sheet,rowNumDataStart,2,data.cow)
-
-      let total = 0;
-
-      for (let j = 0; j < data.milks.length; j++) {
-
-        const milk = data.milks[j];
-
-        const day = moment(milk.date).format('D');
-
-        const morning = milk.morningQty;
-        const afternoon = milk.afternoonQty;
-        const sum = morning + afternoon;
-        total += sum
-
-        valueCell(sheet,rowNumDataStart,day*3,morning)
-        valueCell(sheet,rowNumDataStart,day*3+1,afternoon)
-        valueCell(sheet,rowNumDataStart,day*3+2,sum)
-        
+        valueCell(sheet,4,i * 3,'เช้า')
+        valueCell(sheet,4,i * 3 + 1,'บ่าย')
+        valueCell(sheet,4,i * 3 + 2,'รวม')
       }
-      valueCell(sheet,rowNumDataStart,dayColumns+3,total)
-      valueCell(sheet,rowNumDataStart,dayColumns+4,total/data.milks.length)
+
+      valueCell(sheet,4,dayColumns + 3,'รวม')
+      valueCell(sheet,4,dayColumns + 4,'เฉลี่ย')
+      valueCell(sheet,4,dayColumns + 5,'ราคา/กก.')
+      valueCell(sheet,4,dayColumns + 6,'เป็นเงิน')
+      valueCell(sheet,4,dayColumns + 7,'ต่อวัน')
+      valueCell(sheet,4,dayColumns + 8,'เป็นเงิน')
+      valueCell(sheet,4,dayColumns + 9,'ส่วนต่าง')
+      valueCell(sheet,4,dayColumns + 10,'คิดเป็น %')
+      valueCell(sheet,4,dayColumns + 11,'สถานภาพ')
+
+      //Data
+      let rowNumDataStart = 5;
+      console.log('data milkFilters : ',milkFilters)
+      for (const milkFilter of milkFilters) {
+        const data = milkFilter;
+
+        //ชื่อโค
+        valueCell(sheet,rowNumDataStart,2,data.cow)
+
+        let total = 0;
+
+        for (let j = 0; j < data.milks.length; j++) {
+
+          const milk = data.milks[j];
+          console.log('data milk : ',milk)
+          const day = moment(milk.date).format('D');
+          console.log('data day : ',day)
+
+          const morning = milk.morningQty;
+          const afternoon = milk.afternoonQty;
+          const sum = morning + afternoon;
+          total += sum
+
+          valueCell(sheet,rowNumDataStart,day*3,morning)
+          valueCell(sheet,rowNumDataStart,day*3+1,afternoon)
+          valueCell(sheet,rowNumDataStart,day*3+2,sum)
+          
+        }
+        valueCell(sheet,rowNumDataStart,dayColumns+3,total)
+        valueCell(sheet,rowNumDataStart,dayColumns+4,total/data.milks.length)
+
+        rowNumDataStart++;
+        console.log('rowNum : ',rowNumDataStart)
+      }
 
       rowNumDataStart++;
+      //Summary day
+      valueCell(sheet,rowNumDataStart,2,'รวม')
+      valueCell(sheet,rowNumDataStart+1,2,'ค่าเฉลี่ย')
+      let sumTotal = 0;
+      for(let sumDay of Object.keys(sumDays)){
+        const sum = sumDays[sumDay];
+        valueCell(sheet,rowNumDataStart,Number(sumDay)*3,sum.sumMorning)
+        valueCell(sheet,rowNumDataStart,Number(sumDay)*3+1,sum.sumAfternoon)
+        valueCell(sheet,rowNumDataStart,Number(sumDay)*3+2,sum.sumMorning + sum.sumAfternoon)
+        valueCell(sheet,rowNumDataStart+1,Number(sumDay)*3+2,(sum.sumMorning + sum.sumAfternoon)/sum.count)
+        sumTotal += sum.sumMorning + sum.sumAfternoon;
+      }
+      valueCell(sheet,rowNumDataStart,dayColumns+3,sumTotal)
+      valueCell(sheet,rowNumDataStart,dayColumns+4,sumTotal/Object.keys(sumDays).length)
     }
-
-    rowNumDataStart++;
-    //Summary day
-    valueCell(sheet,rowNumDataStart,2,'รวม')
-    valueCell(sheet,rowNumDataStart+1,2,'ค่าเฉลี่ย')
-    let sumTotal = 0;
-    for(let sumDay of Object.keys(sumDays)){
-      const sum = sumDays[sumDay];
-      valueCell(sheet,rowNumDataStart,Number(sumDay)*3,sum.sumMorning)
-      valueCell(sheet,rowNumDataStart,Number(sumDay)*3+1,sum.sumAfternoon)
-      valueCell(sheet,rowNumDataStart,Number(sumDay)*3+2,sum.sumMorning + sum.sumAfternoon)
-      valueCell(sheet,rowNumDataStart+1,Number(sumDay)*3+2,(sum.sumMorning + sum.sumAfternoon)/sum.count)
-      sumTotal += sum.sumMorning + sum.sumAfternoon;
-    }
-    valueCell(sheet,rowNumDataStart,dayColumns+3,sumTotal)
-    valueCell(sheet,rowNumDataStart,dayColumns+4,sumTotal/Object.keys(sumDays).length)
+    
   }
   
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
