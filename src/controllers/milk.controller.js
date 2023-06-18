@@ -24,7 +24,7 @@ exports.getAll = async (req, res) => {
             date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
             farm : filter.farm
         }
-    ).populate('milkDetails').sort({date:-1}).exec();
+    ).populate('milkDetails').sort({time:-1}).exec();
 
     // const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
 
@@ -54,21 +54,22 @@ exports.create = async (req, res) => {
     const milkSave = { time : data.time , date : data.date , farm : farmId };
     const newMilk = new Milk(milkSave);
     
-    newMilk.save(async (err,milk) => {
-        const detailIds = [];
-        for(let detail of data.milkDetails){
-            detail.milk = milk._id;
-            const newMilkDetail = new MilkDetail(detail);
-            
-            const milkDetail = await newMilkDetail.save();
-            detailIds.push(milkDetail._id)
-        }
+    const milkSaved = await newMilk.save();
+    console.log('milk saved.')
 
-        milk.milkDetails = detailIds;
-        await milk.save();
-    });
+    const detailIds = [];
+    for(let detail of data.milkDetails){
+        detail.milk = milkSaved._id;
+        const newMilkDetail = new MilkDetail(detail);
+        const milkDetail = await newMilkDetail.save();
+        detailIds.push(milkDetail._id)
+    }
+    console.log('deatailIds : ',detailIds)
 
-    res.status(200).send({newMilk});
+    await Milk.updateOne({_id:milkSaved._id},{milkDetails:detailIds}).exec();
+    console.log('milk updated.')
+
+    res.status(200).send({milkSaved});
 };
 
 exports.update = async (req, res) => {
