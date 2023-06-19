@@ -72,7 +72,9 @@ const notify = async (text,type,farm,token,notiIds,time) => {
 
             const respMsg = 'status='+response.data.status + ',message='+response.data.message;
 
-            await notiService.saveLog(text,type,'S',respMsg,farm,notiIds);
+            if(time !== 'Empty'){
+                await notiService.saveLog(text,type,'S',respMsg,farm,notiIds);
+            }
 
             if(time === 'Before'){
                 await notiService.updateStatusBefore(notiIds,'S');

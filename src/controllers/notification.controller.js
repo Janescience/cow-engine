@@ -13,6 +13,10 @@ const Birth = db.birth;
 exports.getLogs = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
+    if(filter.message && filter.message != ''){
+        let message = filter.message
+        filter.message = {'$regex' :  message , '$options' : 'i'}
+    }
     const notifications = await Logs.find(filter).sort({createdAt:-1}).exec();
     res.json({notifications});
 };

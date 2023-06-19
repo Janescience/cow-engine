@@ -40,7 +40,7 @@ const milkingCheckDup = (req, res, next) => {
     }
 
     if (cow) {
-      res.status(400).send({ message: "ข้อมูลการรีดนมซ้ำ" });
+      res.status(400).send({ message: "ข้อมูลการรีดนมซ้ำ(วันที่รีดนม,รอบ)" });
       return;
     }
 
@@ -113,18 +113,7 @@ const foodCheckDup = (req, res, next) => {
     }
 
     if (food) {
-      res.status(400).send({ message: "การให้อาหารซ้ำ" });
-      return;
-    }
-
-  });
-
-  Cow.find({
-    corral : req.body.corral,
-    farm : req.farmId
-  }).exec((err , cow) => {
-    if (cow.length == 0) {
-      res.status(400).send({ message: "คอก " + req.body.corral +" ไม่มีโค" });
+      res.status(400).send({ message: "การให้อาหารซ้ำ(สูตรอาหาร,คอก)" });
       return;
     }
 
