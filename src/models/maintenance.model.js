@@ -7,6 +7,14 @@ const Maintenance = mongoose.model(
             type:String,
             required:true
         },
+        name:{
+            type:String,
+            required:true
+        },
+        category:{//E:Equipment,B:Building
+            type:String,
+            required:true
+        },
         date:{
             type:Date,
             required:true
