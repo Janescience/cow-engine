@@ -3,8 +3,12 @@ const mongoose = require("mongoose")
 const Bill = mongoose.model(
     'bill',
     new mongoose.Schema({
-        description:{
+        remark:{
             type:String,
+        },
+        code:{//WATER,ELECTRIC,ACCOM,RENT,INTERNAET,OTH
+            type:String,
+            required:true
         },
         name:{//ค่าน้ำ,ค่าไฟ,ค่าที่พักคนงาน,ค่าเช่า,ค่าอินเทอร์เน็ต,อื่นๆ
             type:String,
