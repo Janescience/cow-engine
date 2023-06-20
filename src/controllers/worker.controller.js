@@ -48,3 +48,9 @@ exports.delete = async (req, res) => {
 
     res.status(200).send({deletedWorker});
 };
+
+exports.deletes = async (req, res) => {
+    const datas = req.body;
+    await Worker.deleteMany({_id:{$in:datas}});
+    res.status(200).send('Delete selected successfully.');
+};

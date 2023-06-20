@@ -68,6 +68,7 @@ require('./src/routes/notification.routes')(app);
 require('./src/routes/vaccine.routes')(app);
 require('./src/routes/worker.routes')(app);
 require('./src/routes/equipment.routes')(app);
+require('./src/routes/building.routes')(app);
 
 // basic route
 app.get(["/","/index.html"],(req,res) => {

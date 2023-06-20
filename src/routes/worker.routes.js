@@ -15,6 +15,7 @@ module.exports = function(app) {
   app.get('/worker',[authJwt.verifyToken],controller.getAll);
   app.get('/worker/:id',[authJwt.verifyToken],controller.get);
   app.post("/worker",[authJwt.verifyToken,logger],controller.create);
+  app.post("/worker/delete/selected",[authJwt.verifyToken,logger],controller.deletes);
   app.put("/worker/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/worker/:id",[authJwt.verifyToken],controller.delete);
 };

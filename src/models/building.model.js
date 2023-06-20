@@ -15,6 +15,10 @@ const Building = mongoose.model(
             type:Date,
             required:true
         },
+        status : { // A:Active,I:Inactive
+            type:String,
+            required:true,
+        },
         remark : {
             type:String,
         },

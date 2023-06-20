@@ -15,6 +15,7 @@ module.exports = function(app) {
   app.get('/equipment',[authJwt.verifyToken],controller.getAll);
   app.get('/equipment/:id',[authJwt.verifyToken],controller.get);
   app.post("/equipment",[authJwt.verifyToken,logger],controller.create);
+  app.post("/equipment/delete/selected",[authJwt.verifyToken,logger],controller.deletes);
   app.put("/equipment/:id",[authJwt.verifyToken,logger],controller.update);
   app.delete("/equipment/:id",[authJwt.verifyToken],controller.delete);
 };
