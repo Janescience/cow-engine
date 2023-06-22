@@ -4,8 +4,15 @@ const Cow = db.cow;
 const Milk = db.milk;
 const Heal = db.heal;
 const Noti = db.notification;
+const Bill = db.bill;
+const Equipment = db.equipment;
+const Building = db.building;
+const Maintenance = db.maintenance;
+const Worker = db.worker;
+const Food = db.food;
 const Reproduction = db.reproduction;
 const Birth = db.birth;
+const Protection = db.protection;
 
 const { notiService } = require("../services");
 
@@ -79,11 +86,99 @@ exports.get = async (req, res) => {
         }
     }
 
+    //Expense
+    const bills = await Bill.find(filter).exec();
+    let sumBills = 0;
+    if(bills.length > 0){
+        for(let bill of bills){
+            sumBills += bill.amount
+        }
+    }
+
+    const equipments = await Equipment.find(filter).exec();
+    let sumEquipments = 0;
+    if(equipments.length > 0){
+        for(let equipment of equipments){
+            sumEquipments += equipment.amount
+        }
+    }
+
+    const buildings = await Building.find(filter).exec();
+    let sumBuildings = 0;
+    if(equipments.length > 0){
+        for(let building of buildings){
+            sumBuildings += building.amount
+        }
+    }
+    const maintenances = await Maintenance.find(filter).exec();
+    let sumMaintenances = 0;
+    for(let maintenance of maintenances){
+        sumMaintenances += maintenance.amount
+    }
+    
+
+    const workers = await Worker.find(filter).exec();
+    let sumWorkers = 0;
+    for(let worker of workers){
+        const endDate = worker.endDate ? new Date(worker.endDate) : new Date()
+        const diffMonth = moment(endDate).startOf('day').diff(moment(new Date(worker.startDate)).startOf('day'),'months',true)
+        sumWorkers += (worker.salary * diffMonth.toFixed(2))
+    }
+
+    const foods = await Food.find(filter).exec();
+    let sumFoods = 0;
+    for(let food of foods){
+        sumFoods += food.amount
+    }
+    
+
+    let sumHeals = 0;
+    if(heals.length > 0){
+        for(let heal of heals){
+            sumHeals += heal.amount
+        }
+    }
+
+    const protections = await Protection.find(filter).exec();
+    let sumProtections = 0;
+    for(let protection of protections){
+        sumProtections += protection.amount
+    }
+
+    //Expense
+    const expense = {
+        fluctuate : {
+            food:sumFoods,
+            worker:sumWorkers
+        },
+        cost : {
+            bill :sumBills,
+            equipment:sumEquipments,
+            building:sumBuildings,
+            maintenance:sumMaintenances,
+        },
+        care : {
+            heal:sumHeals,
+            protection:sumProtections
+        }
+    }
+    const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
+    let sumRawMilks = 0;
+    for(let rawMilk of rawMilks){
+        for(let detail of rawMilk.milkDetails){
+
+        }
+    }
+    //Income
+    const income = {
+        rawMilk : 
+    }
     res.json(
         {
             cow,
             milks,
-            events
+            events,
+            expense
         }
     );
 };
