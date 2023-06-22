@@ -1,5 +1,6 @@
 const db = require("../models");
 const moment = require("moment");
+const _ = require("lodash");
 const Cow = db.cow;
 const Milk = db.milk;
 const Heal = db.heal;
@@ -162,23 +163,51 @@ exports.get = async (req, res) => {
             protection:sumProtections
         }
     }
+
     const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
     let sumRawMilks = 0;
     for(let rawMilk of rawMilks){
         for(let detail of rawMilk.milkDetails){
-
+            sumRawMilks += detail.amount
         }
     }
+
     //Income
     const income = {
-        rawMilk : 
+        rawMilk : sumRawMilks
     }
+
+    let rawMilkDetails = []
+    //QTY Milk Sorting
+    for(let rawMilk of rawMilks){
+        for(let detail of rawMilk.milkDetails){
+            rawMilkDetails.push(detail)
+        }
+    }
+
+    const cowRawMilkGroups = _.groupBy(rawMilkDetails,'cow');
+
+    let cowMilkSum = []
+    for(let key of Object.keys(cowRawMilkGroups)){
+        const cow = await Cow.findOne({_id:key}).exec();
+        let sumMilk = 0
+        const milks = cowRawMilkGroups[key];
+        for(let milk of milks){
+            sumMilk += milk.qty
+        }
+        cowMilkSum.push({cow:{image:cow.image,code:cow.code,name:cow.name},sumMilk:sumMilk})
+
+    }
+    const cowMilkSorting = _.orderBy(cowMilkSum,'sumMilk','desc')
+
     res.json(
         {
             cow,
             milks,
             events,
-            expense
+            expense,
+            income,
+            rawMilkSort:cowMilkSorting.slice(0,5)
         }
     );
 };
