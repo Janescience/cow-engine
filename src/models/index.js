@@ -23,5 +23,7 @@ db.equipment = require("./equipment.model");
 db.maintenance = require("./maintenance.model");
 db.worker = require("./worker.model");
 db.vaccine = require("./vaccine.model");
+db.salary = require("./salary.model");
+db.historyChange = require("./historyChange.model");
 
 module.exports = db;
