@@ -17,18 +17,12 @@ const Protection = db.protection;
 
 const { notiService } = require("../services");
 
-exports.get = async (req, res) => {
+exports.cow = async (req,res) => {
     const filter = req.query
-    const farmId = req.farmId;
-    const ObjectID = require('mongodb').ObjectId;
+    filter.farm = req.farmId
 
-    const today = moment(new Date()).startOf('day');
-
-    filter.farm = farmId
-
-    //Cow
     const cows = await Cow.find(filter).exec();
-    const heals = await Heal.find(filter).exec();
+
     const cow = {
         all : cows.length,
         milk : cows.filter(c => c.status === 3).length,
@@ -36,12 +30,15 @@ exports.get = async (req, res) => {
         baby : cows.filter(c => c.status === 4).length,
         dry : cows.filter(c => c.status === 2).length,
         premiuem : cows.filter(c => c.quality === 2).length,
-        sick : heals.length,
-        avgMaxMilk : null,
-        sumMaxMilk : null
     }
 
-    //Milks
+    res.json(cow);
+}
+
+exports.milks = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+
     let year = new Date().getFullYear();
 
     let start = new Date(year,0,1)
@@ -55,13 +52,21 @@ exports.get = async (req, res) => {
     const milks = await Milk.find(
         {   
             date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
-            farm : farmId
+            farm : filter.farm
         }
     ).populate('milkDetails');
 
+    res.json(milks);
+}
+
+exports.events = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+
+    const today = moment(new Date()).startOf('day');
 
     // Events    
-    const notifications = await Noti.find({farm:farmId}).populate('notificationParam').sort({createdAt:-1}).exec();
+    const notifications = await Noti.find({farm: filter.farm}).populate('notificationParam').sort({createdAt:-1}).exec();
     let events = []
     for(let noti of notifications){
         const notiParam = noti.notificationParam;
@@ -82,35 +87,37 @@ exports.get = async (req, res) => {
                     }
                 }
             }
-            
-            
         }
     }
+
+    res.json(events);
+}
+
+exports.expense = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
 
     //Expense
     const bills = await Bill.find(filter).exec();
     let sumBills = 0;
-    if(bills.length > 0){
-        for(let bill of bills){
-            sumBills += bill.amount
-        }
+    for(let bill of bills){
+        sumBills += bill.amount
     }
+    
 
     const equipments = await Equipment.find(filter).exec();
     let sumEquipments = 0;
-    if(equipments.length > 0){
-        for(let equipment of equipments){
-            sumEquipments += equipment.amount
-        }
+    for(let equipment of equipments){
+        sumEquipments += equipment.amount
     }
+    
 
     const buildings = await Building.find(filter).exec();
     let sumBuildings = 0;
-    if(equipments.length > 0){
-        for(let building of buildings){
-            sumBuildings += building.amount
-        }
+    for(let building of buildings){
+        sumBuildings += building.amount
     }
+    
     const maintenances = await Maintenance.find(filter).exec();
     let sumMaintenances = 0;
     for(let maintenance of maintenances){
@@ -132,13 +139,12 @@ exports.get = async (req, res) => {
         sumFoods += food.amount
     }
     
-
+    const heals = await Heal.find(filter).exec();
     let sumHeals = 0;
-    if(heals.length > 0){
-        for(let heal of heals){
-            sumHeals += heal.amount
-        }
+    for(let heal of heals){
+        sumHeals += heal.amount
     }
+    
 
     const protections = await Protection.find(filter).exec();
     let sumProtections = 0;
@@ -164,6 +170,13 @@ exports.get = async (req, res) => {
         }
     }
 
+    res.json(expense);
+}
+
+exports.income = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+
     const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
     let sumRawMilks = 0;
     for(let rawMilk of rawMilks){
@@ -177,8 +190,16 @@ exports.get = async (req, res) => {
         rawMilk : sumRawMilks
     }
 
+    res.json(income);
+}
+
+exports.rawMilkSort = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+
+    const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
+
     let rawMilkDetails = []
-    //QTY Milk Sorting
     for(let rawMilk of rawMilks){
         for(let detail of rawMilk.milkDetails){
             rawMilkDetails.push(detail)
@@ -189,26 +210,22 @@ exports.get = async (req, res) => {
 
     let cowMilkSum = []
     for(let key of Object.keys(cowRawMilkGroups)){
+
         const cow = await Cow.findOne({_id:key}).exec();
+
         let sumMilk = 0
         const milks = cowRawMilkGroups[key];
         for(let milk of milks){
             sumMilk += milk.qty
         }
+
         cowMilkSum.push({cow:{image:cow.image,code:cow.code,name:cow.name},sumMilk:sumMilk})
-
     }
-    const cowMilkSorting = _.orderBy(cowMilkSum,'sumMilk','desc')
 
-    res.json(
-        {
-            cow,
-            milks,
-            events,
-            expense,
-            income,
-            rawMilkSort:cowMilkSorting.slice(0,5)
-        }
-    );
-};
+    const cowMilkSortings = _.orderBy(cowMilkSum,'sumMilk','desc')
+    const rawMilkSort = cowMilkSortings.length > 0 ? cowMilkSortings.slice(0,5) : []
+    res.json(rawMilkSort);
+}
+
+
 

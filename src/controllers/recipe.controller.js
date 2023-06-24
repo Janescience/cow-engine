@@ -2,15 +2,16 @@ const db = require("../models");
 const RecipeDetail = db.recipeDetail;
 const Recipe = db.recipe;
 
+
 exports.getAll = async (req, res) => {
-    const filter = req.query
+    const filter = req.query;
     filter.farm = req.farmId;
-    const recipes = await Recipe.find(filter).exec();
-    for(let recipe of recipes){
-        let recipeDetails = await RecipeDetail.find({recipe:recipe._id}).exec();
-        recipe.recipeDetails = recipeDetails
+    try {
+        const recipes = await Recipe.find(filter).populate('recipeDetails').exec();
+        res.json({recipes});
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred' });
     }
-    res.json({recipes});
 };
 
 exports.get = async (req, res) => {

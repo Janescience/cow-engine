@@ -10,5 +10,10 @@ module.exports = function(app) {
     next();
   });
 
-  app.get('/dashboard',[authJwt.verifyToken],controller.get);
+  app.get('/dashboard/cow',[authJwt.verifyToken],controller.cow);
+  app.get('/dashboard/milks',[authJwt.verifyToken],controller.milks);
+  app.get('/dashboard/events',[authJwt.verifyToken],controller.events);
+  app.get('/dashboard/expense',[authJwt.verifyToken],controller.expense);
+  app.get('/dashboard/income',[authJwt.verifyToken],controller.income);
+  app.get('/dashboard/rawMilkSort',[authJwt.verifyToken],controller.rawMilkSort);
 };
