@@ -1,6 +1,7 @@
 const db = require("../models");
 const moment = require("moment");
 const _ = require('lodash');
+const Promise = require('bluebird');
 
 const { notiService,lineApi } = require("../services");
 
@@ -21,34 +22,43 @@ exports.getLogs = async (req, res) => {
     res.json({notifications});
 };
 
+
 exports.getCalendar = async (req, res) => {
-    const filter = req.query
-    filter.farm = req.farmId
+    const filter = req.query;
+    filter.farm = req.farmId;
 
     const notifications = await Noti.find(filter).populate('notificationParam').sort({createdAt:-1}).exec();
-    let events = []
+    let events = [];
 
-    for(let noti of notifications){
+    const promises = notifications.map(async (noti) => {
         const notiParam = noti.notificationParam;
 
         const data = await notiService.filterData(notiParam,noti,filter.cow);
 
         if(data != null){
 
+            const eventPromises = [];
+
             if(notiParam.before && notiParam.before > 0){
-                const event = filterEvent(noti,notiParam,data,'before')
-                events.push(event);
+                const eventPromise = filterEvent(noti,notiParam,data,'before');
+                eventPromises.push(eventPromise);
             }
 
             if(notiParam.after && notiParam.after > 0){
-                const event = filterEvent(noti,notiParam,data,'after')
-                events.push(event);
+                const eventPromise = filterEvent(noti,notiParam,data,'after');
+                eventPromises.push(eventPromise);
             }
             
-            const event = filterEvent(noti,notiParam,data,'today')
-            events.push(event);
+            const eventPromise = filterEvent(noti,notiParam,data,'today');
+            eventPromises.push(eventPromise);
+
+            const eventResults = await Promise.all(eventPromises);
+            events.push(...eventResults);
         }
-    }
+    });
+
+    await Promise.all(promises);
+
     res.json({events});
 };
 
@@ -258,6 +268,5 @@ exports.notify = async (req, res) => {
         return res.json({ error: error.response.data.message });  
     }
 };
-
 
 

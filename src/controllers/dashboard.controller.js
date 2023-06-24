@@ -1,6 +1,8 @@
 const db = require("../models");
 const moment = require("moment");
 const _ = require("lodash");
+const Promise = require('bluebird');
+
 const Cow = db.cow;
 const Milk = db.milk;
 const Heal = db.heal;
@@ -59,6 +61,7 @@ exports.milks = async (req,res) => {
     res.json(milks);
 }
 
+
 exports.events = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
@@ -68,7 +71,7 @@ exports.events = async (req,res) => {
     // Events    
     const notifications = await Noti.find({farm: filter.farm}).populate('notificationParam').sort({createdAt:-1}).exec();
     let events = []
-    for(let noti of notifications){
+    await Promise.map(notifications, async (noti) => {
         const notiParam = noti.notificationParam;
 
         const data = await notiService.filterData(notiParam,noti);
@@ -88,7 +91,7 @@ exports.events = async (req,res) => {
                 }
             }
         }
-    }
+    });
 
     res.json(events);
 }
@@ -193,6 +196,7 @@ exports.income = async (req,res) => {
     res.json(income);
 }
 
+
 exports.rawMilkSort = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
@@ -206,26 +210,26 @@ exports.rawMilkSort = async (req,res) => {
         }
     }
 
-    const cowRawMilkGroups = _.groupBy(rawMilkDetails,'cow');
-
-    let cowMilkSum = []
-    for(let key of Object.keys(cowRawMilkGroups)){
-
-        const cow = await Cow.findOne({_id:key}).exec();
-
-        let sumMilk = 0
-        const milks = cowRawMilkGroups[key];
-        for(let milk of milks){
-            sumMilk += milk.qty
+    const cowRawMilkGroups = rawMilkDetails.reduce((groups, detail) => {
+        if (!groups[detail.cow]) {
+            groups[detail.cow] = [];
         }
+        groups[detail.cow].push(detail);
+        return groups;
+    }, {});
 
-        cowMilkSum.push({cow:{image:cow.image,code:cow.code,name:cow.name},sumMilk:sumMilk})
-    }
+    const cowIds = Object.keys(cowRawMilkGroups);
+    const cows = await Promise.all(cowIds.map(cowId => Cow.findOne({_id: cowId}).exec()));
 
-    const cowMilkSortings = _.orderBy(cowMilkSum,'sumMilk','desc')
-    const rawMilkSort = cowMilkSortings.length > 0 ? cowMilkSortings.slice(0,5) : []
+    let cowMilkSum = cowIds.map((key, index) => {
+        const cow = cows[index];
+        const milks = cowRawMilkGroups[key];
+        const sumMilk = milks.reduce((sum, milk) => sum + milk.qty, 0);
+        return {cow: {image: cow.image, code: cow.code, name: cow.name}, sumMilk: sumMilk};
+    });
+
+    cowMilkSum.sort((a, b) => b.sumMilk - a.sumMilk);
+    const rawMilkSort = cowMilkSum.slice(0, 5);
     res.json(rawMilkSort);
 }
-
-
 

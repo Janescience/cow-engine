@@ -1,23 +1,27 @@
 const db = require("../models");
+const Promise = require('bluebird');
+
 const Milk = db.milk;
 const MilkDetail = db.milkDetail;
 const Cow = db.cow;
 
+const projection = { code: 1, name: 1, _id: 1 };
+
 exports.getAll = async (req, res) => {
-    const filter = req.query
-    filter.farm = req.farmId
+    const filter = req.query;
+    filter.farm = req.farmId;
 
     const year = filter?.year; 
     const month = filter?.month;
-    const days = new Date(year, month-1, 0).getDate()
+    const days = new Date(year, month-1, 0).getDate();
 
-    let start = new Date(year,month-1,1)
+    let start = new Date(year,month-1,1);
     const startOffset = start.getTimezoneOffset();
-    let startDate = new Date(start.getTime() - (startOffset*60*1000))
+    let startDate = new Date(start.getTime() - (startOffset*60*1000));
 
     let end = new Date(year, month-1, days);
     const endOffset = end.getTimezoneOffset();
-    let endDate = new Date(end.getTime() - (endOffset*60*1000))
+    let endDate = new Date(end.getTime() - (endOffset*60*1000));
 
     const milks = await Milk.find(
         {   
@@ -26,16 +30,14 @@ exports.getAll = async (req, res) => {
         }
     ).populate('milkDetails').sort({time:-1}).exec();
 
-    // const milks = await Milk.find(filter).populate('milkDetails').sort({date:-1}).exec();
-
-    for(let milk of milks){
-        for(let milkDetail of milk.milkDetails){
-            let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'})
+    await Promise.all(milks.map(async (milk) => {
+        await Promise.all(milk.milkDetails.map(async (milkDetail) => {
+            let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'}, projection);
             if(cow){
-                milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }}   
+                milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }};   
             }
-        }
-    }
+        }));
+    }));
 
     res.status(200).send({milks});
 };
