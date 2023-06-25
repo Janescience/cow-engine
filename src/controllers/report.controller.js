@@ -3,6 +3,8 @@ const Excel = require('exceljs');
 const path = require('path');
 const Cow = db.cow;
 const Milk = db.milk;
+const Food = db.food;
+const Salary = db.salary;
 const _ = require('lodash');
 const moment = require('moment');
 
@@ -67,6 +69,9 @@ exports.getRawMilk = async (req, res) => {
     let endDate = new Date(end.getTime() - (endOffset*60*1000))
     console.log('endDate : ',endDate)
 
+    const salaries = await Salary.find({farm:req.farmId,month:month,year:year}).exec();
+    const sumMonthSalary = salaries.reduce((sum, item) => sum + item.amount, 0);
+
     const milks = await Milk.find({   
       date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
       farm : filter.farm
@@ -86,7 +91,9 @@ exports.getRawMilk = async (req, res) => {
           let milk = {
             date :  milkMorning[0].date,
             morningQty : morningDetail.qty,
-            afternoonQty : 0
+            morningAmount : morningDetail.amount,
+            afternoonQty : 0,
+            afternoonAmount : 0,
           }
 
           let dataFilter =  milkFilters.filter(mf => mf.cow == cow.name)
@@ -94,6 +101,8 @@ exports.getRawMilk = async (req, res) => {
           if(dataFilter.length == 0){
             dataDay = {
               cow : cow.name,
+              cowId : cow._id,
+              cowCorral : cow.corral,
               milks : [milk]
             }
             milkFilters.push(dataDay)
@@ -114,14 +123,19 @@ exports.getRawMilk = async (req, res) => {
 
             if(dateFilter.length > 0){
               dateFilter[0].afternoonQty = afternoonDetail.qty;
+              dateFilter[0].afternoonAmount = afternoonDetail.amount;
             }
           }else{
             const dataDay = {
               cow : cow.name,
+              cowId : cow._id,
+              cowCorral : cow.corral,
               milks : [{
                 date :  milkAfternoon[0].date,
                 morningQty : 0,
-                afternoonQty : afternoonDetail.qty
+                morningAmount : 0,
+                afternoonQty : afternoonDetail.qty,
+                afternoonAmount : afternoonDetail.amount,
               }]
             }
             milkFilters.push(dataDay)
@@ -137,10 +151,18 @@ exports.getRawMilk = async (req, res) => {
       for(const milk of milkFilter.milks){
         const day = moment(milk.date).format('D');
         if(!sumDays[day]){
-          sumDays[day] = {sumMorning : milk.morningQty,sumAfternoon : milk.afternoonQty ,count:1};
+          sumDays[day] = {
+            sumMorningQty : milk.morningQty,
+            sumMorningAmount : milk.morningAmount,
+            sumAfternoonQty : milk.afternoonQty ,
+            sumAfternoonAmount : milk.afternoonAmount ,
+            count:1
+          };
         }else{
-          sumDays[day].sumMorning += milk.morningQty
-          sumDays[day].sumAfternoon += milk.afternoonQty
+          sumDays[day].sumMorningQty += milk.morningQty
+          sumDays[day].sumAfternoonQty += milk.afternoonQty
+          sumDays[day].sumMorningAmount += milk.morningAmount
+          sumDays[day].sumAfternoonAmount += milk.afternoonAmount
           sumDays[day].count++;
         }
       }
@@ -164,7 +186,8 @@ exports.getRawMilk = async (req, res) => {
       mergeCell(sheet,2,dayColumns + 3,3,dayColumns + 4,'สรุป');
       mergeCell(sheet,2,dayColumns + 5,3,dayColumns + 6,'รายได้');
       mergeCell(sheet,2,dayColumns + 7,3,dayColumns + 8,'ค่าอาหาร');
-      mergeCell(sheet,2,dayColumns + 9,3,dayColumns + 11,'สถานภาพของโค');
+      mergeCell(sheet,2,dayColumns + 9,3,dayColumns + 10,'ค่าจ้างคนงาน');
+      mergeCell(sheet,2,dayColumns + 11,3,dayColumns + 13,'สถานภาพของโค');
 
       //Sub Header
       const dateKeys = Object.keys(milkGroupDates)
@@ -183,20 +206,28 @@ exports.getRawMilk = async (req, res) => {
       valueCell(sheet,4,dayColumns + 6,'เป็นเงิน')
       valueCell(sheet,4,dayColumns + 7,'ต่อวัน')
       valueCell(sheet,4,dayColumns + 8,'เป็นเงิน')
-      valueCell(sheet,4,dayColumns + 9,'ส่วนต่าง')
-      valueCell(sheet,4,dayColumns + 10,'คิดเป็น %')
-      valueCell(sheet,4,dayColumns + 11,'สถานภาพ')
+      valueCell(sheet,4,dayColumns + 9,'ต่อวัน')
+      valueCell(sheet,4,dayColumns + 10,'เป็นเงิน')
+      valueCell(sheet,4,dayColumns + 11,'ส่วนต่าง')
+      valueCell(sheet,4,dayColumns + 12,'คิดเป็น %')
+      valueCell(sheet,4,dayColumns + 13,'สถานภาพ')
 
       //Data
       let rowNumDataStart = 5;
+      let foodSum = 0
+      let foodTotal = 0
       console.log('data milkFilters : ',milkFilters)
       for (const milkFilter of milkFilters) {
         const data = milkFilter;
 
+        const foods = await Food.find({farm:req.farmId,corral:data.cowCorral}).exec();
+        foodSum = foods.reduce((sum, item) => sum + item.amountAvg, 0);
+
         //ชื่อโค
         valueCell(sheet,rowNumDataStart,2,data.cow)
 
-        let total = 0;
+        let totalQty = 0;
+        let totalAmount = 0;
 
         for (let j = 0; j < data.milks.length; j++) {
 
@@ -205,19 +236,34 @@ exports.getRawMilk = async (req, res) => {
           const day = moment(milk.date).format('D');
           console.log('data day : ',day)
 
-          const morning = milk.morningQty;
-          const afternoon = milk.afternoonQty;
-          const sum = morning + afternoon;
-          total += sum
+          const morningQty = milk.morningQty;
+          const afternoonQty = milk.afternoonQty;
+          const sumQty = morningQty + afternoonQty;
+          totalQty += sumQty
 
-          valueCell(sheet,rowNumDataStart,day*3,morning)
-          valueCell(sheet,rowNumDataStart,day*3+1,afternoon)
-          valueCell(sheet,rowNumDataStart,day*3+2,sum)
+          const morningAmount = milk.morningAmount;
+          const afternoonAmount = milk.afternoonAmount;
+          const sumAmount = morningAmount + afternoonAmount;
+          totalAmount += sumAmount
+
+          valueCell(sheet,rowNumDataStart,day*3,morningQty)
+          valueCell(sheet,rowNumDataStart,day*3+1,afternoonQty)
+          valueCell(sheet,rowNumDataStart,day*3+2,sumQty)
           
         }
-        valueCell(sheet,rowNumDataStart,dayColumns+3,total)
-        valueCell(sheet,rowNumDataStart,dayColumns+4,total/data.milks.length)
 
+        const numMilking = data.milks.length;
+
+        valueCell(sheet,rowNumDataStart,dayColumns+3,totalQty)
+        valueCell(sheet,rowNumDataStart,dayColumns+4,totalQty/numMilking)
+        valueCell(sheet,rowNumDataStart,dayColumns+5,totalAmount/totalQty)
+        valueCell(sheet,rowNumDataStart,dayColumns+6,totalAmount)
+        valueCell(sheet,rowNumDataStart,dayColumns+7,foodSum)
+        valueCell(sheet,rowNumDataStart,dayColumns+8,foodSum*numMilking)
+        valueCell(sheet,rowNumDataStart,dayColumns+9,sumMonthSalary/daysInMonth)
+        valueCell(sheet,rowNumDataStart,dayColumns+10,sumMonthSalary/milkFilters.length)
+
+        foodTotal +=  (foodSum*numMilking)
         rowNumDataStart++;
         console.log('rowNum : ',rowNumDataStart)
       }
@@ -226,17 +272,22 @@ exports.getRawMilk = async (req, res) => {
       //Summary day
       valueCell(sheet,rowNumDataStart,2,'รวม')
       valueCell(sheet,rowNumDataStart+1,2,'ค่าเฉลี่ย')
-      let sumTotal = 0;
+      let sumTotalQty = 0;
+      let sumTotalAmount = 0;
       for(let sumDay of Object.keys(sumDays)){
         const sum = sumDays[sumDay];
-        valueCell(sheet,rowNumDataStart,Number(sumDay)*3,sum.sumMorning)
-        valueCell(sheet,rowNumDataStart,Number(sumDay)*3+1,sum.sumAfternoon)
-        valueCell(sheet,rowNumDataStart,Number(sumDay)*3+2,sum.sumMorning + sum.sumAfternoon)
-        valueCell(sheet,rowNumDataStart+1,Number(sumDay)*3+2,(sum.sumMorning + sum.sumAfternoon)/sum.count)
-        sumTotal += sum.sumMorning + sum.sumAfternoon;
+        valueCell(sheet,rowNumDataStart,Number(sumDay)*3,sum.sumMorningQty)
+        valueCell(sheet,rowNumDataStart,Number(sumDay)*3+1,sum.sumAfternoonQty)
+        valueCell(sheet,rowNumDataStart,Number(sumDay)*3+2,sum.sumMorningQty + sum.sumAfternoonQty)
+        valueCell(sheet,rowNumDataStart+1,Number(sumDay)*3+2,(sum.sumMorningQty + sum.sumAfternoonQty)/sum.count)
+        sumTotalQty += sum.sumMorningQty + sum.sumAfternoonQty;
+        sumTotalAmount += sum.sumMorningAmount + sum.sumAfternoonAmount;
       }
-      valueCell(sheet,rowNumDataStart,dayColumns+3,sumTotal)
-      valueCell(sheet,rowNumDataStart,dayColumns+4,sumTotal/Object.keys(sumDays).length)
+      valueCell(sheet,rowNumDataStart,dayColumns+3,sumTotalQty)
+      valueCell(sheet,rowNumDataStart,dayColumns+4,sumTotalQty/Object.keys(sumDays).length)
+      valueCell(sheet,rowNumDataStart,dayColumns+5,sumTotalAmount/sumTotalQty)
+      valueCell(sheet,rowNumDataStart,dayColumns+6,sumTotalAmount)
+      valueCell(sheet,rowNumDataStart,dayColumns+8,foodTotal)
     }
     
   }
