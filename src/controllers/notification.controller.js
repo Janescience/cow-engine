@@ -33,10 +33,10 @@ exports.getCalendar = async (req, res) => {
     const promises = notifications.map(async (noti) => {
         const notiParam = noti.notificationParam;
 
-        const data = await notiService.filterData(notiParam,noti,filter.cow);
-
-        if(data != null){
-
+        const data = await notiService.filterData(notiParam,noti,filter.cow);            
+        
+        if(data){
+            
             const eventPromises = [];
 
             if(notiParam.before && notiParam.before > 0){

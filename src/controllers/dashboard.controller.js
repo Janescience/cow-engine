@@ -198,6 +198,18 @@ exports.rawMilkSort = async (req,res) => {
     });
 
     cowMilkSum.sort((a, b) => b.sumMilk - a.sumMilk);
-    const rawMilkSort = cowMilkSum.slice(0, 5);
+    const rawMilkSort = cowMilkSum.slice(0, 20);
     res.json(rawMilkSort);
+}
+
+exports.corrals = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+    let corrals = [];
+    const cows = await Cow.find({filter}).exec();
+    const groupCorrals = _.groupBy(cows,'corral')
+    for(let key of Object.keys(groupCorrals)){
+        corrals.push({corral:key,numCows:groupCorrals[key].length})
+    }
+    res.json(corrals);
 }

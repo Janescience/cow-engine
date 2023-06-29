@@ -8,7 +8,6 @@ exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
     const vaccines = await Vaccine.find(filter).populate('protections').exec();
-    console.log('vaccines : ',vaccines)
     res.json({vaccines});
 };
 
@@ -35,15 +34,11 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     const updatedProtection = await Protection.updateOne({_id:id},data).exec();
-    console.log("Protection updated : ",updatedProtection)
-
     res.status(200).send({updatedProtection});
 };
 
 exports.delete = async (req, res) => {
     const id = req.params.id;
     const deletedProtection = await Protection.deleteOne({_id:id});
-    console.log("Protection deleted : ",deletedProtection)
-
     res.status(200).send({deletedProtection});
 };

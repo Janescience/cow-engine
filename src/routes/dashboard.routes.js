@@ -16,4 +16,5 @@ module.exports = function(app) {
   app.get('/dashboard/expense',[authJwt.verifyToken],controller.expense);
   app.get('/dashboard/income',[authJwt.verifyToken],controller.income);
   app.get('/dashboard/rawMilkSort',[authJwt.verifyToken],controller.rawMilkSort);
+  app.get('/dashboard/corrals',[authJwt.verifyToken],controller.corrals);
 };

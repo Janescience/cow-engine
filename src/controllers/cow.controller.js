@@ -11,7 +11,7 @@ const Reproduction = db.reproduction;
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const cows = await Cow.find(filter).exec();
+    const cows = await Cow.find(filter).sort({corral:1}).exec();
     res.json({cows});
 };
 

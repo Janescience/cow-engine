@@ -59,7 +59,11 @@ const filterData = async (notiParam,noti,cowId) => {
             return await Birth.findById(noti.dataId).populate('cow').exec();
         }
     }else{
-        return await Protection.findById(noti.dataId).populate('vaccine').exec();
+        if(cowId){
+            return await Protection.findOne({_id:noti.dataId,cows:{$in:[cowId]}}).populate('vaccine').exec();
+        }else{
+            return await Protection.findById(noti.dataId).populate('vaccine').exec();
+        }
     }
 }
 

@@ -10,7 +10,7 @@ exports.getAll = async (req, res) => {
         const recipes = await Recipe.find(filter).populate('recipeDetails').exec();
         res.json({recipes});
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred' });
+        res.status(500).json(error);
     }
 };
 

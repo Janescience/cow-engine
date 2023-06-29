@@ -7,71 +7,94 @@ const Cow = db.cow;
 
 const projection = { code: 1, name: 1, _id: 1 };
 
+const getCowsByIds = async (cowIds) => {
+  const cows = await Cow.find({ _id: { $in: cowIds }, flag: 'Y' }, projection);
+  const cowMap = new Map();
+  cows.forEach((cow) => {
+    cowMap.set(cow._id.toString(), cow);
+  });
+  return cowMap;
+};
+
 exports.getAll = async (req, res) => {
+  try {
     const filter = req.query;
     filter.farm = req.farmId;
 
-    const year = filter?.year; 
+    const year = filter?.year;
     const month = filter?.month;
-    const days = new Date(year, month-1, 0).getDate();
+    const days = new Date(year, month - 1, 0).getDate();
 
-    let start = new Date(year,month-1,1);
+    let start = new Date(year, month - 1, 1);
     const startOffset = start.getTimezoneOffset();
-    let startDate = new Date(start.getTime() - (startOffset*60*1000));
+    let startDate = new Date(start.getTime() - startOffset * 60 * 1000);
 
-    let end = new Date(year, month-1, days);
+    let end = new Date(year, month - 1, days);
     const endOffset = end.getTimezoneOffset();
-    let endDate = new Date(end.getTime() - (endOffset*60*1000));
+    let endDate = new Date(end.getTime() - endOffset * 60 * 1000);
 
-    const milks = await Milk.find(
-        {   
-            date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
-            farm : filter.farm
+    const startDateISO = startDate.toISOString().split('T')[0];
+    const endDateISO = endDate.toISOString().split('T')[0];
+
+    const milks = await Milk.find({
+      date: { $gte: startDateISO, $lte: endDateISO },
+      farm: filter.farm,
+    })
+      .populate('milkDetails')
+      .sort({ time: -1 })
+      .lean();
+
+    const cowIds = milks.map((milk) => milk.milkDetails.map((milkDetail) => milkDetail.cow)).flat();
+
+    const cowMap = await getCowsByIds(cowIds);
+
+    milks.forEach((milk) => {
+      milk.milkDetails.forEach((milkDetail) => {
+        const cow = cowMap.get(milkDetail.cow.toString());
+        if (cow) {
+          milkDetail.relate = { cow: { code: cow.code, name: cow.name, _id: cow._id } };
         }
-    ).populate('milkDetails').sort({time:-1}).exec();
+      });
+    });
 
-    await Promise.all(milks.map(async (milk) => {
-        await Promise.all(milk.milkDetails.map(async (milkDetail) => {
-            let cow = await Cow.findOne({_id:milkDetail.cow,flag:'Y'}, projection);
-            if(cow){
-                milkDetail.relate = { cow : {code : cow.code , name : cow.name , _id : cow._id }};   
-            }
-        }));
-    }));
-
-    res.status(200).send({milks});
+    res.status(200).send({ milks });
+  } catch (error) {
+    res.status(500).send({ error });
+  }
 };
+
 
 exports.get = async (req, res) => {
     const filter = req.query
     const farmId = req.farmId;
-    const milks = await Milk.find({farm:farmId}).populate({path:'milkDetails',match : { cow : filter.cow }}).exec();
+    const milks = await Milk.find({farm:farmId}).populate({path:'milkDetails',match : { cow : filter.cow }}).sort({ date: -1 }).exec();
     res.status(200).send({milks});
 };
 
 exports.create = async (req, res) => {
+  try {
     const data = req.body;
-    const farmId = req.farmId
+    const farmId = req.farmId;
 
-    const milkSave = { time : data.time , date : data.date , farm : farmId };
+    const milkSave = { time: data.time, date: data.date, farm: farmId };
     const newMilk = new Milk(milkSave);
-    
+
     const milkSaved = await newMilk.save();
-    console.log('milk saved.')
+    console.log('milk saved.');
 
-    const detailIds = [];
-    for(let detail of data.milkDetails){
-        detail.milk = milkSaved._id;
-        const newMilkDetail = new MilkDetail(detail);
-        const milkDetail = await newMilkDetail.save();
-        detailIds.push(milkDetail._id)
-    }
-    console.log('deatailIds : ',detailIds)
+    const milkDetails = data.milkDetails.map(detail => ({ ...detail, milk: milkSaved._id }));
+    const milkDetailIds = await MilkDetail.insertMany(milkDetails);
+    const detailIds = milkDetailIds.map(detail => detail._id);
+    console.log('detailIds : ', detailIds);
 
-    await Milk.updateOne({_id:milkSaved._id},{milkDetails:detailIds}).exec();
-    console.log('milk updated.')
+    await Milk.updateOne({ _id: milkSaved._id }, { milkDetails: detailIds }).exec();
+    console.log('milk updated.');
 
-    res.status(200).send({milkSaved});
+    res.status(200).send({ milkSaved });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
 };
 
 exports.update = async (req, res) => {

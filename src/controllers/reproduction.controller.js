@@ -9,13 +9,7 @@ const NotificationParam = db.notificationParam
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const reproducts = await Reproduct.find(filter).sort({"status":1,"checkDate":1,'seq':-1}).exec();
-
-    for(let reproduct of reproducts){
-        let cow = await Cow.findOne({_id:reproduct.cow})
-        reproduct.cow = cow    
-    }
-
+    const reproducts = await Reproduct.find(filter).populate('cow').sort({"status":1,"checkDate":1,'seq':-1}).exec();
     res.status(200).send({reproducts});
 };
 

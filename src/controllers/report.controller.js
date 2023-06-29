@@ -269,13 +269,19 @@ const fetchData = async (year, monthFrom, i, filter) => {
   console.log('milkGroupDates : ', Object.keys(milkGroupDates).length);
   let milkFilters = [];
 
-  for (let date of Object.keys(milkGroupDates)) {
+  // Fetch all necessary Cow data at once and store it in a map for quick access
+  const cowMap = new Map();
+  const cowIds = Array.from(new Set(milks.map(milk => milk.milkDetails.map(detail => detail.cow)).flat()));
+  const cows = await Cow.find({ _id: { $in: cowIds } }).exec();
+  cows.forEach(cow => cowMap.set(cow._id.toString(), cow));
+
+  await Promise.all(Object.keys(milkGroupDates).map(async (date) => {
     const milkAllTimeInDay = milkGroupDates[date];// Get all time M,A in day
 
     const milkMorning = milkAllTimeInDay.filter(m => m.time === 'M'); // Get all cows in morning time
     if (milkMorning.length > 0) {
       for (let morningDetail of milkMorning[0].milkDetails) {
-        const cow = await Cow.findById(morningDetail.cow).exec();
+        const cow = cowMap.get(morningDetail.cow.toString());
         let milk = {
           date: milkMorning[0].date,
           morningQty: morningDetail.qty,
@@ -304,7 +310,7 @@ const fetchData = async (year, monthFrom, i, filter) => {
     const milkAfternoon = milkAllTimeInDay.filter(m => m.time === 'A'); // Get all cows in morning time
     if (milkAfternoon.length > 0) {
       for (let afternoonDetail of milkAfternoon[0].milkDetails) {
-        const cow = await Cow.findById(afternoonDetail.cow).exec();
+        const cow = cowMap.get(afternoonDetail.cow.toString());
         let cowFilter = milkFilters.filter(mf => mf.cow == cow.name);
         if (cowFilter.length > 0) {
           let dateFilter = cowFilter[0].milks.filter(m => format(m.date, 'yyyy-MM-dd') === format(milkAfternoon[0].date, 'yyyy-MM-dd'));
@@ -331,7 +337,7 @@ const fetchData = async (year, monthFrom, i, filter) => {
 
       }
     }
-  }
+  }));
 
   //Day Summary
   const sumDays = {};

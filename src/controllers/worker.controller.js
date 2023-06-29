@@ -33,10 +33,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
-
     const updatedWorker = await Worker.updateOne({_id:id},data).exec();
-    console.log("Worker updated : ",updatedWorker);
-
     res.status(200).send({updatedWorker});
 };
 

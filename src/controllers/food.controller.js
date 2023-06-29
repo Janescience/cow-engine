@@ -6,11 +6,7 @@ const Cow = db.cow;
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const foods = await Food.find(filter).sort({corral:1}).exec();
-    for(let food of foods){
-        food.recipe = await Recipe.findOne({_id:food.recipe});
-    }
-    console.log('Foods : ',foods);
+    const foods = await Food.find(filter).populate('recipe').sort({corral:1}).exec();
     res.json({foods});
 };
 
