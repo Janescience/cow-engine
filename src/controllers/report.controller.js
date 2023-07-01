@@ -2,7 +2,6 @@ const db = require("../models");
 const Excel = require('exceljs');
 const Promise = require('bluebird');
 
-const path = require('path');
 const Cow = db.cow;
 const Milk = db.milk;
 const Heal = db.heal;
@@ -11,6 +10,7 @@ const Protection = db.protection;
 const Salary = db.salary;
 const _ = require('lodash');
 const moment = require('moment');
+const { format } = require('date-fns');
 
 exports.getCowAll = async (req, res) => {
     const filter = req.query
@@ -61,10 +61,17 @@ exports.getRawMilk = async (req, res) => {
 
   const promises = [];
   for (let i = 0; i <= rangeMonths; i++) {
-    promises.push(fetchData(year, monthFrom, i, filter));
+    const data = fetchData(year, monthFrom, i, filter);
+    if(data){
+      promises.push(data);
+    }
   }
 
   const results = await Promise.all(promises);
+
+  if(results[0].milkFilters.length === 0){
+    res.json(null)
+  }
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i];
@@ -84,13 +91,13 @@ exports.getRawMilk = async (req, res) => {
       valueCell(sheet, 2, 1, 'ลำดับที่');
       valueCell(sheet, 2, 2, 'โค');
       mergeCell(sheet, 2, 3, 2, dayColumns + 2, 'วันที่');
-      mergeCell(sheet, 2, dayColumns + 3, 3, dayColumns + 4, 'สรุป');
+      mergeCell(sheet, 2, dayColumns + 3, 3, dayColumns + 4, 'สรุป (กก.)');
       mergeCell(sheet, 2, dayColumns + 5, 3, dayColumns + 6, 'รายได้');
       mergeCell(sheet, 2, dayColumns + 7, 3, dayColumns + 8, 'ค่าอาหาร');
       mergeCell(sheet, 2, dayColumns + 9, 3, dayColumns + 10, 'ค่าจ้างคนงาน');
       mergeCell(sheet, 2, dayColumns + 11, 3, dayColumns + 11, 'ค่ารักษา');
       mergeCell(sheet, 2, dayColumns + 12, 3, dayColumns + 12, 'ค่าป้องกัน/บำรุง');
-      mergeCell(sheet, 2, dayColumns + 14, 3, dayColumns + 15, 'สถานภาพของโค');
+      mergeCell(sheet, 2, dayColumns + 13, 3, dayColumns + 15, 'สถานภาพของโค');
 
       //Sub Header
       const dateKeys = Object.keys(result.milkGroupDates);
@@ -111,9 +118,9 @@ exports.getRawMilk = async (req, res) => {
       valueCell(sheet, 4, dayColumns + 10, 'เป็นเงิน');
       valueCell(sheet, 4, dayColumns + 11, 'รวม');
       valueCell(sheet, 4, dayColumns + 12, 'รวม');
-      valueCell(sheet, 4, dayColumns + 13, 'ส่วนต่าง');
-      valueCell(sheet, 4, dayColumns + 14, 'คิดเป็น %');
-      valueCell(sheet, 4, dayColumns + 15, 'สถานภาพ');
+      valueCell(sheet, 4, dayColumns + 13, 'กำไร');
+      valueCell(sheet, 4, dayColumns + 14, 'กำไคิดเป็น %');
+      valueCell(sheet, 4, dayColumns + 15, 'คุณภาพ');
 
       //Data
       let rowNumDataStart = 5;
@@ -121,6 +128,8 @@ exports.getRawMilk = async (req, res) => {
       let healSum = 0;
       let protectionSum = 0;
       let protectionTotal = 0;
+      let workerDayTotal = 0;
+      let workerMonthTotal = 0;
       let healTotal = 0;
       let foodTotal = 0;
       let expenseSum = 0;
@@ -128,6 +137,11 @@ exports.getRawMilk = async (req, res) => {
       console.log('data milkFilters : ', result.milkFilters);
       for (const milkFilter of result.milkFilters) {
         const data = milkFilter;
+        const numMilking = data.milks.length;
+
+        //ค่าจ้างคนงาน
+        const workerPerDay = ((result.sumMonthSalary / result.milkFilters.length) / daysInMonth) 
+        const workerAllDay = result.sumMonthSalary / result.milkFilters.length
 
         //ค่าอาหาร
         const foods = await Food.find({ farm: req.farmId, corral: data.cowCorral }).exec();
@@ -149,7 +163,7 @@ exports.getRawMilk = async (req, res) => {
         }).exec();
         protectionSum = protections.reduce((sum, item) => sum + item.amount, 0);
 
-        expenseSum += foodSum + healSum + protectionSum + (result.sumMonthSalary / result.milkFilters.length);
+        expenseSum += (foodSum*numMilking) + healSum + protectionSum + (result.sumMonthSalary / result.milkFilters.length);
 
         //ชื่อโค
         valueCell(sheet, rowNumDataStart, 2, data.cow);
@@ -180,7 +194,20 @@ exports.getRawMilk = async (req, res) => {
 
         }
 
-        const numMilking = data.milks.length;
+        const profitPercent = ((totalAmount - expenseSum)/totalAmount) * 100
+
+        let grade = null;
+        if(profitPercent < 0){
+          grade = 'แย่มาก'
+        }else if(profitPercent >= 0 && profitPercent < 30){
+          grade = 'แย่'
+        }else if(profitPercent >= 30 && profitPercent <=50){
+          grade = 'ปกติ'
+        }else if(profitPercent > 50 && profitPercent < 80){
+          grade = 'ดี'
+        }else if(profitPercent >= 80){
+          grade = 'ดีมาก'
+        }
 
         valueCell(sheet, rowNumDataStart, dayColumns + 3, totalQty);
         valueCell(sheet, rowNumDataStart, dayColumns + 4, totalQty / numMilking);
@@ -188,15 +215,19 @@ exports.getRawMilk = async (req, res) => {
         valueCell(sheet, rowNumDataStart, dayColumns + 6, totalAmount);
         valueCell(sheet, rowNumDataStart, dayColumns + 7, foodSum);
         valueCell(sheet, rowNumDataStart, dayColumns + 8, foodSum * numMilking);
-        valueCell(sheet, rowNumDataStart, dayColumns + 9, result.sumMonthSalary / daysInMonth);
-        valueCell(sheet, rowNumDataStart, dayColumns + 10, result.sumMonthSalary / result.milkFilters.length);
+        valueCell(sheet, rowNumDataStart, dayColumns + 9, workerPerDay);
+        valueCell(sheet, rowNumDataStart, dayColumns + 10, workerAllDay );
         valueCell(sheet, rowNumDataStart, dayColumns + 11, healSum);
         valueCell(sheet, rowNumDataStart, dayColumns + 12, protectionSum);
         valueCell(sheet, rowNumDataStart, dayColumns + 13, totalAmount - expenseSum);
+        valueCell(sheet, rowNumDataStart, dayColumns + 14, profitPercent);
+        valueCell(sheet, rowNumDataStart, dayColumns + 15, grade);
 
         foodTotal += (foodSum * numMilking);
         healTotal += healSum;
         protectionTotal += protectionSum;
+        workerDayTotal += workerPerDay
+        workerMonthTotal += workerAllDay
         profitTotal += (totalAmount - expenseSum);
         rowNumDataStart++;
         console.log('rowNum : ', rowNumDataStart);
@@ -222,6 +253,8 @@ exports.getRawMilk = async (req, res) => {
       valueCell(sheet, rowNumDataStart, dayColumns + 5, sumTotalAmount / sumTotalQty);
       valueCell(sheet, rowNumDataStart, dayColumns + 6, sumTotalAmount);
       valueCell(sheet, rowNumDataStart, dayColumns + 8, foodTotal);
+      valueCell(sheet, rowNumDataStart, dayColumns + 9, workerDayTotal);
+      valueCell(sheet, rowNumDataStart, dayColumns + 10, workerMonthTotal);
       valueCell(sheet, rowNumDataStart, dayColumns + 11, healTotal);
       valueCell(sheet, rowNumDataStart, dayColumns + 12, protectionTotal);
       valueCell(sheet, rowNumDataStart, dayColumns + 13, profitTotal);
@@ -237,7 +270,6 @@ exports.getRawMilk = async (req, res) => {
   });
 };
 
-const { format, parseISO } = require('date-fns');
 
 const fetchData = async (year, monthFrom, i, filter) => {
   const month = i + Number(monthFrom);
@@ -267,6 +299,7 @@ const fetchData = async (year, monthFrom, i, filter) => {
 
   const milkGroupDates = _.groupBy(milks, 'date');
   console.log('milkGroupDates : ', Object.keys(milkGroupDates).length);
+
   let milkFilters = [];
 
   // Fetch all necessary Cow data at once and store it in a map for quick access
