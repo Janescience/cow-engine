@@ -15,6 +15,14 @@ const Food = mongoose.model(
             type:Number,
             required:true
         },
+        month : {
+            type:Number,
+            required:true
+        },
+        year : {
+            type:Number,
+            required:true
+        },
         amount:{
             type:Number,
             required:true
