@@ -7,10 +7,6 @@ const Food = mongoose.model(
             type:String,
             required:true
         },
-        qty:{
-            type:Number,
-            required:true
-        },
         numCow:{
             type:Number,
             required:true
@@ -23,19 +19,7 @@ const Food = mongoose.model(
             type:Number,
             required:true
         },
-        amount:{
-            type:Number,
-            required:true
-        },
-        amountAvg:{
-            type:Number,
-            required:true
-        },// รวมเป็นเงิน/ตัว
-        recipe:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "recipe",
-            required:true,
-        },
+        foodDetails : [{type: mongoose.Schema.Types.ObjectId, ref: "foodDetail", }],
         farm:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm",

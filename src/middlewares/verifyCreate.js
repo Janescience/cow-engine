@@ -104,7 +104,8 @@ const foodCheckDup = (req, res, next) => {
   console.log('Food check dup , farm id : ',req.farmId)
   Food.findOne({
     corral: req.body.corral,
-    recipe : req.body.recipe,
+    month : req.body.month,
+    year : req.body.year,
     farm : req.farmId
   }).exec((err, food) => {
     if (err) {
@@ -113,7 +114,7 @@ const foodCheckDup = (req, res, next) => {
     }
 
     if (food) {
-      res.status(400).send({ message: "การให้อาหารซ้ำ(สูตรอาหาร,คอก)" });
+      res.status(400).send({ message: "การให้อาหารซ้ำ(ปี,เดือน,คอก)" });
       return;
     }
 
