@@ -21,7 +21,7 @@ exports.getAll = async (req, res) => {
     filter.farm = req.farmId
     const foods = await Food.find(filter).populate('foodDetails').sort({corral:1,year:1,month:1}).exec();
 
-    const recipeIds = foods.map((food) => food.foodDetails.map((foodDetail) => foodDetail.recip)).flat();
+    const recipeIds = foods.map((food) => food.foodDetails.map((foodDetail) => foodDetail.recipe)).flat();
 
     const recipeMap = await getRecipesByIds(recipeIds);
 
