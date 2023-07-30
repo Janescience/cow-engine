@@ -72,19 +72,19 @@ const filterEvent = (noti, notiParam, data, time) => {
     let period = 'today';
 
     const filterDate = notiService.filterDueDate(notiParam, data).startOf('day');
-    const dueDate = filterDate;
+    const dueDate = notiService.filterDueDate(notiParam, data).startOf('day');
     const today = moment(new Date()).startOf('day');
     const cow = (type != 'VACCINE' ? ` / โค${data.cow?.name}` : '');
     const desc = (type != 'VACCINE' 
-                    ? `โค${data.cow?.name}` 
-                    : `ครั้งที่ ${data.seq} ฉีดทั้งหมด ${data.qty} ตัว รวมเป็นเงิน ${data.amount} บาท`);
+                    ? (time === 'today' ? `วันที่ครบกำหนด` : '') 
+                    : `ครั้งที่ ${data.seq} ฉีดทั้งหมด ${data.qty} ตัว รวมเป็นเงิน ${data.amount} บาท | `);
 
     const updateDueDate = (days) => {
         dueDate.add(days, 'days');
     };
 
     const generateDescription = (days, period) => {
-        return `${desc} | แจ้งเตือน${period} ${days} วัน`;
+        return `${desc}แจ้งเตือน${period} ${days} วัน`;
     };
 
     const isAlert = (status) => {
