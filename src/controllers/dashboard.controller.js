@@ -166,7 +166,7 @@ exports.income = async (req,res) => {
 }
 
 
-exports.rawMilkSort = async (req,res) => {
+exports.rawMilkDescSort = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
 
@@ -197,10 +197,47 @@ exports.rawMilkSort = async (req,res) => {
         return {cow: {image: cow.image, code: cow.code, name: cow.name}, sumMilk: sumMilk};
     });
 
-    cowMilkSum.sort((a, b) => b.sumMilk - a.sumMilk);
-    const rawMilkSort = cowMilkSum.slice(0, 20);
-    res.json(rawMilkSort);
+    const desc = cowMilkSum.sort((a, b) => b.sumMilk - a.sumMilk);//desc
+    const desc10 = desc.slice(0, 10);
+    res.json({desc:desc10});
 }
+
+exports.rawMilkAscSort = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+
+    const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
+
+    let rawMilkDetails = []
+    for(let rawMilk of rawMilks){
+        for(let detail of rawMilk.milkDetails){
+            rawMilkDetails.push(detail)
+        }
+    }
+
+    const cowRawMilkGroups = rawMilkDetails.reduce((groups, detail) => {
+        if (!groups[detail.cow]) {
+            groups[detail.cow] = [];
+        }
+        groups[detail.cow].push(detail);
+        return groups;
+    }, {});
+
+    const cowIds = Object.keys(cowRawMilkGroups);
+    const cows = await Promise.all(cowIds.map(cowId => Cow.findOne({_id: cowId}).exec()));
+
+    let cowMilkSum = cowIds.map((key, index) => {
+        const cow = cows[index];
+        const milks = cowRawMilkGroups[key];
+        const sumMilk = milks.reduce((sum, milk) => sum + milk.qty, 0);
+        return {cow: {image: cow.image, code: cow.code, name: cow.name}, sumMilk: sumMilk};
+    });
+
+    const asc = cowMilkSum.sort((a, b) => a.sumMilk - b.sumMilk);//asc
+    const asc10 = asc.slice(0, 10);
+    res.json({asc:asc10});
+}
+
 
 exports.corrals = async (req,res) => {
     const filter = req.query
