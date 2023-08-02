@@ -198,7 +198,7 @@ exports.rawMilkDescSort = async (req,res) => {
     });
 
     const desc = cowMilkSum.sort((a, b) => b.sumMilk - a.sumMilk);//desc
-    const desc10 = desc.slice(0, 10);
+    const desc10 = desc.slice(0, 5);
     res.json({desc:desc10});
 }
 
@@ -234,7 +234,7 @@ exports.rawMilkAscSort = async (req,res) => {
     });
 
     const asc = cowMilkSum.sort((a, b) => a.sumMilk - b.sumMilk);//asc
-    const asc10 = asc.slice(0, 10);
+    const asc10 = asc.slice(0, 5);
     res.json({asc:asc10});
 }
 
@@ -249,4 +249,70 @@ exports.corrals = async (req,res) => {
         corrals.push({corral:key,numCows:groupCorrals[key].length})
     }
     res.json(corrals);
+}
+
+exports.statistics = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+    //Heal
+    let heal = {};
+    let healCount = [];
+    const heals = await Heal.find({filter}).exec();
+    heal.count = heals.length
+    const groupHealCows = _.groupBy(heals,'cow')
+
+    for(let key of Object.keys(groupHealCows)){
+        const sumAmount = groupHealCows[key].reduce((sum, heal) => sum + heal.amount, 0);
+        healCount.push({cow:key,count:groupHealCows[key].length,amount:sumAmount})
+    }
+
+    if(healCount.length > 0){
+        const maxHeal = _.maxBy(healCount,'count')
+        const cow = await Cow.findById(maxHeal.cow).exec();
+        maxHeal.cow = {_id:cow._id,code:cow.code,name:cow.name,image:cow.image}
+        heal.max = maxHeal
+    }
+
+    //Born
+    let bornCount = [];
+    let born = {male:0,female:0}
+    filter.sex = { $nin: [null,''] }
+
+    const borns = await Birth.find(filter).exec();
+    born.count = borns.length
+    const groupBornCows = _.groupBy(borns,'cow')
+    const groupBornSex = _.groupBy(borns,'sex')
+    for(let key of Object.keys(groupBornCows)){
+        bornCount.push({cow:key,count:groupBornCows[key].length,sex:groupBornCows[key].sex})
+    }
+    for(let key of Object.keys(groupBornSex)){
+        if(key === 'M'){
+            born.male++  
+        }
+        if(key === 'F'){
+            born.female++  
+        }
+    }
+
+    if(bornCount.length > 0){
+        const maxBorn = _.maxBy(bornCount,'count');
+        const cow = await Cow.findById(maxBorn.cow).exec();
+        maxBorn.cow = {_id:cow._id,code:cow.code,name:cow.name,image:cow.image}
+        born.max = maxBorn
+    }
+
+    //Birth
+    let pregnant = {nearBirth:0}
+    filter.sex = null
+    const pregnants = await Birth.find(filter).exec();
+    pregnant.count = pregnants.length
+    for(let pregnant of pregnants){
+        const diffMonths = new Date().getMonth() - new Date(pregnant.pregnantDate).getMonth() + 
+        (12 * (new Date().getFullYear() - new Date(pregnant.pregnantDate).getFullYear()))
+        console.log('diffMonths',diffMonths)
+        if(diffMonths == 9){
+            pregnant.nearBirth++
+        }
+    }
+    res.json({heal,born,pregnant});
 }

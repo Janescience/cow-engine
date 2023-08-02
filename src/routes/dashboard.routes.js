@@ -18,4 +18,5 @@ module.exports = function(app) {
   app.get('/dashboard/rawMilkDescSort',[authJwt.verifyToken],controller.rawMilkDescSort);
   app.get('/dashboard/rawMilkAscSort',[authJwt.verifyToken],controller.rawMilkAscSort);
   app.get('/dashboard/corrals',[authJwt.verifyToken],controller.corrals);
+  app.get('/dashboard/statistics',[authJwt.verifyToken],controller.statistics);
 };
