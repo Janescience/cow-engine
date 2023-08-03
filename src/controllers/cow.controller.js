@@ -8,6 +8,9 @@ const Milk = db.milk;
 const Protection = db.protection;
 const Reproduction = db.reproduction;
 
+const { cowService } = require("../services");
+
+
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
@@ -38,7 +41,8 @@ exports.getAllDDL = async (req, res) => {
 exports.get = async (req, res) => {
     const id = req.params.id
     const cow = await Cow.findById(id).exec();;
-    res.status(200).send({cow});
+    const quality = await cowService.quality(id);
+    res.status(200).send({cow,quality});
 };
 
 exports.getDetails = async (req, res) => {
@@ -51,6 +55,7 @@ exports.getDetails = async (req, res) => {
   const milks = await Milk.find({farm:farmId}).populate('milkDetails').sort({date:-1}).exec();
   const protections = await Protection.find({cow:id}).exec();
   const reproductions = await Reproduction.find({cow:id}).exec();
+  const quality = await cowService.quality(id);
 
   res.status(200).send({
     cow,
@@ -59,7 +64,8 @@ exports.getDetails = async (req, res) => {
     foods,
     milks,
     protections,
-    reproductions
+    reproductions,
+    quality
   });
   
 };

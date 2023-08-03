@@ -307,9 +307,10 @@ exports.statistics = async (req,res) => {
     const pregnants = await Birth.find(filter).exec();
     pregnant.count = pregnants.length
     for(let pregnant of pregnants){
+        
         const diffMonths = new Date().getMonth() - new Date(pregnant.pregnantDate).getMonth() + 
         (12 * (new Date().getFullYear() - new Date(pregnant.pregnantDate).getFullYear()))
-        console.log('diffMonths',diffMonths)
+
         if(diffMonths == 9){
             pregnant.nearBirth++
         }
