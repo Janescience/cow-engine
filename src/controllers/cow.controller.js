@@ -8,14 +8,21 @@ const Milk = db.milk;
 const Protection = db.protection;
 const Reproduction = db.reproduction;
 
-const { cowService } = require("../services");
+const Promise = require('bluebird');
 
+const { cowService } = require("../services");
 
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
     const cows = await Cow.find(filter).sort({corral:1}).exec();
-    res.json({cows});
+    const cowsWithGrade = await Promise.all(cows.map(async (cow) => {
+      const quality = await cowService.quality(cow._id);
+      const rawmilks = await MilkDetail.find({cow:cow._id}).exec();
+      const sumRawmilk = rawmilks.reduce((sum,item) => sum + item.qty,0);
+      return { ...cow.toObject(), grade: quality.grade,sum:{rawmilk:sumRawmilk} };
+    }));
+    res.json({ cows: cowsWithGrade });
 };
 
 exports.getAllDDL = async (req, res) => {

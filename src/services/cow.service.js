@@ -37,8 +37,6 @@ const quality =  async (id) => {
     const foods = await Food.find({ farm: cow.farm, corral: cow.corral }).populate('foodDetails').exec();
     for(let food of foods){
       const sumAmount = food.foodDetails.reduce((sum,detail) => sum + detail.amount,0) * new Date(food.year,food.month,0).getDate()
-      console.log('sumAmount : ',sumAmount)
-
       sumFoodAmountAvg += (sumAmount / food.numCow)
     }
 
