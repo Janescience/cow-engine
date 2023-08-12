@@ -9,14 +9,17 @@ const RefreshTokenSchema = new mongoose.Schema({
     ref: "user",
   },
   expiryDate: Date,
-});
+}, { timestamps: true });
 
 RefreshTokenSchema.statics.createToken = async function (user,exp) {
   let expiredAt = new Date();
+  console.log('expiredAt before add time : ',expiredAt)
 
-  expiredAt.setSeconds(
-    expiredAt.getSeconds() + exp
+  expiredAt.setMilliseconds(
+    expiredAt.getMilliseconds() + exp
   );
+  
+  console.log('expiredAt after add time : ',expiredAt)
 
   let _token = uuidv4();
 

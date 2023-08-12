@@ -100,6 +100,14 @@ const calculateSum = (items) => {
   return items.reduce((sum, item) => sum + item.amount, 0);
 };
 
+const calculateFoodDetailSum = (items) => {
+    let sum = 0;
+    for(let item of items){
+        sum += item.foodDetails.reduce((sum, obj) => sum + obj.amount, 0) * new Date(item.year,item.month,0).getDate();
+    }
+    return sum
+  };
+
 
 exports.expense = async (req, res) => {
   const filter = req.query;
@@ -111,7 +119,7 @@ exports.expense = async (req, res) => {
     Building.find(filter).exec(),
     Maintenance.find(filter).exec(),
     Salary.find(filter).exec(),
-    Food.find(filter).exec(),
+    Food.find(filter).populate('foodDetails').exec(),
     Heal.find(filter).exec(),
     Protection.find(filter).exec()
   ]);
@@ -121,15 +129,11 @@ exports.expense = async (req, res) => {
   const sumBuildings = calculateSum(buildings);
   const sumMaintenances = calculateSum(maintenances);
   const sumSalaries = calculateSum(salaries);
-  const sumFoods = calculateSum(foods);
+  const sumFoods = calculateFoodDetailSum(foods);
   const sumHeals = calculateSum(heals);
   const sumProtections = calculateSum(protections);
 
   const expense = {
-    fluctuate: {
-      food: sumFoods,
-      worker: sumSalaries
-    },
     cost: {
       bill: sumBills,
       equipment: sumEquipments,
@@ -138,7 +142,9 @@ exports.expense = async (req, res) => {
     },
     care: {
       heal: sumHeals,
-      protection: sumProtections
+      protection: sumProtections,
+      food: sumFoods,
+      worker: sumSalaries
     }
   };
 
