@@ -31,7 +31,12 @@ exports.cow = async (req,res) => {
         pregnant : cows.filter(c => c.status === 1).length,
         baby : cows.filter(c => c.status === 4).length,
         dry : cows.filter(c => c.status === 2).length,
-        premiuem : cows.filter(c => c.quality === 2).length,
+        rawmilkQuality : {
+            good : cows.filter(c => c.quality === 1).length,
+            normal : cows.filter(c => c.quality === 2).length,
+            bad : cows.filter(c => c.quality === 3).length,
+            unchecked : cows.filter(c => c.quality === 4).length,
+        }   
     }
 
     res.json(cow);
@@ -279,6 +284,15 @@ exports.statistics = async (req,res) => {
         heal.max = maxHeal
     }
 
+    //Reproduction
+    const reproduction = {}
+    const reproductions = await Reproduction.find(filter).exec();
+    reproduction.count = reproductions.length
+    if(reproductions.length > 0){
+        reproduction.success = reproductions.filter(r => r.result === 2).length
+        reproduction.fail = reproductions.filter(r => r.result === 1).length
+    }
+
     //Born
     let bornCount = [];
     let born = {male:0,female:0}
@@ -321,5 +335,5 @@ exports.statistics = async (req,res) => {
             pregnant.nearBirth++
         }
     }
-    res.json({heal,born,pregnant});
+    res.json({heal,born,pregnant,reproduction});
 }

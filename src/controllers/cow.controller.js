@@ -15,14 +15,8 @@ const { cowService } = require("../services");
 exports.getAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
-    const cows = await Cow.find(filter).sort({corral:1}).exec();
-    const cowsWithGrade = await Promise.all(cows.map(async (cow) => {
-      const quality = await cowService.quality(cow._id);
-      const rawmilks = await MilkDetail.find({cow:cow._id}).exec();
-      const sumRawmilk = rawmilks.reduce((sum,item) => sum + item.qty,0);
-      return { ...cow.toObject(), grade: quality.grade,sum:{rawmilk:sumRawmilk} };
-    }));
-    res.json({ cows: cowsWithGrade });
+    const cows = await Cow.find(filter).select('_id image code name birthDate status corral').sort({corral:1}).exec();
+    res.json({cows});
 };
 
 exports.getAllDDL = async (req, res) => {
@@ -54,25 +48,17 @@ exports.get = async (req, res) => {
 
 exports.getDetails = async (req, res) => {
   const id = req.params.id
-  const farmId =  req.farmId
-  const cow = await Cow.findOne({_id:id}).exec();
-  const births = await Birth.find({cow:id}).exec();
-  const heals = await Heal.find({cow:id}).exec();
-  const foods = await Food.find({cow:id}).exec();
-  const milks = await Milk.find({farm:farmId}).populate('milkDetails').sort({date:-1}).exec();
-  const protections = await Protection.find({cow:id}).exec();
-  const reproductions = await Reproduction.find({cow:id}).exec();
   const quality = await cowService.quality(id);
 
+  const rawmilks = await MilkDetail.find({cow:id}).exec();
+  const sumRawmilk = rawmilks.reduce((sum,item) => sum + item.qty,0);
+  const sum = {
+    rawmilk : sumRawmilk
+  }
+
   res.status(200).send({
-    cow,
-    births,
-    heals,
-    foods,
-    milks,
-    protections,
-    reproductions,
-    quality
+    quality,
+    sum
   });
   
 };
