@@ -11,6 +11,7 @@ module.exports = function(app) {
   });
 
   app.get('/dashboard/cow',[authJwt.verifyToken],controller.cow);
+  app.get('/dashboard/quality',[authJwt.verifyToken],controller.quality);
   app.get('/dashboard/milks',[authJwt.verifyToken],controller.milks);
   app.get('/dashboard/events',[authJwt.verifyToken],controller.events);
   app.get('/dashboard/expense',[authJwt.verifyToken],controller.expense);

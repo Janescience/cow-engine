@@ -82,10 +82,10 @@ const quality = async (id) => {
     }
   };
 
-  if (profitPercent < 0) {
+  if (profitPercent <= 0) {
     result.grade = 'D';
     result.description = 'แย่มาก';
-  } else if (profitPercent >= 0 && profitPercent <= 30) {
+  } else if (profitPercent > 0 && profitPercent <= 30) {
     result.grade = 'C';
     result.description = 'แย่';
   } else if (profitPercent > 30 && profitPercent <= 50) {

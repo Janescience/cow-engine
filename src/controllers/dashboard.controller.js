@@ -17,7 +17,7 @@ const Reproduction = db.reproduction;
 const Birth = db.birth;
 const Protection = db.protection;
 
-const { notiService } = require("../services");
+const { notiService,cowService } = require("../services");
 
 exports.cow = async (req,res) => {
     const filter = req.query
@@ -40,6 +40,28 @@ exports.cow = async (req,res) => {
     }
 
     res.json(cow);
+}
+
+exports.quality = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+    const cows = await Cow.find(filter).exec();
+    const quality = {aplus:0,a:0,b:0,c:0,d:0}
+    for(let cow of cows){
+        const cowQuality = await cowService.quality(cow._id);
+        if(cowQuality.grade === 'A+'){
+            quality.aplus++
+        }else if(cowQuality.grade === 'A'){
+            quality.a++
+        }else if(cowQuality.grade === 'B'){
+            quality.b++
+        }else if(cowQuality.grade === 'C'){
+            quality.c++
+        }else if(cowQuality.grade === 'D'){
+            quality.d++
+        }
+    }
+    res.json(quality);
 }
 
 exports.milks = async (req,res) => {
