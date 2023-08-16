@@ -16,6 +16,7 @@ const Food = db.food;
 const Reproduction = db.reproduction;
 const Birth = db.birth;
 const Protection = db.protection;
+const Worker = db.worker;
 
 const { notiService,cowService } = require("../services");
 
@@ -112,7 +113,7 @@ exports.events = async (req,res) => {
                         date : dueDate,
                         cow : data.cow?.name
                     }
-                    if(events.length < 10){
+                    if(events.length < 20){
                         events.push(event);
                     }
                 }
@@ -358,4 +359,77 @@ exports.statistics = async (req,res) => {
         }
     }
     res.json({heal,born,pregnant,reproduction});
+}
+
+exports.todolist = async (req,res) => {
+    const filter = req.query
+    filter.farm = req.farmId
+
+    let results = [];
+
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth() + 1;
+    
+
+    const cows = await Cow.find(filter).exec();
+    const corrals = Object.keys(_.groupBy(cows,'corral'));
+    console.log('corrals : ',corrals)
+    //Food - Everymonth
+    let food = []
+    const foods = await Food.find({farm:filter.farm,year:year,month:month}).exec();
+    if(foods.length > 0){
+        console.log('foods : ',foods.length)
+
+        if(foods.length < corrals.length){
+            for(let food of foods){
+                let index = corrals.indexOf(food.corral);
+                if(index >= 0){
+                    corrals.splice(index,1)
+                }
+            }
+            if(corrals.length > 0){
+                food.push('บันทึกการให้อาหารคอก '+corrals.join())
+            }
+        }
+    }else{
+        food.push('บันทึกการให้อาหารทุกคอก')
+    }
+
+    //Milk - Everyday
+    let milk = []
+    const milkTodayM = await Milk.count({farm:filter.farm,time : 'M',date:moment().format('YYYY-MM-DD')}).exec();
+    if(milkTodayM == 0){
+        milk.push('บันทึกรีดนมตอนเช้า')
+    }
+    const milkTodayA = await Milk.count({farm:filter.farm,time : 'A',date:moment().format('YYYY-MM-DD')}).exec();
+    if(milkTodayA == 0){
+        milk.push('บันทึกรีดนมตอนบ่าย')
+    }
+
+    //Salary - Everymonth
+    let salary = [];
+    const prevDate = moment().month(moment().month()-1)
+    const workers = await Worker.find({farm:filter.farm,status:{$in:['W','S']}}).exec();
+    const wokerIds = workers.map((w) => { return w._id});
+    const salaries = await Salary.find({farm:filter.farm,year:new Date(prevDate).getFullYear(),month:new Date(prevDate).getMonth() + 1}).populate('worker').exec();
+
+    if(salaries.length > 0){
+        if(salaries.length < wokerIds.length){
+            let noSalary = []
+            for(let salary of salaries){
+                if(wokerIds.indexOf(salary.worker) < 0){
+                    noSalary.push(salary.worker.name)
+                }
+            }
+            if(noSalary.length > 0){
+                salary.push('บันทึกการจ่ายเงืนเดือน'+prevDate.format('MMMM')+'ของ '+noSalary.join())
+            }
+        }
+    }else{
+        salary.push('บันทึกการจ่ายเงืนเดือน'+prevDate.format('MMMM')+'ของคนงานทุกคน')
+    }
+
+
+    res.json({milk,food,salary});
+
 }

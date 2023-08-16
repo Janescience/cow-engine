@@ -32,15 +32,15 @@ const updateStatusAfter =  async (notiIds,status) => {
 const filterDueDate = (notiParam,data) => {
 
     if(notiParam.code === 'REPRO_ESTRUST'){
-        return moment(new Date(data.estrusDate));
+        return data.estrusDate;
     }else if(notiParam.code === 'REPRO_MATING'){
-        return moment(new Date(data.matingDate));
+        return data.matingDate;
     }else if(notiParam.code === 'REPRO_CHECK'){
-        return moment(new Date(data.checkDate));
+        return data.checkDate; 
     }else if(notiParam.code === 'BIRTH'){
-        return moment(new Date(data.birthDate));
+        return data.birthDate;
     }else{
-        return moment(new Date(data.date));
+        return data.date;
     }
 }
 
