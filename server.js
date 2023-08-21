@@ -26,7 +26,7 @@ const app = express();
  // Use Middlewares 
 app.use(logger);
 
-const whitelist = ['https://cow-app.vercel.app','https://dairy-farm-app.onrender.com','http://localhost:5173','http://localhost:4000','https://dairy-farm.onrender.com'];
+const whitelist = ['https://cow-app.vercel.app','https://www.dairyfarm.online','http://localhost:5173','http://localhost:4000'];
 const corsOption = {
   origin: (origin, callback) => {
     if(whitelist.indexOf(origin) !== -1 || !origin){
