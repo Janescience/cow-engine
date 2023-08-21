@@ -115,7 +115,7 @@ exports.refreshToken = async (req, res) => {
     return res.status(403).json({ message: "Refresh Token is required!" });
   }
 
-  let refreshToken = await RefreshToken.findOne({ token: requestToken });
+  let refreshToken = await RefreshToken.findOne({ token: requestToken }).exec();
 
   if (!refreshToken) {
     res.status(403).json({ message: "Refresh token is not in database!" });
@@ -133,13 +133,11 @@ exports.refreshToken = async (req, res) => {
     return;
   }
 
-  const user = await User.findOne(refreshToken.user).exec();
+  const user = await User.findOne({_id:refreshToken.user}).exec();
 
   let newAccessToken = jwt.sign({ id: user.farm }, config.secret, {
     expiresIn: config.jwtExpiration,
   });
-
-  console.log("Refreshed token");
 
   return res.status(200).json({
     accessToken: newAccessToken,

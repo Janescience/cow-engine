@@ -25,7 +25,7 @@ const logger = (req,res,next) => {
 
     }else{
         // logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`,'req-log.txt');
-        console.log(`${req.method} ${req.path}`);
+        // console.log(`${req.method} ${req.path}`);
     }
     next();
 }

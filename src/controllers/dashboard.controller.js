@@ -183,7 +183,7 @@ exports.income = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
 
-    const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
+    const rawMilks = await Milk.find(filter).populate('milkDetails').exec();
     let sumRawMilks = 0;
     for(let rawMilk of rawMilks){
         for(let detail of rawMilk.milkDetails){
@@ -204,7 +204,7 @@ exports.rawMilkDescSort = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
 
-    const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
+    const rawMilks = await Milk.find(filter).populate('milkDetails').exec();
 
     let rawMilkDetails = []
     for(let rawMilk of rawMilks){
@@ -240,7 +240,7 @@ exports.rawMilkAscSort = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
 
-    const rawMilks = await Milk.find({filter}).populate('milkDetails').exec();
+    const rawMilks = await Milk.find(filter).populate('milkDetails').exec();
 
     let rawMilkDetails = []
     for(let rawMilk of rawMilks){
@@ -277,7 +277,7 @@ exports.corrals = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
     let corrals = [];
-    const cows = await Cow.find({filter}).exec();
+    const cows = await Cow.find(filter).exec();
     const groupCorrals = _.groupBy(cows,'corral')
     for(let key of Object.keys(groupCorrals)){
         corrals.push({corral:key,numCows:groupCorrals[key].length})
@@ -291,7 +291,7 @@ exports.statistics = async (req,res) => {
     //Heal
     let heal = {};
     let healCount = [];
-    const heals = await Heal.find({filter}).exec();
+    const heals = await Heal.find(filter).exec();
     heal.count = heals.length
     const groupHealCows = _.groupBy(heals,'cow')
 
@@ -311,10 +311,9 @@ exports.statistics = async (req,res) => {
     const reproduction = {}
     const reproductions = await Reproduction.find(filter).exec();
     reproduction.count = reproductions.length
-    if(reproductions.length > 0){
-        reproduction.success = reproductions.filter(r => r.result === 2).length
-        reproduction.fail = reproductions.filter(r => r.result === 1).length
-    }
+    reproduction.success = reproductions.filter(r => r.result === 2).length
+    reproduction.fail = reproductions.filter(r => r.result === 1).length
+    
 
     //Born
     let bornCount = [];
@@ -365,15 +364,13 @@ exports.todolist = async (req,res) => {
     const filter = req.query
     filter.farm = req.farmId
 
-    let results = [];
-
     const year = new Date().getFullYear();
     const month = new Date().getMonth() + 1;
     
 
     const cows = await Cow.find(filter).exec();
     const corrals = Object.keys(_.groupBy(cows,'corral'));
-    console.log('corrals : ',corrals)
+    // console.log('corrals : ',corrals)
     //Food - Everymonth
     let food = []
     const foods = await Food.find({farm:filter.farm,year:year,month:month}).exec();
