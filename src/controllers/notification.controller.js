@@ -71,8 +71,8 @@ const filterEvent = (noti, notiParam, data, time) => {
     let alert = null;
     let period = 'today';
 
-    const filterDate = notiService.filterDueDate(notiParam, data).startOf('day');
-    const dueDate = notiService.filterDueDate(notiParam, data).startOf('day');
+    const filterDate = moment(notiService.filterDueDate(notiParam, data));
+    const dueDate = moment(notiService.filterDueDate(notiParam, data));
     const today = moment(new Date()).startOf('day');
     const cow = (type != 'VACCINE' ? ` / โค${data.cow?.name}` : '');
     const desc = (type != 'VACCINE' 
