@@ -1,14 +1,6 @@
 const db = require("../models");
 const Cow = db.cow;
-const Birth = db.birth;
-const Food = db.food;
-const Heal = db.heal;
 const MilkDetail = db.milkDetail;
-const Milk = db.milk;
-const Protection = db.protection;
-const Reproduction = db.reproduction;
-
-const Promise = require('bluebird');
 
 const { cowService } = require("../services");
 

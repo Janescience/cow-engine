@@ -15,7 +15,6 @@ exports.getAll = async (req, res) => {
         filter.cows = { $in: [cows]  } 
     }
     const protections = await Protection.find(filter).populate('vaccine').populate('cows').sort({seq:-1}).exec();
-    console.log('Protections : ',protections)
     res.json({protections});
 };
 
@@ -71,7 +70,6 @@ exports.update = async (req, res) => {
             currentDate:protections[0].date,
             nextDate:moment(protections[0].date).add(protections[0].vaccine.frequency,'months')})
     }
-    console.log("Protection updated : ",updatedProtection)
     res.status(200).send({updatedProtection});
 };
 
@@ -81,7 +79,6 @@ exports.delete = async (req, res) => {
     const vaccine = protection.vaccine;
 
     const deletedProtection = await Protection.deleteOne({_id:id}).exec();;
-    console.log("Protection deleted : ",deletedProtection)
 
     const protections = await Protection.find({vaccine:vaccine._id}).populate('vaccine').sort({date:-1}).exec();
     if(protections.length > 0){
