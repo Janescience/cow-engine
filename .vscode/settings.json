@@ -1,10 +1,10 @@
 {
   // Visuals
-  "workbench.colorTheme": "Ayu Dark",
+  "workbench.colorTheme": "Monokai Night",
   "workbench.preferredDarkColorTheme": "Vitesse Dark",
   "workbench.preferredLightColorTheme": "Vitesse Light",
   "workbench.productIconTheme": "icons-carbon",
-  "workbench.iconTheme": "helium-icon-theme",
+  "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-dark",
   "workbench.fontAliasing": "antialiased",
   "editor.fontFamily": "Input Mono, Source Code Pro, monospace",
   "editor.fontLigatures": "'ss01', 'ss02', 'ss03', 'ss06', 'zero'",

@@ -14,13 +14,13 @@ exports.getAll = async (req, res) => {
         let cows = filter.cows
         filter.cows = { $in: [cows]  } 
     }
-    const protections = await Protection.find(filter).populate('vaccine').populate('cows').sort({seq:-1}).exec();
+    const protections = await Protection.find(filter).populate('vaccine').sort({seq:-1}).exec();
     res.json({protections});
 };
 
 exports.get = async (req, res) => {
     const id = req.params.id
-    const protection = await Protection.findById(id).populate('vaccine').populate('cows').exec();
+    const protection = await Protection.findById(id).populate('vaccine').exec();
     res.status(200).send({protection});
 };
 
