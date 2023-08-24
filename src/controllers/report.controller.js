@@ -132,12 +132,13 @@ exports.getRawMilk = async (req, res) => {
       let workerMonthTotal = 0;
       let healTotal = 0;
       let foodTotal = 0;
-      let expenseSum = 0;
       let profitTotal = 0;
       console.log('data milkFilters : ', result.milkFilters);
       for (const milkFilter of result.milkFilters) {
         const data = milkFilter;
         const numMilking = data.milks.length;
+        
+        let expenseSum = 0;
 
         //ค่าจ้างคนงาน
         const workerPerDay = ((result.sumMonthSalary / result.milkFilters.length) / daysInMonth) 
@@ -145,7 +146,7 @@ exports.getRawMilk = async (req, res) => {
 
         //ค่าอาหาร
         const foods = await Food.find({ farm: req.farmId, corral: data.cowCorral }).exec();
-        foodSum = foods.reduce((sum, item) => sum + item.amountAvg, 0);
+        foodSum = foods.reduce((sum, item) => sum + (item.amountAvg?item.amountAvg:0), 0);
 
         //ค่ารักษา
         const heals = await Heal.find({
@@ -163,13 +164,13 @@ exports.getRawMilk = async (req, res) => {
         }).exec();
         protectionSum = protections.reduce((sum, item) => sum + item.amount, 0);
 
-        expenseSum += (foodSum*numMilking) + healSum + protectionSum + (result.sumMonthSalary / result.milkFilters.length);
+        expenseSum += (foodSum*numMilking) + healSum + protectionSum + workerAllDay;
 
         //ชื่อโค
         valueCell(sheet, rowNumDataStart, 2, data.cow);
 
         let totalQty = 0;
-        let totalAmount = 0;
+        let incomeSum = 0;
 
         for (let j = 0; j < data.milks.length; j++) {
 
@@ -186,7 +187,7 @@ exports.getRawMilk = async (req, res) => {
           const morningAmount = milk.morningAmount;
           const afternoonAmount = milk.afternoonAmount;
           const sumAmount = morningAmount + afternoonAmount;
-          totalAmount += sumAmount;
+          incomeSum += sumAmount;
 
           valueCell(sheet, rowNumDataStart, day * 3, morningQty);
           valueCell(sheet, rowNumDataStart, day * 3 + 1, afternoonQty);
@@ -194,32 +195,35 @@ exports.getRawMilk = async (req, res) => {
 
         }
 
-        const profitPercent = ((totalAmount - expenseSum)/totalAmount) * 100
+        console.log('expense sum : ',expenseSum)
+
+        const profitAmount = incomeSum - expenseSum
+        const profitPercent = incomeSum <= 0 ? 0 : ((profitAmount/incomeSum) * 100)
 
         let grade = null;
-        if(profitPercent < 0){
-          grade = 'แย่มาก'
-        }else if(profitPercent >= 0 && profitPercent < 30){
-          grade = 'แย่'
-        }else if(profitPercent >= 30 && profitPercent <=50){
-          grade = 'ปกติ'
-        }else if(profitPercent > 50 && profitPercent < 80){
-          grade = 'ดี'
-        }else if(profitPercent >= 80){
-          grade = 'ดีมาก'
+        if(profitPercent <= 0){
+          grade = '(D) แย่มาก'
+        }else if(profitPercent > 0 && profitPercent <= 30){
+          grade = '(C) แย่'
+        }else if(profitPercent > 30 && profitPercent <= 50){
+          grade = '(B) ปกติ'
+        }else if(profitPercent > 50 && profitPercent <= 80){
+          grade = '(A) ดี'
+        }else if(profitPercent > 80){
+          grade = '(A+) ดีมาก'
         }
 
         valueCell(sheet, rowNumDataStart, dayColumns + 3, totalQty);
         valueCell(sheet, rowNumDataStart, dayColumns + 4, totalQty / numMilking);
-        valueCell(sheet, rowNumDataStart, dayColumns + 5, totalAmount / totalQty);
-        valueCell(sheet, rowNumDataStart, dayColumns + 6, totalAmount);
+        valueCell(sheet, rowNumDataStart, dayColumns + 5, incomeSum / totalQty);
+        valueCell(sheet, rowNumDataStart, dayColumns + 6, incomeSum);
         valueCell(sheet, rowNumDataStart, dayColumns + 7, foodSum);
         valueCell(sheet, rowNumDataStart, dayColumns + 8, foodSum * numMilking);
         valueCell(sheet, rowNumDataStart, dayColumns + 9, workerPerDay);
         valueCell(sheet, rowNumDataStart, dayColumns + 10, workerAllDay );
         valueCell(sheet, rowNumDataStart, dayColumns + 11, healSum);
         valueCell(sheet, rowNumDataStart, dayColumns + 12, protectionSum);
-        valueCell(sheet, rowNumDataStart, dayColumns + 13, totalAmount - expenseSum);
+        valueCell(sheet, rowNumDataStart, dayColumns + 13, profitAmount);
         valueCell(sheet, rowNumDataStart, dayColumns + 14, profitPercent);
         valueCell(sheet, rowNumDataStart, dayColumns + 15, grade);
 
@@ -228,7 +232,7 @@ exports.getRawMilk = async (req, res) => {
         protectionTotal += protectionSum;
         workerDayTotal += workerPerDay
         workerMonthTotal += workerAllDay
-        profitTotal += (totalAmount - expenseSum);
+        profitTotal += profitAmount;
         rowNumDataStart++;
         console.log('rowNum : ', rowNumDataStart);
       }

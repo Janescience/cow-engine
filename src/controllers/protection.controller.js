@@ -20,7 +20,7 @@ exports.getAll = async (req, res) => {
 
 exports.get = async (req, res) => {
     const id = req.params.id
-    const protection = await Protection.findById(id).populate('vaccine').exec();
+    const protection = await Protection.findById(id).populate('vaccine').populate({path: 'cows', select: '_id code name corral status'}).exec();
     res.status(200).send({protection});
 };
 
@@ -31,17 +31,25 @@ exports.create = async (req, res) => {
     const count = await Protection.find({vaccine:data.vaccine._id,farm:data.farm}).countDocuments().exec();
     data.seq = (count+1)
 
-    const newProtection = new Protection(data);
-    await newProtection.save();
+    const protectionCurrent = new Protection(data);
+    await protectionCurrent.save();
 
     const vaccine = await Vaccine.findOne({_id:data.vaccine._id}).populate('protections').exec();
     const protections = vaccine.protections;
-    protections.push(newProtection);
+    protections.push(protectionCurrent);
+
     await Vaccine.updateOne({_id:data.vaccine._id},{
         protections:protections,
-        currentDate:data.date,
+        startDate : data.date,
+        currentDate : data.date,
         nextDate:moment(data.date).add(vaccine.frequency,'months')
     }).exec();
+
+    //Next
+    data.seq = (count+2)
+    data.date = moment(data.date).add(vaccine.frequency,'months')
+    const protectionNext = new Protection(data);
+    await protectionNext.save();
 
     const notiParam = await NotificationParam.findOne({code:vaccine.code}).exec();
     if(notiParam != null){
@@ -51,13 +59,13 @@ exports.create = async (req, res) => {
                 notificationParam:notiParam._id,
                 statusBefore : 'W',
                 statusAfter : 'N',
-                dataId : newProtection._id 
+                dataId : protectionNext._id 
             }
         );
         await noti.save();
     }
-            
-    res.status(200).send({newProtection});
+        
+    res.status(200).send({protectionCurrent});
 };
 
 exports.update = async (req, res) => {

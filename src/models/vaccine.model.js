@@ -37,6 +37,9 @@ const Vaccine = mongoose.model(
         currentDate:{
             type: Date,
         },
+        startDate:{
+            type: Date,
+        },
         protections:[{
             type: mongoose.Schema.Types.ObjectId,
             ref: "protection",
