@@ -47,12 +47,15 @@ const Cow = mongoose.model(
             type:String,
             required:false
         },
+        remark : {
+            type : String
+        },
         farm:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "farm",
             required:true,
         },
-    }, { timestamps: true })
+    }, { timestamps: true } , { strict: false })
 )
 
 module.exports = Cow

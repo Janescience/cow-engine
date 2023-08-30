@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 
 const Cow = db.cow;
 const Milk = db.milk;
+const MilkDetail = db.milkDetail;
 const Heal = db.heal;
 const Food = db.food;
 const Protection = db.protection;
@@ -11,11 +12,29 @@ const Salary = db.salary;
 const _ = require('lodash');
 const moment = require('moment');
 const { format } = require('date-fns');
+const { calAge } = require('../utils/age-calculate');
+const { status,quality } = require('../constants/cow');
+const cowService = require('../services/cow.service');
 
 exports.getCowAll = async (req, res) => {
     const filter = req.query
     filter.farm = req.farmId
     const cows = await Cow.find(filter).exec();
+
+    for(let cow of cows){
+      cow['age'] = calAge(cow.birthDate)
+      cow['qualityDesc'] = quality().find(x => x.id === cow.quality).label
+      cow['statusDesc'] = status().find(x => x.id === cow.status).label
+      cow['flagDesc'] = (cow.flag === 'Y' ? 'ใช้งาน' : 'ไม่ใช้งาน')
+
+      filter.cow = cow._id
+      const milks = await MilkDetail.find(filter).exec();
+      cow['milkSum'] = milks.reduce((sum,milk) => sum + milk.qty,0)
+      cow['milkAvg'] = milks.length > 0 ? cow['milkSum']/milks.length : 0
+
+      const level = await cowService.quality(cow._id)
+      cow['level'] = level.grade + ' (' + level.description + ')'
+    }
 
     const workbook = new Excel.Workbook();
     const sheet = workbook.addWorksheet('โค');
@@ -24,13 +43,22 @@ exports.getCowAll = async (req, res) => {
       { header: 'รหัส', key: 'code', width: 20 },
       { header: 'ชื่อ', key: 'name', width: 10 },
       { header: 'วันเกิด', key: 'birthDate', width: 20  ,style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'น้ำหนัก', key: 'weight', width: 20 },
+      { header: 'อายุ', key: 'age', width: 20 },
       { header: 'คอก', key: 'corral', width: 20 },
-      { header: 'สถานะ', key: 'status', width: 20 },
+      { header: 'สถานะ', key: 'statusDesc', width: 20 },
       { header: 'พ่อพันธู์', key: 'dad', width: 20 },
       { header: 'แม่พันธุ์', key: 'mom', width: 20 },
+      { header: 'น้ำนมเฉลี่ย/วัน', key: 'milkAvg', width: 20 },
+      { header: 'น้ำนมทั้งหมด', key: 'milkSum', width: 20 },
+      { header: 'คุณภาพนม', key: 'qualityDesc', width: 20 },
+      { header: 'ความคุ้มค่า', key: 'level', width: 20 },
+      { header: 'FLAG', key: 'flagDesc', width: 20 },
+      { header: 'หมายเหตุ', key: 'remark', width: 20 },
     ];
 
-    sheet.addRows(cows);
+    const cowsOrderCorral = _.orderBy(cows,['corral','code'])
+    sheet.addRows(cowsOrderCorral);
   
     var fileName = 'cows.xlsx';
 
