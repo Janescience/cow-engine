@@ -19,6 +19,10 @@ const Cow = mongoose.model(
             type:Date,
             required:true
         },
+        adopDate:{//วันที่นำมาเลี้ยง
+            type:Date,
+            required:true
+        },
         corral:{
             type:String,
             required:false

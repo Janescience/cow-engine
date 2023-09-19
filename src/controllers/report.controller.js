@@ -37,33 +37,39 @@ exports.getCowAll = async (req, res) => {
     }
 
     const workbook = new Excel.Workbook();
-    const sheet = workbook.addWorksheet('โค');
-    // add data to sheet 1
+    const sheet = workbook.addWorksheet('ข้อมูลโค');
+
     sheet.columns = [
-      { header: 'รหัส', key: 'code', width: 20 },
+      { header: 'ลำดับที่', key: 'no', width: 10 },
+      { header: 'รหัส', key: 'code', width: 10 },
       { header: 'ชื่อ', key: 'name', width: 10 },
-      { header: 'วันเกิด', key: 'birthDate', width: 20  ,style: { numFmt: 'dd/mm/yyyy' } },
-      { header: 'น้ำหนัก', key: 'weight', width: 20 },
-      { header: 'อายุ', key: 'age', width: 20 },
-      { header: 'คอก', key: 'corral', width: 20 },
-      { header: 'สถานะ', key: 'statusDesc', width: 20 },
+      { header: 'วันเกิด', key: 'birthDate', width: 10  ,style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'วันที่นำมาเลี้ยง', key: 'adopDate', width: 10  ,style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'น้ำหนัก', key: 'weight', width: 10 },
+      { header: 'อายุ', key: 'age', width: 10 },
+      { header: 'คอก', key: 'corral', width: 10 },
+      { header: 'สถานะ', key: 'statusDesc', width: 10 },
       { header: 'พ่อพันธู์', key: 'dad', width: 20 },
       { header: 'แม่พันธุ์', key: 'mom', width: 20 },
       { header: 'น้ำนมเฉลี่ย/วัน', key: 'milkAvg', width: 20 },
       { header: 'น้ำนมทั้งหมด', key: 'milkSum', width: 20 },
-      { header: 'คุณภาพนม', key: 'qualityDesc', width: 20 },
-      { header: 'ความคุ้มค่า', key: 'level', width: 20 },
-      { header: 'FLAG', key: 'flagDesc', width: 20 },
+      { header: 'คุณภาพนม', key: 'qualityDesc', width: 10 },
+      { header: 'ความคุ้มค่า', key: 'level', width: 10 },
+      { header: 'FLAG', key: 'flagDesc', width: 10 },
       { header: 'หมายเหตุ', key: 'remark', width: 20 },
     ];
 
     const cowsOrderCorral = _.orderBy(cows,['corral','code'])
+
+    let no = 1;
+    for(let cow of cowsOrderCorral){
+      cow['no'] = no++;
+    }
+
     sheet.addRows(cowsOrderCorral);
   
-    var fileName = 'cows.xlsx';
-
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+    res.setHeader("Content-Disposition", "attachment; filename=cows.xlsx");
 
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
