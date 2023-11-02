@@ -100,8 +100,8 @@ const protectionCheckDup = (req, res, next) => {
 
 
 const foodCheckDup = (req, res, next) => {
-  console.log('Food check dup : ',req.body)
-  console.log('Food check dup , farm id : ',req.farmId)
+  // console.log('Food check dup : ',req.body)
+  // console.log('Food check dup , farm id : ',req.farmId)
   Food.findOne({
     corral: req.body.corral,
     month : req.body.month,

@@ -85,13 +85,13 @@ exports.getRawMilk = async (req, res) => {
   const year = filter.year;
   const monthFrom = filter.monthFrom;
   const monthTo = filter.monthTo;
-  console.log('monthFrom : ', monthFrom);
-  console.log('monthTo : ', monthTo);
+  // console.log('monthFrom : ', monthFrom);
+  // console.log('monthTo : ', monthTo);
 
   let workbook = new Excel.Workbook();
 
   const rangeMonths = monthTo - monthFrom;
-  console.log('rangeMonths : ', rangeMonths);
+  // console.log('rangeMonths : ', rangeMonths);
 
   const promises = [];
   for (let i = 0; i <= rangeMonths; i++) {
@@ -110,7 +110,7 @@ exports.getRawMilk = async (req, res) => {
   for (let i = 0; i < results.length; i++) {
     const result = results[i];
     const month = i + Number(monthFrom);
-    console.log('month : ', month);
+    // console.log('month : ', month);
 
     const monthStr = moment().month(month - 1).format("MMMM");
 
@@ -167,7 +167,7 @@ exports.getRawMilk = async (req, res) => {
       let healTotal = 0;
       let foodTotal = 0;
       let profitTotal = 0;
-      console.log('data milkFilters : ', result.milkFilters);
+      // console.log('data milkFilters : ', result.milkFilters);
       for (const milkFilter of result.milkFilters) {
         const data = milkFilter;
         const numMilking = data.milks.length;
@@ -209,9 +209,9 @@ exports.getRawMilk = async (req, res) => {
         for (let j = 0; j < data.milks.length; j++) {
 
           const milk = data.milks[j];
-          console.log('data milk : ', milk);
+          // console.log('data milk : ', milk);
           const day = moment(milk.date).format('D');
-          console.log('data day : ', day);
+          // console.log('data day : ', day);
 
           const morningQty = milk.morningQty;
           const afternoonQty = milk.afternoonQty;
@@ -229,7 +229,7 @@ exports.getRawMilk = async (req, res) => {
 
         }
 
-        console.log('expense sum : ',expenseSum)
+        // console.log('expense sum : ',expenseSum)
 
         const profitAmount = incomeSum - expenseSum
         const profitPercent = incomeSum <= 0 ? 0 : ((profitAmount/incomeSum) * 100)
@@ -268,7 +268,7 @@ exports.getRawMilk = async (req, res) => {
         workerMonthTotal += workerAllDay
         profitTotal += profitAmount;
         rowNumDataStart++;
-        console.log('rowNum : ', rowNumDataStart);
+        // console.log('rowNum : ', rowNumDataStart);
       }
 
       rowNumDataStart++;
@@ -311,19 +311,19 @@ exports.getRawMilk = async (req, res) => {
 
 const fetchData = async (year, monthFrom, i, filter) => {
   const month = i + Number(monthFrom);
-  console.log('month : ', month);
+  // console.log('month : ', month);
 
   let start = new Date(year, (month - 1), 1);
 
   const startOffset = start.getTimezoneOffset();
   let startDate = new Date(start.getTime() - (startOffset * 60 * 1000));
-  console.log('startDate : ', startDate);
+  // console.log('startDate : ', startDate);
 
   const daysInMonth = new Date(year, month, 0).getDate();
   let end = new Date(year, (month - 1), daysInMonth);
   const endOffset = end.getTimezoneOffset();
   let endDate = new Date(end.getTime() - (endOffset * 60 * 1000));
-  console.log('endDate : ', endDate);
+  // console.log('endDate : ', endDate);
 
   const salariesPromise = Salary.find({ farm: filter.farm, month: month, year: year }).exec();
   const milksPromise = Milk.find({
@@ -336,7 +336,7 @@ const fetchData = async (year, monthFrom, i, filter) => {
   const sumMonthSalary = salaries.reduce((sum, item) => sum + item.amount, 0);
 
   const milkGroupDates = _.groupBy(milks, 'date');
-  console.log('milkGroupDates : ', Object.keys(milkGroupDates).length);
+  // console.log('milkGroupDates : ', Object.keys(milkGroupDates).length);
 
   let milkFilters = [];
 
@@ -432,7 +432,7 @@ const fetchData = async (year, monthFrom, i, filter) => {
       }
     }
   }
-  console.log('sumDays : ', sumDays);
+  // console.log('sumDays : ', sumDays);
 
   return {
     milkGroupDates,

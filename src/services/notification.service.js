@@ -18,7 +18,7 @@ const saveLog =  async (text,type,status,responseMsg,farm,notiIds) => {
         notification : notiIds
     });
     await newNotiLog.save();
-    console.log('Notification log saved : ',text);
+    // console.log('Notification log saved : ',text);
 }
 
 const updateStatusBefore =  async (notiIds,status) => {

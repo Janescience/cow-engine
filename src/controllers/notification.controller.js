@@ -143,8 +143,8 @@ const checkLineToken = (farm) => {
 const processNotification = async (noti, farm) => {
     const notiParam = noti.notificationParam;
 
-    console.log('\n##################################################');
-    console.log('=======> Notification : ' + notiParam.code + ' - ' + notiParam.name + ' <=======');
+    // console.log('\n##################################################');
+    // console.log('=======> Notification : ' + notiParam.code + ' - ' + notiParam.name + ' <=======');
 
     const data = await notiService.filterData(notiParam, noti);
 
@@ -155,10 +155,10 @@ const processNotification = async (noti, farm) => {
         const numAfter = notiParam.after;
 
         if (alertToday) {
-            console.log('\n////// Today //////');
+            // console.log('\n////// Today //////');
             const dueDate = notiService.filterDueDate(notiParam, data);
-            console.log('dueDate : ', dueDate);
-            console.log('alert : ', today.isSame(dueDate.startOf('day')));
+            // console.log('dueDate : ', dueDate);
+            // console.log('alert : ', today.isSame(dueDate.startOf('day')));
 
             if (today.isSame(dueDate.startOf('day'))) {
                 notiIdToday.push(noti._id);
@@ -170,14 +170,14 @@ const processNotification = async (noti, farm) => {
         }
 
         if (noti.statusBefore === 'W' && numBefore) {
-            console.log('\n////// Before //////');
+            // console.log('\n////// Before //////');
 
             const dueDate = notiService.filterDueDate(notiParam, data);
             const dueDateBefore = notiService.filterDueDate(notiParam, data).startOf('day').subtract(numBefore, 'days')
 
-            console.log('dueDate : ', dueDate);
-            console.log('dueDateBefore : ', dueDateBefore);
-            console.log('alert : ', dueDateBefore.isSame(today));
+            // console.log('dueDate : ', dueDate);
+            // console.log('dueDateBefore : ', dueDateBefore);
+            // console.log('alert : ', dueDateBefore.isSame(today));
 
             if (dueDateBefore.isSame(today)) {
                 notiIdBefores.push(noti._id);
@@ -190,14 +190,14 @@ const processNotification = async (noti, farm) => {
         }
 
         if (noti.statusAfter === 'W' && numAfter) {
-            console.log('////// After //////');
+            // console.log('////// After //////');
 
             const dueDate = notiService.filterDueDate(notiParam, data);
             const dueDateAfter = notiService.filterDueDate(notiParam, data).startOf('day').add(numAfter, 'days')
 
-            console.log('dueDate : ', dueDate);
-            console.log('dueDateAfter : ', dueDateAfter);
-            console.log('alert : ', dueDateAfter.isSame(today));
+            // console.log('dueDate : ', dueDate);
+            // console.log('dueDateAfter : ', dueDateAfter);
+            // console.log('alert : ', dueDateAfter.isSame(today));
 
             if (dueDateAfter.isSame(today)) {
                 notiIdAfters.push(noti._id);
@@ -215,20 +215,20 @@ exports.notify = async (req, res) => {
     const data = req.query;
     try {
         if (data.key === 'dairy-farm-noti-to-line') {
-            console.log('=======> Start schedule line notify <=======')
-            console.log('-------> ' + new Date() + ' <-------')
+            // console.log('=======> Start schedule line notify <=======')
+            // console.log('-------> ' + new Date() + ' <-------')
 
             try {
                 // Add 1 day because cloud server time -7 (UTC) and cron job time is 03.00 AM (Thai)
                 const today = moment(new Date()).startOf('day').add(1, 'days');
 
                 // Timezone on server is UTC 
-                console.log('today : ', today);
+                // console.log('today : ', today);
 
                 const notis = await Noti.find({ '$or': [{ statusBefore: 'W' }, { statusAfter: 'W' }] }).populate('notificationParam').exec();
                 const notiGroupFarms = _.groupBy(notis, 'farm');
 
-                console.log('notification size : ', notis.length);
+                // console.log('notification size : ', notis.length);
 
                 for (let key of Object.keys(notiGroupFarms)) {
                     const notis = notiGroupFarms[key];
@@ -243,8 +243,8 @@ exports.notify = async (req, res) => {
                     let notiIdBefores = [];
                     let notiIdAfters = [];
 
-                    console.log('\n---------------------------------------------------------');
-                    console.log('=======> Farm : ' + farm.code + ' - ' + farm.name + ' <=======');
+                    // console.log('\n---------------------------------------------------------');
+                    // console.log('=======> Farm : ' + farm.code + ' - ' + farm.name + ' <=======');
 
                     if (!checkLineToken(farm)) {
                         await notiService.saveLog('Farm value of lineToken is empty', 'B', 'F', null, farm._id, [noti._id]);
@@ -271,7 +271,7 @@ exports.notify = async (req, res) => {
                         await lineApi.notify('วันนี้ไม่มีรายการแจ้งเตือน', 'B', farm._id, farm.lineToken, [], 'Empty');
                     }
 
-                    console.log('\n---------------------------------------------------------');
+                    // console.log('\n---------------------------------------------------------');
                 }
             } catch (error) {
                 console.error('Error  : ', error);
@@ -279,8 +279,8 @@ exports.notify = async (req, res) => {
                 return;
             }
 
-            console.log('-------x ' + new Date() + ' x-------')
-            console.log('=======x End schedule line notify x=======')
+            // console.log('-------x ' + new Date() + ' x-------')
+            // console.log('=======x End schedule line notify x=======')
         } else {
             console.error('KEY is invalid !!')
             res.status(500).end('KEY is invalid !!');

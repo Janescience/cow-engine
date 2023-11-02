@@ -29,7 +29,7 @@ const token =  async (code,username) => {
             }
         }
     ).then( (response) => {
-        console.log('Get Token : ',response.data);
+        // console.log('Get Token : ',response.data);
         
         if(response.data){
               User.findOne({username:username})
@@ -41,7 +41,7 @@ const token =  async (code,username) => {
                             if (err) {
                                 console.error('Error : ',err);
                             }
-                            console.log('Updated Successfully : ',user);
+                            // console.log('Updated Successfully : ',user);
 
                             lineNotify.notify('เชื่อมต่อสำเร็จ','S',user.farm,response.data.access_token)
                         })
@@ -68,7 +68,7 @@ const notify = async (text,type,farm,token,notiIds,time) => {
             }
         },
         ).then(async function (response) {
-            console.log('Notify Successfully : ',response.data);
+            // console.log('Notify Successfully : ',response.data);
 
             const respMsg = 'status='+response.data.status + ',message='+response.data.message;
 

@@ -83,7 +83,7 @@ exports.update = async (req, res) => {
     data.recipe = data.recipe._id
 
     const updatedFood = await Food.updateOne({_id:id},data).exec();
-    console.log("Food updated : ",updatedFood);
+    // console.log("Food updated : ",updatedFood);
 
     res.status(200).send({updatedFood});
 };
@@ -91,7 +91,7 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
     const id = req.params.id;
     const deletedFood = await Food.deleteOne({_id:id});
-    console.log("Food deleted : ",deletedFood);
+    // console.log("Food deleted : ",deletedFood);
 
     res.status(200).send({deletedFood});
 };

@@ -18,6 +18,6 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     const updatedNotiParam = await NotiParam.updateOne({_id:id},data).exec();
-    console.log("NotiParam updated : ",updatedNotiParam);
+    // console.log("NotiParam updated : ",updatedNotiParam);
     res.status(200).send({updatedNotiParam});
 };

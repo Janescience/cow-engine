@@ -44,8 +44,9 @@ exports.getDetails = async (req, res) => {
 
   const rawmilks = await MilkDetail.find({cow:id}).exec();
   const sumRawmilk = rawmilks.reduce((sum,item) => sum + item.qty,0);
+  const avgRawMilk = sumRawmilk/rawmilks.length
   const sum = {
-    rawmilk : sumRawmilk
+    rawmilk : avgRawMilk | 0
   }
 
   res.status(200).send({

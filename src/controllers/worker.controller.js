@@ -26,7 +26,7 @@ exports.create = async (req, res) => {
         }
     })
 
-    console.log("Worker created : ",newWorker);
+    // console.log("Worker created : ",newWorker);
     res.status(200).send({newWorker});
 };
 
@@ -41,7 +41,7 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
 
     const deletedWorker = await Worker.deleteOne({_id:id});
-    console.log("Worker deleted : ",deletedWorker);
+    // console.log("Worker deleted : ",deletedWorker);
 
     res.status(200).send({deletedWorker});
 };

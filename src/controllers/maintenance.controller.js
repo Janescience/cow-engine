@@ -37,7 +37,7 @@ exports.create = async (req, res) => {
         }
     })
 
-    console.log("Maintenance created : ",newMaintenance);
+    // console.log("Maintenance created : ",newMaintenance);
     res.status(200).send({newMaintenance});
 };
 
@@ -54,7 +54,7 @@ exports.update = async (req, res) => {
     }
 
     const updatedMaintenance = await Maintenance.updateOne({_id:id},data).exec();
-    console.log("Maintenance updated : ",updatedMaintenance);
+    // console.log("Maintenance updated : ",updatedMaintenance);
 
     res.status(200).send({updatedMaintenance});
 };
@@ -63,7 +63,7 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
 
     const deletedMaintenance = await Maintenance.deleteOne({_id:id});
-    console.log("Maintenance deleted : ",deletedMaintenance);
+    // console.log("Maintenance deleted : ",deletedMaintenance);
 
     res.status(200).send({deletedMaintenance});
 };

@@ -26,7 +26,7 @@ exports.create = async (req, res) => {
         }
     })
 
-    console.log("Salary created : ",newSalary);
+    // console.log("Salary created : ",newSalary);
     res.status(200).send({newSalary});
 };
 
@@ -35,7 +35,7 @@ exports.update = async (req, res) => {
     const data = req.body;
 
     const updatedSalary = await Salary.updateOne({_id:id},data).exec();
-    console.log("Salary updated : ",updatedSalary);
+    // console.log("Salary updated : ",updatedSalary);
 
     res.status(200).send({updatedSalary});
 };
@@ -44,7 +44,7 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
 
     const deletedSalary = await Salary.deleteOne({_id:id});
-    console.log("Salary deleted : ",deletedSalary);
+    // console.log("Salary deleted : ",deletedSalary);
 
     res.status(200).send({deletedSalary});
 };

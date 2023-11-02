@@ -7,7 +7,7 @@ const User = db.user;
 exports.redirect = async (req, res) => {
   try {
     await lineApi.token(req.query.code,req.query.state);
-    console.log("Created Line Access Token Successfully.");
+    // console.log("Created Line Access Token Successfully.");
     res.sendFile(path.join(__dirname, '../../views','line-connected.html'));
   } catch (error) {
     return res.json(error);  

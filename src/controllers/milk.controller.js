@@ -80,15 +80,15 @@ exports.create = async (req, res) => {
     const newMilk = new Milk(milkSave);
 
     const milkSaved = await newMilk.save();
-    console.log('milk saved.');
+    // console.log('milk saved.');
 
     const milkDetails = data.milkDetails.map(detail => ({ ...detail, milk: milkSaved._id }));
     const milkDetailIds = await MilkDetail.insertMany(milkDetails);
     const detailIds = milkDetailIds.map(detail => detail._id);
-    console.log('detailIds : ', detailIds);
+    // console.log('detailIds : ', detailIds);
 
     await Milk.updateOne({ _id: milkSaved._id }, { milkDetails: detailIds }).exec();
-    console.log('milk updated.');
+    // console.log('milk updated.');
 
     res.status(200).send({ milkSaved });
   } catch (error) {
@@ -128,10 +128,10 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
     
     const deletedMilkDetail = await MilkDetail.deleteMany({milk:id});
-    console.log("MilkDetail deleted : ",deletedMilkDetail)
+    // console.log("MilkDetail deleted : ",deletedMilkDetail)
 
     const deletedMilk = await Milk.deleteOne({_id:id});
-    console.log("Milk deleted : ",deletedMilk)
+    // console.log("Milk deleted : ",deletedMilk)
 
     res.status(200).send({deletedMilk});
 };

@@ -43,19 +43,19 @@ exports.create = async (req, res) => {
         await newCow.save((err, cow) => {
             if(cow){
                 Birth.updateOne({_id:id},{calf:cow._id}).exec();
-                console.log("Birth calf id updated.");
+                // console.log("Birth calf id updated.");
             }
             if (err) {
                 console.error("New cow in birth create error : ",err)
                 res.status(500).send({ message: err });
                 return;
             }
-            console.log("Cow sex female created : ",cow)
+            // console.log("Cow sex female created : ",cow)
         })
     }
 
     await Reproduct.updateOne({_id:data.reproduction},{status:3}); // ปรับสถานะ คลอดลูกแล้ว
-    console.log("Reproduction status = 3 updated.");
+    // console.log("Reproduction status = 3 updated.");
 
     res.status(200).send({updatedBirth});
 };
@@ -68,7 +68,7 @@ exports.update = async (req, res) => {
         const birth = await Birth.findById(id).exec();
         if(birth.calf){
             await Cow.deleteOne({_id:birth.calf});
-            console.log("Cow deleted becuase update sex = male.");
+            // console.log("Cow deleted becuase update sex = male.");
         }
         data.birthDate = null
         data.sex = null
@@ -76,7 +76,7 @@ exports.update = async (req, res) => {
     }
 
     const updatedBirth = await Birth.updateOne({_id:id},data).exec();
-    console.log("Birth updated");
+    // console.log("Birth updated");
 
     res.status(200).send({updatedBirth});
 };
@@ -86,10 +86,10 @@ exports.delete = async (req, res) => {
     const birth = await Birth.findOne({_id:id});
 
     await Reproduct.updateOne({_id:birth.reproduction},{"status":"1"}).exec();
-    console.log("Reproduction status = 1 updated.")
+    // console.log("Reproduction status = 1 updated.")
 
     const deletedBirth = await Birth.deleteOne({_id:id});
-    console.log("Birth deleted")
+    // console.log("Birth deleted")
 
     res.status(200).send({deletedBirth});
 };

@@ -31,7 +31,7 @@ exports.create = async (req, res) => {
         }
     })
 
-    console.log("Heal created : ",newHeal);
+    // console.log("Heal created : ",newHeal);
     res.status(200).send({newHeal});
 };
 
@@ -40,7 +40,7 @@ exports.update = async (req, res) => {
     const data = req.body;
 
     const updatedHeal = await Heal.updateOne({_id:id},data).exec();
-    console.log("Heal updated : ",updatedHeal);
+    // console.log("Heal updated : ",updatedHeal);
 
     res.status(200).send({updatedHeal});
 };
@@ -49,7 +49,7 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
 
     const deletedHeal = await Heal.deleteOne({_id:id});
-    console.log("Heal deleted : ",deletedHeal);
+    // console.log("Heal deleted : ",deletedHeal);
 
     res.status(200).send({deletedHeal});
 };

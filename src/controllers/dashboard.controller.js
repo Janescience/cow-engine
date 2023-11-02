@@ -370,12 +370,12 @@ exports.todolist = async (req,res) => {
 
     const cows = await Cow.find(filter).exec();
     const corrals = Object.keys(_.groupBy(cows,'corral'));
-    // console.log('corrals : ',corrals)
+    // // console.log('corrals : ',corrals)
     //Food - Everymonth
     let food = []
     const foods = await Food.find({farm:filter.farm,year:year,month:month}).exec();
     if(foods.length > 0){
-        console.log('foods : ',foods.length)
+        // console.log('foods : ',foods.length)
 
         if(foods.length < corrals.length){
             for(let food of foods){

@@ -26,7 +26,7 @@ exports.create = async (req, res) => {
         }
     })
 
-    console.log("Equipment created : ",newEquipment);
+    // console.log("Equipment created : ",newEquipment);
     res.status(200).send({newEquipment});
 };
 
@@ -35,7 +35,7 @@ exports.update = async (req, res) => {
     const data = req.body;
 
     const updatedEquipment = await Equipment.updateOne({_id:id},data).exec();
-    console.log("Equipment updated : ",updatedEquipment);
+    // console.log("Equipment updated : ",updatedEquipment);
 
     res.status(200).send({updatedEquipment});
 };
@@ -44,7 +44,7 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
 
     const deletedEquipment = await Equipment.deleteOne({_id:id});
-    console.log("Equipment deleted : ",deletedEquipment);
+    // console.log("Equipment deleted : ",deletedEquipment);
 
     res.status(200).send({deletedEquipment});
 };

@@ -26,7 +26,7 @@ exports.create = async (req, res) => {
         }
     })
 
-    console.log("Bill created : ",newBill);
+    // console.log("Bill created : ",newBill);
     res.status(200).send({newBill});
 };
 
@@ -35,7 +35,7 @@ exports.update = async (req, res) => {
     const data = req.body;
 
     const updatedBill = await Bill.updateOne({_id:id},data).exec();
-    console.log("Bill updated : ",updatedBill);
+    // console.log("Bill updated : ",updatedBill);
 
     res.status(200).send({updatedBill});
 };
@@ -44,7 +44,7 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
 
     const deletedBill = await Bill.deleteOne({_id:id});
-    console.log("Bill deleted : ",deletedBill);
+    // console.log("Bill deleted : ",deletedBill);
 
     res.status(200).send({deletedBill});
 };

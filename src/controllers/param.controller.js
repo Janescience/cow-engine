@@ -39,7 +39,7 @@ exports.create = async (req, res) => {
     data.farm = req.farmId
     const newParam = new Param(data);
     await newParam.save()
-    console.log("Param created : ",newParam);
+    // console.log("Param created : ",newParam);
     res.status(200).send({newParam});
 };
 
@@ -47,13 +47,13 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     const updatedParam = await Param.updateOne({_id:id},data).exec();
-    console.log("Param updated : ",updatedParam);
+    // console.log("Param updated : ",updatedParam);
     res.status(200).send({updatedParam});
 };
 
 exports.delete = async (req, res) => {
     const id = req.params.id;
     const deletedParam = await Param.deleteOne({_id:id});
-    console.log("Param deleted : ",deletedParam)
+    // console.log("Param deleted : ",deletedParam)
     res.status(200).send({deletedParam});
 };

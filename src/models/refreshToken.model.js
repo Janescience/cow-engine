@@ -13,13 +13,13 @@ const RefreshTokenSchema = new mongoose.Schema({
 
 RefreshTokenSchema.statics.createToken = async function (user,exp) {
   let expiredAt = new Date();
-  console.log('expiredAt before add time : ',expiredAt)
+  // console.log('expiredAt before add time : ',expiredAt)
 
   expiredAt.setMilliseconds(
     expiredAt.getMilliseconds() + exp
   );
   
-  console.log('expiredAt after add time : ',expiredAt)
+  // console.log('expiredAt after add time : ',expiredAt)
 
   let _token = uuidv4();
 
@@ -29,7 +29,7 @@ RefreshTokenSchema.statics.createToken = async function (user,exp) {
     expiryDate: expiredAt.getTime(),
   });
 
-  console.log('createToken : ',_object);
+  // console.log('createToken : ',_object);
 
   let refreshToken = await _object.save();
 
