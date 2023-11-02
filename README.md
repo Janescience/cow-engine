@@ -19,7 +19,7 @@ Dairy-Farm system backend. Runtime on Node.js.
 ## How to run on local
 
 1. Create file `.env`
-2. Add varaible `URI` and `PORT`
+2. Add variable `URI` and `PORT`
   
 ```
 URI=<path-mongodb-connection> 
