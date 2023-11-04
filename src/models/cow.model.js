@@ -19,7 +19,7 @@ const Cow = mongoose.model(
             type:Date,
             required:true
         },
-        adopDate:{//วันที่นำมาเลี้ยง
+        adopDate:{//วันที่นำเข้าฟาร์ม
             type:Date,
             required:true
         },

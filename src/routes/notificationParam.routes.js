@@ -14,5 +14,6 @@ module.exports = function(app) {
 
   app.get('/notiparam',[authJwt.verifyToken,logger],controller.getAll);
   app.get('/notiparam/:id',[authJwt.verifyToken,logger],controller.get);
+  app.post('/notiparam',[authJwt.verifyToken,logger],controller.create);
   app.put("/notiparam/:id",[authJwt.verifyToken,logger],controller.update);
 };

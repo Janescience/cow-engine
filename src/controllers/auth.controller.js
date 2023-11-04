@@ -4,6 +4,7 @@ const User = db.user;
 const Farm = db.farm;
 const RefreshToken = db.refreshToken;
 const NotiParam = db.notificationParam;
+const Param = db.param;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -43,8 +44,18 @@ exports.signup = async (req, res) => {
       { code : 'VACCINE_IVOMEC' ,name : 'ยาถ่ายพยาธิ (IVOMEC)', farm : farm },
     ]
 
-    const notiParamRest = await NotiParam.insertMany(notiParams);
-    // console.log("noti param saved : ",notiParamRest);
+    await NotiParam.insertMany(notiParams);
+
+    const param = {
+      code : 'RAW_MILK',
+      group : 'PRICE',
+      name : 'ราคาน้ำนมดิบ/กก.',
+      valueNumber : 20.5,
+      farm : farm
+    }
+
+    const newParam = new Param(param);
+    await newParam.save()
 
     res.status(200).send({message:"Registered Successfully."});
 

@@ -17,8 +17,10 @@ const Reproduction = db.reproduction;
 const Birth = db.birth;
 const Protection = db.protection;
 const Worker = db.worker;
+const Vaccine = db.vaccine;
 
 const { notiService,cowService } = require("../services");
+const Recipe = require("../models/recipe.model");
 
 exports.cow = async (req,res) => {
     const filter = req.query
@@ -366,6 +368,8 @@ exports.todolist = async (req,res) => {
 
     const year = new Date().getFullYear();
     const month = new Date().getMonth() + 1;
+
+    
     
 
     const cows = await Cow.find(filter).exec();
@@ -385,29 +389,61 @@ exports.todolist = async (req,res) => {
                 }
             }
             if(corrals.length > 0){
-                food.push('บันทึกการให้อาหารคอก '+corrals.join())
+                food.push(
+                    {
+                        text : 'บันทึกการให้อาหาร',
+                        href : '/manage/food'
+                    },
+                    {
+                        text:'คอก '+corrals.join()
+                    }
+                )
             }
         }
     }else{
-        food.push('บันทึกการให้อาหารทุกคอก')
+        food.push(
+            {
+                text : 'บันทึกการให้อาหาร',
+                href : '/manage/food'
+            },
+            {
+                text:'ทุกคอก'
+            }
+        )
     }
 
     //Milk - Everyday
     let milk = []
     const milkTodayM = await Milk.count({farm:filter.farm,time : 'M',date:moment().format('YYYY-MM-DD')}).exec();
     if(milkTodayM == 0){
-        milk.push('บันทึกรีดนมตอนเช้า')
+        milk.push(
+            {
+                text : 'บันทึกการรีดนม',
+                href : '/manage/milk'
+            },
+            {
+                text:'ตอนเช้า'
+            }
+        )
     }
     const milkTodayA = await Milk.count({farm:filter.farm,time : 'A',date:moment().format('YYYY-MM-DD')}).exec();
     if(milkTodayA == 0){
-        milk.push('บันทึกรีดนมตอนบ่าย')
+        milk.push(
+            {
+                text : 'บันทึกการรีดนม',
+                href : '/manage/milk'
+            },
+            {
+                text:'ตอนบ่าย'
+            }
+        )
     }
 
     //Salary - Everymonth
     let salary = [];
     const prevDate = moment().month(moment().month()-1)
-    const workers = await Worker.find({farm:filter.farm,status:{$in:['W','S']}}).exec();
-    const wokerIds = workers.map((w) => { return w._id});
+    const workerActives = await Worker.find({farm:filter.farm,status:{$in:['W','S']}}).exec();
+    const wokerIds = workerActives.map((w) => { return w._id});
     const salaries = await Salary.find({farm:filter.farm,year:new Date(prevDate).getFullYear(),month:new Date(prevDate).getMonth() + 1}).populate('worker').exec();
 
     if(salaries.length > 0){
@@ -419,14 +455,178 @@ exports.todolist = async (req,res) => {
                 }
             }
             if(noSalary.length > 0){
-                salary.push('บันทึกการจ่ายเงืนเดือน'+prevDate.format('MMMM')+'ของ '+noSalary.join())
+                salary.push(
+                    {
+                        text : 'บันทึกการจ่ายเงืนเดือน',
+                        href : '/manage/worker'
+                    },
+                    {
+                        text:' ('+prevDate.format('MMMM')+') '+'ของ '+noSalary.join()
+                    }
+                )
             }
         }
     }else{
-        salary.push('บันทึกการจ่ายเงืนเดือน'+prevDate.format('MMMM')+'ของคนงานทุกคน')
+        salary.push(
+            {
+                text : 'บันทึกการจ่ายเงินเดือน',
+                href : '/manage/worker'
+            },
+            {
+                text:' ('+prevDate.format('MMMM')+') '+'ของทุกคน'
+            }
+        )
     }
 
+    let vaccine = [];
+    const vaccines = await Vaccine.find({farm:filter.farm}).exec();
+    if(vaccines.length == 0){
+        vaccine.push(
+            {
+                text : 'บันทึกวัคซีน',
+                href : '/manage/vaccine'
+            },
+            {
+                text : 'อย่างน้อย 1 รายการ ถึงจะสามารถ'
+            },
+            {
+                text : 'บันทึกการป้องกัน/บำรุง',
+                href : '/manage/protection'
+            },
+        );
+    }
 
-    res.json({milk,food,salary});
+    let equipment = [];
+    const equipments = await Equipment.find({farm:filter.farm}).exec();
+    if(equipments.length == 0){
+        equipment.push(
+            {
+                text : 'บันทึกอุปกรณ์',
+                href : '/manage/equipment'
+            },
+            {
+                text : '  *มีผลกับระดับความคุ้มค่าของโค',
+                remark : true
+            }
+        );
+    }
+
+    let building = [];
+    const buildings = await Building.find({farm:filter.farm}).exec();
+    if(buildings.length == 0){
+        building.push(
+            {
+                text : 'บันทึกสิ่งปลูกสร้าง',
+                href : '/manage/building'
+            },
+            {
+                text : '  *มีผลกับระดับความคุ้มค่าของโค',
+                remark : true
+            }
+        );
+    }
+
+    let worker = [];
+    const workers = await Worker.find({farm:filter.farm}).exec();
+    if(workers.length == 0){
+        worker.push(
+            {
+                text : 'บันทึกข้อมูลคนงาน',
+                href : '/manage/worker'
+            },
+            {
+                text : ' และบันทึกการจ่ายเงินเดือน'
+            },
+            {
+                text : '  *มีผลกับระดับความคุ้มค่าของโค',
+                remark : true
+            }
+        );
+    }
+
+    let recipe = [];
+    const recipes = await Recipe.find({farm:filter.farm}).exec();
+    if(recipes.length == 0){
+        recipe.push(
+            {
+                text : 'บันทึกสูตรอาหาร',
+                href : '/manage/recipe'
+            },
+            {
+                text : 'อย่างน้อย 1 รายการ ถึงจะสามารถ'
+            },
+            {
+                text : 'บันทึกการให้อาหาร',
+                href : '/manage/food'
+            },
+        );
+    }
+
+    let bill = [];
+    const bills = await Bill.find({farm:filter.farm}).exec();
+    if(bills.length == 0){
+        bill.push(
+            {
+                text : 'บันทึกค่าใช้จ่ายเพิ่มเติม (ค่าน้ำ,ค่าไฟ)',
+                href : '/manage/bill'
+            },
+            {
+                text : '  *มีผลกับระดับความคุ้มค่าของโค',
+                remark : true
+            }
+        );
+    }
+
+    let start = new Date(year,month-1,1)
+    const startOffset = start.getTimezoneOffset();
+    let startDate = new Date(start.getTime() - (startOffset*60*1000))
+
+    const daysInPrevMonth = moment().month(month - 1).daysInMonth();
+    let end = new Date(year, month-1, daysInPrevMonth);
+    const endOffset = end.getTimezoneOffset();
+    let endDate = new Date(end.getTime() - (endOffset*60*1000))
+
+    let billPrevMonth = [];
+    const billWaterPrevMonth = await Bill.find(
+        {   
+            date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
+            farm : filter.farm,
+            code: 'WATER'
+        }
+    );
+
+    const billElectricPrevMonth = await Bill.find(
+        {   
+            date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
+            farm : filter.farm,
+            code: 'ELECTRIC'
+        }
+    );
+
+    if(billWaterPrevMonth.length === 0){
+        billPrevMonth.push(
+            {
+                text : 'บันทึกค่าน้ำ',
+                href : '/manage/bill'
+            },
+            {
+                text:' ('+prevDate.format('MMMM')+') '
+            }
+        )
+    }
+
+    if(billElectricPrevMonth.length === 0){
+        billPrevMonth.push(
+            {
+                text : 'บันทึกค่าไฟ',
+                href : '/manage/bill'
+            },
+            {
+                text:' ('+prevDate.format('MMMM')+') '
+            }
+        )
+    }
+
+    res.json({milk,food,salary,vaccine,equipment,building,worker,recipe,bill,billPrevMonth});
 
 }
