@@ -33,15 +33,15 @@ exports.signup = async (req, res) => {
     // console.log("user saved : ",userResp);
 
     const notiParams = [
-      { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', farm : farm },
+      { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', before:7 , after:7 , farm : farm },
       { code : 'REPRO_MATING' ,name : 'การผสม', farm : farm },
-      { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', farm : farm },
-      { code : 'BIRTH' ,name : 'การคลอด', farm : farm },
-      { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)', farm : farm },
-      { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)', farm : farm },
-      { code : 'VACCINE_CDT' ,name : 'วัคซีนลาดหลัง (CYDECTIN)', farm : farm },
-      { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)', farm : farm },
-      { code : 'VACCINE_IVOMEC' ,name : 'ยาถ่ายพยาธิ (IVOMEC)', farm : farm },
+      { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', before:5 , after:5 ,farm : farm },
+      { code : 'BIRTH' ,name : 'การคลอด', before:7 , after:7 ,farm : farm },
+      // { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)', farm : farm },
+      // { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)', farm : farm },
+      // { code : 'VACCINE_CDT' ,name : 'วัคซีนลาดหลัง (CYDECTIN)', farm : farm },
+      // { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)', farm : farm },
+      // { code : 'VACCINE_IVOMEC' ,name : 'ยาถ่ายพยาธิ (IVOMEC)', farm : farm },
     ]
 
     await NotiParam.insertMany(notiParams);
