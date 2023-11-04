@@ -430,7 +430,7 @@ exports.todolist = async (req,res) => {
     if(milkTodayA == 0){
         milk.push(
             {
-                text : 'บันทึกการรีดนม',
+                text : ' บันทึกการรีดนม',
                 href : '/manage/milk'
             },
             {
