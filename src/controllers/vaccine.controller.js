@@ -20,6 +20,8 @@ exports.get = async (req, res) => {
 exports.create = async (req, res) => {
     const data = req.body;
     data.farm = req.farmId
+    
+    data.code = 'VACCINE_'+data.code;
 
     const newVaccine = new Vaccine(data);
     await newVaccine.save()

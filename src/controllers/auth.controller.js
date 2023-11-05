@@ -8,6 +8,7 @@ const Param = db.param;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+const Vaccine = require("../models/vaccine.model");
 
 exports.signup = async (req, res) => {
 
@@ -33,18 +34,28 @@ exports.signup = async (req, res) => {
     // console.log("user saved : ",userResp);
 
     const notiParams = [
-      { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', before:7 , after:7 , farm : farm },
+      { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', before: 7 , after: 7 , farm : farm },
       { code : 'REPRO_MATING' ,name : 'การผสม', farm : farm },
-      { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', before:5 , after:5 ,farm : farm },
-      { code : 'BIRTH' ,name : 'การคลอด', before:7 , after:7 ,farm : farm },
-      // { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)', farm : farm },
-      // { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)', farm : farm },
-      // { code : 'VACCINE_CDT' ,name : 'วัคซีนลาดหลัง (CYDECTIN)', farm : farm },
-      // { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)', farm : farm },
-      // { code : 'VACCINE_IVOMEC' ,name : 'ยาถ่ายพยาธิ (IVOMEC)', farm : farm },
+      { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', before: 5 , after: 5 ,farm : farm },
+      { code : 'BIRTH' ,name : 'การคลอด', before: 7 , after: 7 ,farm : farm },
+      { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)',before: 15 , farm : farm },
+      { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)',before: 15 , farm : farm },
+      { code : 'VACCINE_CDT' ,name : 'วัคซีนราดหลัง (CYDECTIN)',before: 7, farm : farm },
+      { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)',before: 3, farm : farm },
+      { code : 'VACCINE_IVOMEC' ,name : 'ยาฆ่าพยาธิโคท้อง (IVOMEC)', farm : farm },
     ]
 
     await NotiParam.insertMany(notiParams);
+
+    const vaccines = [
+      { code : 'VACCINE_FMD',frequency: 6,name:'ปากเท้าเปื่อย (FMD)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+      { code : 'VACCINE_LS',frequency: 6,name:'ลัมพีสกิน (LUMPY SKIN)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+      { code : 'VACCINE_CDT',frequency: 2,name:'ราดหลัง (CYDECTIN)',remark:'แจ้งเตือน 7 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+      { code : 'VACCINE_BIO',frequency: 1,name:'ยาบำรุง (BIO)',remark:'แจ้งเตือน 3 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+      { code : 'VACCINE_IVOMEC',frequency: 0,name:'ยาฆ่าพยาธิโคท้อง (IVOMEC)',remark:'แจ้งเตือนเมื่ออายุครรภ์ครบ 5,6 และ 7 เดือน',farm: farm},
+    ]
+
+    await Vaccine.insertMany(vaccines);
 
     const param = {
       code : 'RAW_MILK',

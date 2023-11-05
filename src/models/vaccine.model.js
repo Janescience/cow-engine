@@ -19,17 +19,21 @@ const Vaccine = mongoose.model(
             type: String,
             required:false,
         },
-        price:{
+        price:{//ราคา
             type: Number,
-            required:true,
+            default: 0
         },
-        use:{
+        use:{//ใชได้กี่ตัว
             type: Number,
-            required:true,
+            default: 0
         },
-        amount:{
+        amount:{//คิดเป็นเงิน/ตัว
             type: Number,
-            required:true,
+            default: 0        
+        },
+        quantity:{//ปริมาณ (ลิตร)
+            type: Number,
+            default: 0        
         },
         nextDate:{
             type: Date,

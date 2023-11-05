@@ -21,6 +21,7 @@ const Vaccine = db.vaccine;
 
 const { notiService,cowService } = require("../services");
 const Recipe = require("../models/recipe.model");
+const Farm = require("../models/farm.model");
 
 exports.cow = async (req,res) => {
     const filter = req.query
@@ -103,20 +104,21 @@ exports.events = async (req,res) => {
     let events = []
     await Promise.map(notifications, async (noti) => {
         const notiParam = noti.notificationParam;
+        if(notiParam){
+            const data = await notiService.filterData(notiParam,noti);
 
-        const data = await notiService.filterData(notiParam,noti);
-
-        if(data != null){
-            const dueDate = notiService.filterDueDate(notiParam,data);
-            if(dueDate != null){
-                if(today.isSameOrBefore(dueDate)){
-                    const event = {
-                        title : notiParam.name ,
-                        date : dueDate,
-                        cow : data.cow?.name
-                    }
-                    if(events.length < 20){
-                        events.push(event);
+            if(data != null){
+                const dueDate = notiService.filterDueDate(notiParam,data);
+                if(dueDate != null){
+                    if(today.isSameOrBefore(dueDate)){
+                        const event = {
+                            title : notiParam.name ,
+                            date : dueDate,
+                            cow : data.cow?.name
+                        }
+                        if(events.length < 20){
+                            events.push(event);
+                        }
                     }
                 }
             }
@@ -627,6 +629,20 @@ exports.todolist = async (req,res) => {
         )
     }
 
-    res.json({milk,food,salary,vaccine,equipment,building,worker,recipe,bill,billPrevMonth});
+    let setting = []
+    const farmDetail = await Farm.findById(filter.farm).exec();
+    if(!farmDetail.lineToken){
+        setting.push(
+            {
+                text : 'เชื่อมต่อ LINE',
+                href : '/setting/notification/calendar'
+            },
+            {
+                text:' เพื่อรับการแจ้งเตือน'
+            }
+        )
+    }
+
+    res.json({setting,milk,food,salary,vaccine,equipment,building,worker,recipe,bill,billPrevMonth});
 
 }
