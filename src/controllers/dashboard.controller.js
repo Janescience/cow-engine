@@ -371,14 +371,11 @@ exports.todolist = async (req,res) => {
     const year = new Date().getFullYear();
     const month = new Date().getMonth() + 1;
 
-    
-    
-
     const cows = await Cow.find(filter).exec();
     const corrals = Object.keys(_.groupBy(cows,'corral'));
     // // console.log('corrals : ',corrals)
     //Food - Everymonth
-    let food = []
+    let mFood = []
     const foods = await Food.find({farm:filter.farm,year:year,month:month}).exec();
     if(foods.length > 0){
         // console.log('foods : ',foods.length)
@@ -391,7 +388,7 @@ exports.todolist = async (req,res) => {
                 }
             }
             if(corrals.length > 0){
-                food.push(
+                mFood.push(
                     {
                         text : 'บันทึกการให้อาหาร',
                         href : '/manage/food'
@@ -403,7 +400,7 @@ exports.todolist = async (req,res) => {
             }
         }
     }else{
-        food.push(
+        mFood.push(
             {
                 text : 'บันทึกการให้อาหาร',
                 href : '/manage/food'
@@ -415,10 +412,10 @@ exports.todolist = async (req,res) => {
     }
 
     //Milk - Everyday
-    let milk = []
+    let dMilk = []
     const milkTodayM = await Milk.count({farm:filter.farm,time : 'M',date:moment().format('YYYY-MM-DD')}).exec();
     if(milkTodayM == 0){
-        milk.push(
+        dMilk.push(
             {
                 text : 'บันทึกการรีดนม',
                 href : '/manage/milk'
@@ -430,7 +427,7 @@ exports.todolist = async (req,res) => {
     }
     const milkTodayA = await Milk.count({farm:filter.farm,time : 'A',date:moment().format('YYYY-MM-DD')}).exec();
     if(milkTodayA == 0){
-        milk.push(
+        dMilk.push(
             {
                 text : ' บันทึกการรีดนม',
                 href : '/manage/milk'
@@ -442,7 +439,7 @@ exports.todolist = async (req,res) => {
     }
 
     //Salary - Everymonth
-    let salary = [];
+    let mSalary = [];
     const prevDate = moment().month(moment().month()-1)
     const workerActives = await Worker.find({farm:filter.farm,status:{$in:['W','S']}}).exec();
     const wokerIds = workerActives.map((w) => { return w._id});
@@ -457,7 +454,7 @@ exports.todolist = async (req,res) => {
                 }
             }
             if(noSalary.length > 0){
-                salary.push(
+                mSalary.push(
                     {
                         text : 'บันทึกการจ่ายเงืนเดือน',
                         href : '/manage/worker'
@@ -469,7 +466,7 @@ exports.todolist = async (req,res) => {
             }
         }
     }else{
-        salary.push(
+        mSalary.push(
             {
                 text : 'บันทึกการจ่ายเงินเดือน',
                 href : '/manage/worker'
@@ -480,28 +477,21 @@ exports.todolist = async (req,res) => {
         )
     }
 
-    let vaccine = [];
-    const vaccines = await Vaccine.find({farm:filter.farm}).exec();
-    if(vaccines.length == 0){
-        vaccine.push(
+    let iCow = []
+    if(cows.length === 0){
+        iCow.push(
             {
-                text : 'บันทึกวัคซีน',
-                href : '/manage/vaccine'
-            },
-            {
-                text : 'อย่างน้อย 1 รายการ ถึงจะสามารถ'
-            },
-            {
-                text : 'บันทึกการป้องกัน/บำรุง',
-                href : '/manage/protection'
-            },
+                text : 'บันทึกข้อมูลโค',
+                href : '/manage/cow'
+            }
         );
     }
 
-    let equipment = [];
+
+    let iEquipment = [];
     const equipments = await Equipment.find({farm:filter.farm}).exec();
     if(equipments.length == 0){
-        equipment.push(
+        iEquipment.push(
             {
                 text : 'บันทึกอุปกรณ์',
                 href : '/manage/equipment'
@@ -513,10 +503,10 @@ exports.todolist = async (req,res) => {
         );
     }
 
-    let building = [];
+    let iBuilding = [];
     const buildings = await Building.find({farm:filter.farm}).exec();
     if(buildings.length == 0){
-        building.push(
+        iBuilding.push(
             {
                 text : 'บันทึกสิ่งปลูกสร้าง',
                 href : '/manage/building'
@@ -528,10 +518,10 @@ exports.todolist = async (req,res) => {
         );
     }
 
-    let worker = [];
+    let iWorker = [];
     const workers = await Worker.find({farm:filter.farm}).exec();
     if(workers.length == 0){
-        worker.push(
+        iWorker.push(
             {
                 text : 'บันทึกข้อมูลคนงาน',
                 href : '/manage/worker'
@@ -546,10 +536,10 @@ exports.todolist = async (req,res) => {
         );
     }
 
-    let recipe = [];
+    let iRecipe = [];
     const recipes = await Recipe.find({farm:filter.farm}).exec();
     if(recipes.length == 0){
-        recipe.push(
+        iRecipe.push(
             {
                 text : 'บันทึกสูตรอาหาร',
                 href : '/manage/recipe'
@@ -564,10 +554,10 @@ exports.todolist = async (req,res) => {
         );
     }
 
-    let bill = [];
+    let iBill = [];
     const bills = await Bill.find({farm:filter.farm}).exec();
     if(bills.length == 0){
-        bill.push(
+        iBill.push(
             {
                 text : 'บันทึกค่าใช้จ่ายเพิ่มเติม (ค่าน้ำ,ค่าไฟ)',
                 href : '/manage/bill'
@@ -588,7 +578,7 @@ exports.todolist = async (req,res) => {
     const endOffset = end.getTimezoneOffset();
     let endDate = new Date(end.getTime() - (endOffset*60*1000))
 
-    let billPrevMonth = [];
+    let mBill = [];
     const billWaterPrevMonth = await Bill.find(
         {   
             date : { $gte : startDate.toISOString().split('T')[0] , $lte : endDate.toISOString().split('T')[0] },
@@ -606,7 +596,7 @@ exports.todolist = async (req,res) => {
     );
 
     if(billWaterPrevMonth.length === 0){
-        billPrevMonth.push(
+        mBill.push(
             {
                 text : 'บันทึกค่าน้ำ',
                 href : '/manage/bill'
@@ -618,7 +608,7 @@ exports.todolist = async (req,res) => {
     }
 
     if(billElectricPrevMonth.length === 0){
-        billPrevMonth.push(
+        mBill.push(
             {
                 text : 'บันทึกค่าไฟ',
                 href : '/manage/bill'
@@ -629,10 +619,10 @@ exports.todolist = async (req,res) => {
         )
     }
 
-    let setting = []
+    let sLine = []
     const farmDetail = await Farm.findById(filter.farm).exec();
     if(!farmDetail.lineToken){
-        setting.push(
+        sLine.push(
             {
                 text : 'เชื่อมต่อ LINE',
                 href : '/setting/notification/calendar'
@@ -643,6 +633,45 @@ exports.todolist = async (req,res) => {
         )
     }
 
-    res.json({setting,milk,food,salary,vaccine,equipment,building,worker,recipe,bill,billPrevMonth});
+    let sVaccine = []
+    const vaccines = await Vaccine.find({farm:filter.farm}).exec();
+    const checkPrice = vaccines.filter(v => v.price === 0).length
+    if(checkPrice > 0){
+        sVaccine.push(
+            {
+                text : 'อัพเดตข้อมูลวัคซีน',
+                href : '/manage/vaccine'
+            },
+            {
+                text:' (ราคา, ปริมาณ, จำนวนโค)'
+            }
+        )
+    }
+    
+    res.json({
+        setting:{
+            sLine,
+            sVaccine
+        },
+        important:{
+            iCow,
+            iEquipment,
+            iBuilding,
+            iWorker,
+            iRecipe,
+            iBill,
+        },
+        dairy:{
+            dMilk,
+        },
+        monthly:{
+            mFood,
+            mSalary,
+            mBill
+        },
+        notification : {
+
+        }
+    });
 
 }
