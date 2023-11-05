@@ -32,28 +32,29 @@ exports.getCalendar = async (req, res) => {
 
     const promises = notifications.map(async (noti) => {
         const notiParam = noti.notificationParam;
-
-        const data = await notiService.filterData(notiParam,noti,filter.cow);            
+        if(notiParam){
+            const data = await notiService.filterData(notiParam,noti,filter.cow);            
         
-        if(data){
-            
-            const eventPromises = [];
+            if(data){
+                
+                const eventPromises = [];
 
-            if(notiParam.before && notiParam.before > 0){
-                const eventPromise = filterEvent(noti,notiParam,data,'before');
+                if(notiParam.before && notiParam.before > 0){
+                    const eventPromise = filterEvent(noti,notiParam,data,'before');
+                    eventPromises.push(eventPromise);
+                }
+
+                if(notiParam.after && notiParam.after > 0){
+                    const eventPromise = filterEvent(noti,notiParam,data,'after');
+                    eventPromises.push(eventPromise);
+                }
+                
+                const eventPromise = filterEvent(noti,notiParam,data,'today');
                 eventPromises.push(eventPromise);
-            }
 
-            if(notiParam.after && notiParam.after > 0){
-                const eventPromise = filterEvent(noti,notiParam,data,'after');
-                eventPromises.push(eventPromise);
+                const eventResults = await Promise.all(eventPromises);
+                events.push(...eventResults);
             }
-            
-            const eventPromise = filterEvent(noti,notiParam,data,'today');
-            eventPromises.push(eventPromise);
-
-            const eventResults = await Promise.all(eventPromises);
-            events.push(...eventResults);
         }
     });
 
