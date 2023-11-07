@@ -5,3 +5,12 @@ mongoose.connect(process.env.URI,
     .then((data) => {
         console.log(`Database connected to ${data.connection.host}`)
 })
+
+const db = require("../models");
+db.sequelize.sync()
+  .then(() => {
+    console.log("Synced db.");
+  })
+  .catch((err) => {
+    console.log("Failed to sync db: " + err.message);
+  });

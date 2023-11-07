@@ -33,9 +33,9 @@ exports.getAllDDL = async (req, res) => {
 
 exports.get = async (req, res) => {
     const id = req.params.id
-    const cow = await Cow.findById(id).exec();;
-    const quality = await cowService.quality(id);
-    res.status(200).send({cow,quality});
+    const cow = await Cow.findByPk(id);
+    // const quality = await cowService.quality(id);
+    res.status(200).send({cow});
 };
 
 exports.getDetails = async (req, res) => {
@@ -58,10 +58,20 @@ exports.getDetails = async (req, res) => {
 
 exports.create = async (req, res) => {
     const data = req.body;
-    data.farm = req.farmId;
-    const newCow = new Cow(data);
-    await newCow.save();
-    res.status(200).send({newCow});
+    data.farmId = req.farmId;
+    // const newCow = new Cow(data);
+    // await newCow.save();
+    Cow.create(data)
+    .then(data => {
+      res.status(200).send({data});
+      // res.status(200).send({message:"Registered Successfully."})
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the User."
+      });
+    });
 };
 
 exports.update = async (req, res) => {

@@ -9,81 +9,103 @@ const Param = db.param;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 const Vaccine = require("../models/vaccine.model");
-
+const Op = db.Sequelize.Op;
 exports.signup = async (req, res) => {
 
-    const countF = await Farm.collection.countDocuments();
+    // const countF = await Farm.collection.countDocuments();
     // console.log("farm count : ",countF);
 
-    const farm = new Farm({
-      code : "F" + String(countF + 1).padStart(4,'0'),
+    const farm = {
+      code : "F" + String(1).padStart(4,'0'),
       name : req.body.farmName,
       lineToken : null
-    })
-
-    const user = new User({
-      username: req.body.username,
-      password: bcrypt.hashSync(req.body.password, 8),
-      farm : farm,
-    });
-
-    const farmResp = await farm.save();
-    // console.log("farm saved : ",farmResp);
-
-    const userResp = await user.save();
-    // console.log("user saved : ",userResp);
-
-    const notiParams = [
-      { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', before: 7 , after: 7 , farm : farm },
-      { code : 'REPRO_MATING' ,name : 'การผสม', farm : farm },
-      { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', before: 5 , after: 5 ,farm : farm },
-      { code : 'BIRTH' ,name : 'การคลอด', before: 7 , after: 7 ,farm : farm },
-      { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)',before: 15 , farm : farm },
-      { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)',before: 15 , farm : farm },
-      { code : 'VACCINE_CDT' ,name : 'วัคซีนราดหลัง (CYDECTIN)',before: 7, farm : farm },
-      { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)',before: 3, farm : farm },
-      { code : 'VACCINE_IVOMEC' ,name : 'ยาฆ่าพยาธิโคท้อง (IVOMEC)', farm : farm },
-    ]
-
-    await NotiParam.insertMany(notiParams);
-
-    const vaccines = [
-      { code : 'VACCINE_FMD',frequency: 6,name:'ปากเท้าเปื่อย (FMD)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-      { code : 'VACCINE_LS',frequency: 6,name:'ลัมพีสกิน (LUMPY SKIN)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-      { code : 'VACCINE_CDT',frequency: 2,name:'ราดหลัง (CYDECTIN)',remark:'แจ้งเตือน 7 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-      { code : 'VACCINE_BIO',frequency: 1,name:'ยาบำรุง (BIO)',remark:'แจ้งเตือน 3 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-      { code : 'VACCINE_IVOMEC',frequency: 0,name:'ยาฆ่าพยาธิโคท้อง (IVOMEC)',remark:'แจ้งเตือนเมื่ออายุครรภ์ครบ 5,6 และ 7 เดือน',farm: farm},
-    ]
-
-    await Vaccine.insertMany(vaccines);
-
-    const param = {
-      code : 'RAW_MILK',
-      group : 'PRICE',
-      name : 'ราคาน้ำนมดิบ/กก.',
-      valueNumber : 20.5,
-      farm : farm
     }
 
-    const newParam = new Param(param);
-    await newParam.save()
+    Farm.create(farm)
+      .then(data => {
 
-    res.status(200).send({message:"Registered Successfully."});
+        const user = {
+          username: req.body.username,
+          password: bcrypt.hashSync(req.body.password, 8),
+          farmId : data._id,
+        };
 
+        User.create(user)
+          .then(data => {
+            res.status(200).send({message:"Registered Successfully."})
+          })
+          .catch(err => {
+            res.status(500).send({
+              message:
+                err.message || "Some error occurred while creating the User."
+            });
+          });
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the Farm."
+        });
+      });
+  
+
+    // const farmResp = await farm.save();
+    // // console.log("farm saved : ",farmResp);
+
+    // const userResp = await user.save();
+    // // console.log("user saved : ",userResp);
+
+    // const notiParams = [
+    //   { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', before: 7 , after: 7 , farm : farm },
+    //   { code : 'REPRO_MATING' ,name : 'การผสม', farm : farm },
+    //   { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', before: 5 , after: 5 ,farm : farm },
+    //   { code : 'BIRTH' ,name : 'การคลอด', before: 7 , after: 7 ,farm : farm },
+    //   { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)',before: 15 , farm : farm },
+    //   { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)',before: 15 , farm : farm },
+    //   { code : 'VACCINE_CDT' ,name : 'วัคซีนราดหลัง (CYDECTIN)',before: 7, farm : farm },
+    //   { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)',before: 3, farm : farm },
+    //   { code : 'VACCINE_IVOMEC' ,name : 'ยาฆ่าพยาธิโคท้อง (IVOMEC)', farm : farm },
+    // ]
+
+    // await NotiParam.insertMany(notiParams);
+
+    // const vaccines = [
+    //   { code : 'VACCINE_FMD',frequency: 6,name:'ปากเท้าเปื่อย (FMD)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+    //   { code : 'VACCINE_LS',frequency: 6,name:'ลัมพีสกิน (LUMPY SKIN)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+    //   { code : 'VACCINE_CDT',frequency: 2,name:'ราดหลัง (CYDECTIN)',remark:'แจ้งเตือน 7 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+    //   { code : 'VACCINE_BIO',frequency: 1,name:'ยาบำรุง (BIO)',remark:'แจ้งเตือน 3 วัน ก่อนถึงวันที่กำหนด',farm: farm},
+    //   { code : 'VACCINE_IVOMEC',frequency: 0,name:'ยาฆ่าพยาธิโคท้อง (IVOMEC)',remark:'แจ้งเตือนเมื่ออายุครรภ์ครบ 5,6 และ 7 เดือน',farm: farm},
+    // ]
+
+    // await Vaccine.insertMany(vaccines);
+
+    // const param = {
+    //   code : 'RAW_MILK',
+    //   group : 'PRICE',
+    //   name : 'ราคาน้ำนมดิบ/กก.',
+    //   valueNumber : 20.5,
+    //   farm : farm
+    // }
+
+    // const newParam = new Param(param);
+    // await newParam.save()
 };
 
 exports.signin = (req, res) => {
-
-    User.findOne({
-        username: req.body.username
-    }).select('+password').exec(async (error,user) => {
-        if (!user) {
+    const username = req.body.username;
+    const password = req.body.password;
+    let condition = username ? { username: { [Op.iLike]: `%${username}%` } } : null;
+    User.findAll({ where : condition})
+      .then(data => {
+        
+        if (data.length === 0) {
           // console.log("Username not found : "+req.body.username)
           return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง หรือ ไม่มีผู้ใช้ในระบบ กรุณาลองอีกครั้ง" });
         }
-  
+        const user = data[0]
+        console.log('user : ',user)
         var passwordIsValid = bcrypt.compareSync(
-          req.body.password,
+          password,
           user.password
         );
   
@@ -95,28 +117,31 @@ exports.signin = (req, res) => {
           });
         }
   
-        var accessToken = jwt.sign({ id: user.farm }, config.secret, {
+        var accessToken = jwt.sign({ id: user.farmId }, config.secret, {
           expiresIn: config.jwtExpiration // 24 hours
         });
 
-        const farm = await Farm.findById(user.farm).exec();
+        Farm.findByPk(user.farmId)
+          .then(farm => {
+              // await RefreshToken.deleteMany({user:user._id}).exec();
 
-        await RefreshToken.deleteMany({user:user._id}).exec();
+              // let refreshToken = await RefreshToken.createToken(user,config.jwtRefreshExpiration);
 
-        let refreshToken = await RefreshToken.createToken(user,config.jwtRefreshExpiration);
+              // console.log("Signined : "+req.body.username)
 
-        // console.log("Signined : "+req.body.username)
-
-        res
-          .status(200)
-          .send({
-            id: user._id,
-            username: user.username,
-            farm : farm,
-            accessToken: accessToken,
-            lineToken : farm.lineToken,
-            refreshToken: refreshToken,
+              res
+              .status(200)
+              .send({
+                id: user._id,
+                username: user.username,
+                farm : farm,
+                accessToken: accessToken,
+                lineToken : farm.lineToken,
+                // refreshToken: refreshToken,
+              });
           });
+
+        
 
     });
 };

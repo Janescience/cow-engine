@@ -9,20 +9,12 @@ const Recipe = db.recipe;
 
 const cowCheckDup = (req, res, next) => {
 
-    Cow.findOne({
-      code: req.body.code,
-      farm : req.farmId
-    }).exec((err, cow) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
-      }
-  
-      if (cow) {
+    Cow.findAll({where : {code :req.body.code,farmId:req.farmId }})
+    .then(data => {
+      if (data.length > 0) {
         res.status(400).send({ message: "รหัสโคซ้ำ กรุณาใช้รหัสอื่น" });
         return;
       }
-
       next();
     });
 };
