@@ -28,6 +28,7 @@
 // db.historyChange = require("./historyChange.model");
 
 const dbConfig = require("../config/db.config.js");
+const pg = require("pg")
 
 const Sequelize = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
@@ -39,6 +40,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
         rejectUnauthorized: false
     }
   },
+  dialectModule: pg, // I've added this.
   operatorsAliases: false,
   pool: {
     max: dbConfig.pool.max,
