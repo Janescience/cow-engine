@@ -56,9 +56,17 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // db.tutorials = require("./tutorial.model.js")(sequelize, Sequelize);
-db.user = require("./user.model")(sequelize, Sequelize);
 db.farm = require("./farm.model")(sequelize, Sequelize);
+db.user = require("./user.model")(sequelize, Sequelize);
 db.cow = require("./cow.model")(sequelize, Sequelize);
+db.bill = require("./bill.model")(sequelize, Sequelize);
+
+db.farm.hasOne(db.user)
+db.user.belongsTo(db.farm)
+
+db.farm.hasMany(db.cow)
+db.farm.hasMany(db.bill)
+
 // db.milk = require("./milk.model")(sequelize, Sequelize);
 // db.milkDetail = require("./milkDetail.model")(sequelize, Sequelize);
 // db.reproduction = require("./reproduction.model")(sequelize, Sequelize);
@@ -99,7 +107,6 @@ db.refreshToken = require("./refreshToken.model");
 db.param = require("./param.model");
 db.notificationParam = require("./notificationParam.model");
 db.notification = require("./notification.model");
-db.bill = require("./bill.model");
 db.building = require("./building.model");
 db.equipment = require("./equipment.model");
 db.maintenance = require("./maintenance.model");

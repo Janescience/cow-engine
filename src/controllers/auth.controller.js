@@ -12,22 +12,21 @@ const Vaccine = require("../models/vaccine.model");
 const Op = db.Sequelize.Op;
 exports.signup = async (req, res) => {
 
-    // const countF = await Farm.collection.countDocuments();
-    // console.log("farm count : ",countF);
+    const farmCount = await Farm.count();
 
     const farm = {
-      code : "F" + String(1).padStart(4,'0'),
+      code : "F" + String(farmCount + 1).padStart(4,'0'),
       name : req.body.farmName,
       lineToken : null
     }
 
     Farm.create(farm)
-      .then(data => {
+      .then(farm => {
 
         const user = {
           username: req.body.username,
           password: bcrypt.hashSync(req.body.password, 8),
-          farmId : data._id,
+          farmId : farm.id,
         };
 
         User.create(user)
@@ -103,7 +102,7 @@ exports.signin = (req, res) => {
           return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง หรือ ไม่มีผู้ใช้ในระบบ กรุณาลองอีกครั้ง" });
         }
         const user = data[0]
-        console.log('user : ',user)
+
         var passwordIsValid = bcrypt.compareSync(
           password,
           user.password
@@ -132,11 +131,10 @@ exports.signin = (req, res) => {
               res
               .status(200)
               .send({
-                id: user._id,
+                id: user.id,
                 username: user.username,
                 farm : farm,
                 accessToken: accessToken,
-                lineToken : farm.lineToken,
                 // refreshToken: refreshToken,
               });
           });
@@ -147,11 +145,17 @@ exports.signin = (req, res) => {
 };
 
 exports.user = async (req,res) => {
-    const user = await User.findOne({farm:req.farmId});
-    user.farm = await Farm.findOne({_id:req.farmId});
-
-    // console.log("Get user : "+user.username)
-    return res.status(200).json({user:user})
+    const user = await User.findAll({where : {farmId :req.farmId},
+      include: [
+       'farm'
+      ]});
+    return res.status(200).json(
+        {
+          id : user[0].id,
+          username : user[0].username,
+          farm : user[0].farm
+        }
+      )
 }
 
 exports.refreshToken = async (req, res) => {

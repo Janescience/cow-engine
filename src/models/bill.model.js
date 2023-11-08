@@ -1,32 +1,13 @@
-const mongoose = require("mongoose")
+const { DataTypes } = require('sequelize')
 
-const Bill = mongoose.model(
-    'bill',
-    new mongoose.Schema({
-        remark:{
-            type:String,
-        },
-        code:{//WATER,ELECTRIC,ACCOM,RENT,INTERNAET,OTH
-            type:String,
-            required:true
-        },
-        name:{//ค่าน้ำ,ค่าไฟ,ค่าที่พักคนงาน,ค่าเช่า,ค่าอินเทอร์เน็ต,อื่นๆ
-            type:String,
-            required:true
-        },
-        date:{
-            type:Date,
-            required:true
-        },
-        amount:{
-            type:Number,
-            required:true
-        },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm"
-        },
-    }, { timestamps: true })
-)
+module.exports = (sequelize, Sequelize) => {
+    const Bill = sequelize.define("bill", {
+        remark : Sequelize.STRING,
+        code : Sequelize.STRING,
+        name : Sequelize.STRING,
+        date : Sequelize.DATE,
+        amount : Sequelize.DOUBLE,
+    });
+    return Bill;
+};
 
-module.exports = Bill
