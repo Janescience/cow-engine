@@ -1,59 +1,38 @@
-const mongoose = require("mongoose")
 
-const Vaccine = mongoose.model(
-    'vaccine',
-    new mongoose.Schema({
-        frequency:{
-            type:Number,
-            required:true
+module.exports = (sequelize, Sequelize) => {
+    
+    const Vaccine = sequelize.define("vaccine", {
+        frequency : Sequelize.INTEGER,
+        code : Sequelize.STRING,
+        name : Sequelize.STRING,
+        price : Sequelize.DOUBLE,
+        use : {
+            type:Sequelize.INTEGER,
+            comment:'ใช้ได้กี่ตัว'
         },
-        code:{
-            type: String,
-            required:true,
+        amount : {
+            type:Sequelize.DOUBLE,
+            comment:'คิดเป็นราคา/ตัว'
         },
-        name:{
-            type: String,
-            required:true,
+        quantity : {
+            type : Sequelize.INTEGER,
+            comment : 'ปริมาณ (ลิตร)' 
         },
-        remark:{
-            type: String,
-            required:false,
+        nextDate : {
+            type:Sequelize.DATE,            
+            comment:'วันที่ให้วัคซีนครั้งต่อไป'
         },
-        price:{//ราคา
-            type: Number,
-            default: 0
+        currentDate : {
+            type:Sequelize.DATE,
+            comment:'วันที่ให้วัคซีนล่าสุด'
         },
-        use:{//ใชได้กี่ตัว
-            type: Number,
-            default: 0
+        startDate : {
+            type:Sequelize.DATE,
+            comment:'วันที่เริ่มให้วัคซีนล่าสุด'
         },
-        amount:{//คิดเป็นเงิน/ตัว
-            type: Number,
-            default: 0        
-        },
-        quantity:{//ปริมาณ (ลิตร)
-            type: Number,
-            default: 0        
-        },
-        nextDate:{
-            type: Date,
-        },
-        currentDate:{
-            type: Date,
-        },
-        startDate:{
-            type: Date,
-        },
-        protections:[{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "protection",
-        }],
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm",
-            required:true,
-        },
-    }, { timestamps: true })
-)
+    });
 
-module.exports = Vaccine
+    return Vaccine;
+};
+
+

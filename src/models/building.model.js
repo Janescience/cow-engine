@@ -1,39 +1,23 @@
-const mongoose = require("mongoose")
+module.exports = (sequelize, Sequelize) => {
+    
+    const Building = sequelize.define("building", {
+        code : Sequelize.STRING,
+        name : Sequelize.STRING,
+        date : {
+            type: Sequelize.DATE,
+        },
+        status : { 
+            type : Sequelize.STRING, 
+            comment : 'A = ใช้งาน, I = ไม่ใช้งาน'
+        },
+        remark : Sequelize.STRING,
+        amount : {
+            type: Sequelize.DOUBLE,
+        },
+        builder : { 
+            type : Sequelize.STRING, 
+        },
+    });
 
-const Building = mongoose.model(
-    'building',
-    new mongoose.Schema({
-        code:{
-            type:String,
-            required:true
-        },
-        name:{
-            type:String,
-            required:true
-        },
-        date:{
-            type:Date,
-            required:true
-        },
-        status : { // A:Active,I:Inactive
-            type:String,
-            required:true,
-        },
-        remark : {
-            type:String,
-        },
-        amount:{
-            type:Number,
-            required:true
-        },
-        builder:{
-            type:String,
-        },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm"
-        },
-    }, { timestamps: true })
-)
-
-module.exports = Building
+    return Building;
+};

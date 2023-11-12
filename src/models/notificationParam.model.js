@@ -1,45 +1,35 @@
-const mongoose = require("mongoose")
 
-const NotificationParam = mongoose.model(
-    'notificationParam',
-    new mongoose.Schema({
-        before:{ 
-            type:Number,
-            required:false
+
+module.exports = (sequelize, Sequelize) => {
+    
+    const NotificationParam = sequelize.define("notificationParam", {
+        before : {
+            type: Sequelize.INTEGER,
+            comment : 'จำนวนวัน/เดือนที่อยากให้แจ้งเตือนก่อนถึงกำหนดกี่วัน'
         },
-        beforeType:{ // D : Day , M : Month
-            type:String,
-            required:false,
-            default : 'D'
+        beforeType : {
+            type: Sequelize.STRING,
+            comment : 'ประเภทการแจ้งเตือนก่อน D=Day, M=Month'
         },
-        dueDate : { // Alert on due date ?
-            type:Boolean,
-            required: true,
+        after : {
+            type: Sequelize.INTEGER,
+            comment : 'จำนวนวัน/เดือนที่อยากให้แจ้งเตือนหลังจากครบกำหนดกี่วัน'
+        },
+        afterType : {
+            type: Sequelize.STRING,
+            comment : 'ประเภทการแจ้งเตือนหลัง D=Day, M=Month'
+        },
+        dueDate : {
+            type: Sequelize.BOOLEAN,
+            comment : 'ต้องการให้แจ้งเตือนวันครบกำหนดหรือไม่ ? True or False',
             default : true
         },
-        after:{ 
-            type:Number,
-            required:false
+        code : {
+            type: Sequelize.STRING,
+            comment : 'REPRO_ESTRUST=การเป็นสัด, REPRO_MATING=การผสม, REPRO_CHECK=การตรวจท้อง, BIRTH=การคลอด, VACCINE_* = วัคซีนต่างๆ',
         },
-        afterType:{  // D : Day , M : Month
-            type:String,
-            required:false,
-            default : 'D'
-        },
-        code:{ // REPRO_ESTRUST, REPRO_MATING , REPRO_CHECK, BIRTH, VACCINE
-            type:String,
-            required:true
-        },
-        name:{ 
-            type:String,
-            required:true
-        },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm",
-            required:true,
-        },
-    }, { timestamps: true })
-)
+        name : Sequelize.STRING,
+    });
 
-module.exports = NotificationParam
+    return NotificationParam;
+};

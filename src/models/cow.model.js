@@ -23,10 +23,12 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         status: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            comment : '1=โคท้อง,2=โคดราย,3=โครีดนม,4=โคเด็ก'
         },
         quality: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            comment : '1=คุณภาพดี,2=ปกติ,3=แย่,4=ไม่ได้ตรวจ'
         },
         flag: {
             type: Sequelize.STRING,

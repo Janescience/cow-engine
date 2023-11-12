@@ -1,39 +1,19 @@
-const mongoose = require("mongoose")
 
-const Maintenance = mongoose.model(
-    'maintenance',
-    new mongoose.Schema({
-        code:{
-            type:String,
-            required:true
+module.exports = (sequelize, Sequelize) => {
+    
+    const Maintenance = sequelize.define("maintenance", {
+        code : Sequelize.STRING,
+        name : Sequelize.STRING,
+        category : {
+            type:Sequelize.STRING,
+            comment:'E = อุปกรณ์, B = สิ่งก่อสร้าง'
         },
-        name:{
-            type:String,
-            required:true
-        },
-        category:{//E:Equipment,B:Building
-            type:String,
-            required:true
-        },
-        date:{
-            type:Date,
-            required:true
-        },
-        reason : {
-            type:String,
-        },
-        amount:{
-            type:Number,
-            required:true
-        },
-        maintenancer:{
-            type:String,
-        },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm"
-        },
-    }, { timestamps: true })
-)
+        date : Sequelize.DATE,
+        reason : Sequelize.STRING,
+        amount : Sequelize.DOUBLE,
+        maintenancer : Sequelize.STRING,
+    });
 
-module.exports = Maintenance
+    return Maintenance;
+};
+

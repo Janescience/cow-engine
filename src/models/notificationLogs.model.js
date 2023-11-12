@@ -1,33 +1,26 @@
-const mongoose = require("mongoose")
 
-const NotificationLogs = mongoose.model(
-    'notificationLogs',
-    new mongoose.Schema({
-        respMessage:{
-            type:String,
+module.exports = (sequelize, Sequelize) => {
+    
+    const NotificationLogs = sequelize.define("notificationLogs", {
+        respMessage : {
+            type: Sequelize.STRING,
+            comment : 'Logs ในระบบ'
         },
-        status:{
-            type:String,
-            required:true
+        status : {
+            type: Sequelize.STRING,
+            comment : 'S=Success , F=Fail'
         },
-        type:{
-            type:String,
-            required:true
+        type : {
+            type: Sequelize.STRING,
+            comment : 'B=ระบบ(ตามเงื่อนไข), T=ทดสอบจากผู้ใช้, S=ระบบ(อัตโนมัติ)'
         },
-        message:{
-            type:String,
-            required:true
+        message : {
+            type: Sequelize.STRING,
+            comment : 'ข้อความที่แจ้งเตือน'
         },
-        notification : [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "notification",
-        }],
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm",
-            required:true,
-        },
-    }, { timestamps: true })
-)
 
-module.exports = NotificationLogs
+    });
+
+    return NotificationLogs;
+};
+

@@ -1,32 +1,14 @@
-const mongoose = require("mongoose")
 
-const Salary = mongoose.model(
-    'salary',
-    new mongoose.Schema({
-        remark : {
-            type:String,
-        },
-        amount : { 
-            type:Number,
-            required:true,
-        },
-        year : {
-            type:Number,
-            required:true,
-        },
-        month : {
-            type:Number,
-            required:true,
-        },
-        worker:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "worker"
-        },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm"
-        },
-    }, { timestamps: true })
-)
 
-module.exports = Salary
+module.exports = (sequelize, Sequelize) => {
+    
+    const Salary = sequelize.define("salary", {
+        month : Sequelize.INTEGER,
+        year : Sequelize.INTEGER,
+        amount : Sequelize.DOUBLE,
+        remark : Sequelize.STRING,
+    });
+
+    return Salary;
+};
+

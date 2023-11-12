@@ -1,23 +1,15 @@
-const mongoose = require("mongoose")
 
-const Milk = mongoose.model(
-    'milk',
-    new mongoose.Schema({
-        time:{
-            type:String,
-            required:true
+module.exports = (sequelize, Sequelize) => {
+    
+    const Milk = sequelize.define("milk", {
+        time : {
+            type:Sequelize.STRING,
+            comment:'A=บ่าย, M=เช้า'
         },
-        date:{
-            type:Date,
-            required:true
-        },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm",
-            required:true,
-        },
-        milkDetails: [{ type: mongoose.Schema.Types.ObjectId, ref: 'milkDetail' }]
-    }, { timestamps: true })
-)
+        date : Sequelize.DATE,
+    });
 
-module.exports = Milk
+    return Milk;
+};
+
+

@@ -19,7 +19,6 @@ const checkDuplicateUsername = (req, res, next) => {
           message:
             err.message || "Some error occurred while retrieving tutorials."
         });
-        return
       });
 };
   

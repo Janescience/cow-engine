@@ -1,5 +1,3 @@
-const { DataTypes } = require('sequelize')
-
 module.exports = (sequelize, Sequelize) => {
     const Bill = sequelize.define("bill", {
         remark : Sequelize.STRING,

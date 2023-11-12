@@ -7,6 +7,12 @@ module.exports = (sequelize, Sequelize) => {
         password:{
             type:Sequelize.STRING,
         }
+    },{
+        scopes: {
+            withoutPassword: {
+                attributes: { exclude: ['password'] },
+            }
+        }
     })
 
     return User;

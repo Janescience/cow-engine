@@ -1,31 +1,22 @@
-const mongoose = require("mongoose")
 
-const Notification = mongoose.model(
-    'notification',
-    new mongoose.Schema({
-        statusBefore:{ // W : Wait , S : Success , N : Not Alert
-            type:String,
-            required:true
+module.exports = (sequelize, Sequelize) => {
+    
+    const Notification = sequelize.define("notification", {
+        statusBefore : {
+            type: Sequelize.STRING,
+            comment : 'W=Wait, S=Success, N=Not Alert'
         },
-        statusAfter:{ // W : Wait , S : Success , N : Not Alert
-            type:String,
-            required:true
+        statusAfter : {
+            type: Sequelize.STRING,
+            comment : 'W=Wait, S=Success, N=Not Alert'
         },
-        dataId:{ 
-            type:String,
-            required:true
+        dataId : {
+            type: Sequelize.INTEGER,
+            comment : 'เก็บ ID ของตารางต่างๆ'
         },
-        notificationParam:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "notificationParam",
-            required:true,
-        },
-        farm:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "farm",
-            required:true,
-        },
-    }, { timestamps: true })
-)
 
-module.exports = Notification
+    });
+
+    return Notification;
+};
+

@@ -53,3 +53,15 @@ const Reproduction = mongoose.model(
 )
 
 module.exports = Reproduction
+
+
+module.exports = (sequelize, Sequelize) => {
+    
+    const Reproduction = sequelize.define("reproduction", {
+        
+    });
+
+    return Reproduction;
+};
+
+

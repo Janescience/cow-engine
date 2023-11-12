@@ -2,191 +2,137 @@ const config = require("../config/auth.config");
 const db = require("../models");
 const User = db.user;
 const Farm = db.farm;
+const Vaccine = db.vaccine
 const RefreshToken = db.refreshToken;
 const NotiParam = db.notificationParam;
 const Param = db.param;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-const Vaccine = require("../models/vaccine.model");
 const Op = db.Sequelize.Op;
-exports.signup = async (req, res) => {
 
+const { v4: uuidv4 } = require('uuid');
+
+exports.signup = async (req, res) => {
     const farmCount = await Farm.count();
 
-    const farm = {
+    const newFarm = {
       code : "F" + String(farmCount + 1).padStart(4,'0'),
       name : req.body.farmName,
       lineToken : null
     }
 
-    Farm.create(farm)
-      .then(farm => {
-
-        const user = {
+    try {    
+      const result = await db.sequelize.transaction(async (t) => {
+        const farm = await Farm.create(newFarm, { 
+          transaction: t 
+        });
+        const newUser = {
           username: req.body.username,
           password: bcrypt.hashSync(req.body.password, 8),
           farmId : farm.id,
         };
-
-        User.create(user)
-          .then(data => {
-            res.status(200).send({message:"Registered Successfully."})
-          })
-          .catch(err => {
-            res.status(500).send({
-              message:
-                err.message || "Some error occurred while creating the User."
-            });
-          });
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the Farm."
+        const user = await User.create(newUser, {
+          transaction: t
         });
-      });
-  
 
-    // const farmResp = await farm.save();
-    // // console.log("farm saved : ",farmResp);
-
-    // const userResp = await user.save();
-    // // console.log("user saved : ",userResp);
-
-    // const notiParams = [
-    //   { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', before: 7 , after: 7 , farm : farm },
-    //   { code : 'REPRO_MATING' ,name : 'การผสม', farm : farm },
-    //   { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', before: 5 , after: 5 ,farm : farm },
-    //   { code : 'BIRTH' ,name : 'การคลอด', before: 7 , after: 7 ,farm : farm },
-    //   { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)',before: 15 , farm : farm },
-    //   { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)',before: 15 , farm : farm },
-    //   { code : 'VACCINE_CDT' ,name : 'วัคซีนราดหลัง (CYDECTIN)',before: 7, farm : farm },
-    //   { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)',before: 3, farm : farm },
-    //   { code : 'VACCINE_IVOMEC' ,name : 'ยาฆ่าพยาธิโคท้อง (IVOMEC)', farm : farm },
-    // ]
-
-    // await NotiParam.insertMany(notiParams);
-
-    // const vaccines = [
-    //   { code : 'VACCINE_FMD',frequency: 6,name:'ปากเท้าเปื่อย (FMD)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-    //   { code : 'VACCINE_LS',frequency: 6,name:'ลัมพีสกิน (LUMPY SKIN)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-    //   { code : 'VACCINE_CDT',frequency: 2,name:'ราดหลัง (CYDECTIN)',remark:'แจ้งเตือน 7 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-    //   { code : 'VACCINE_BIO',frequency: 1,name:'ยาบำรุง (BIO)',remark:'แจ้งเตือน 3 วัน ก่อนถึงวันที่กำหนด',farm: farm},
-    //   { code : 'VACCINE_IVOMEC',frequency: 0,name:'ยาฆ่าพยาธิโคท้อง (IVOMEC)',remark:'แจ้งเตือนเมื่ออายุครรภ์ครบ 5,6 และ 7 เดือน',farm: farm},
-    // ]
-
-    // await Vaccine.insertMany(vaccines);
-
-    // const param = {
-    //   code : 'RAW_MILK',
-    //   group : 'PRICE',
-    //   name : 'ราคาน้ำนมดิบ/กก.',
-    //   valueNumber : 20.5,
-    //   farm : farm
-    // }
-
-    // const newParam = new Param(param);
-    // await newParam.save()
+        await createMasterData(farm.id,t);
+        return {farm,user:user.username}
+      })
+      res.status(200).send(result)
+     } catch (error) { 
+        console.error(error)
+        res.status(500).send(error)
+     }
 };
 
 exports.signin = (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
+
     let condition = username ? { username: { [Op.iLike]: `%${username}%` } } : null;
+
     User.findAll({ where : condition})
       .then(data => {
         
         if (data.length === 0) {
-          // console.log("Username not found : "+req.body.username)
           return res.status(401).send({ message: "ชื่อผู้ใช้ไม่ถูกต้อง หรือ ไม่มีผู้ใช้ในระบบ กรุณาลองอีกครั้ง" });
         }
+
         const user = data[0]
 
-        var passwordIsValid = bcrypt.compareSync(
+        const passwordIsValid = bcrypt.compareSync(
           password,
           user.password
         );
   
         if (!passwordIsValid) {
-          // console.info("Invalid password : "+req.body.username)
           return res.status(401).send({
             accessToken: null,
             message: "รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง"
           });
         }
   
-        var accessToken = jwt.sign({ id: user.farmId }, config.secret, {
-          expiresIn: config.jwtExpiration // 24 hours
-        });
+        const accessToken = jwt.sign(
+          { id: user.farmId }, 
+          config.secret, {
+            expiresIn: config.jwtExpiration 
+          }
+        );
 
         Farm.findByPk(user.farmId)
-          .then(farm => {
-              // await RefreshToken.deleteMany({user:user._id}).exec();
+          .then(async farm => {
 
-              // let refreshToken = await RefreshToken.createToken(user,config.jwtRefreshExpiration);
+              await RefreshToken.destroy({where : {userId:user.id}});
 
-              // console.log("Signined : "+req.body.username)
-
-              res
-              .status(200)
+              let refreshToken = await createRefreshToken(user,config.jwtRefreshExpiration);
+              
+              res.status(200)
               .send({
                 id: user.id,
                 username: user.username,
                 farm : farm,
                 accessToken: accessToken,
-                // refreshToken: refreshToken,
+                refreshToken: refreshToken,
               });
           });
-
-        
 
     });
 };
 
 exports.user = async (req,res) => {
-    const user = await User.findAll({where : {farmId :req.farmId},
+    const user = await User.scope('withoutPassword').findAll({where : {farmId :req.farmId},
       include: [
        'farm'
       ]});
-    return res.status(200).json(
-        {
-          id : user[0].id,
-          username : user[0].username,
-          farm : user[0].farm
-        }
-      )
+    return res.status(200).json(user)
 }
 
 exports.refreshToken = async (req, res) => {
   const { refreshToken: requestToken } = req.body;
 
   if (requestToken == null) {
-    // console.log("Refresh Token is required!");
     return res.status(403).json({ message: "Refresh Token is required!" });
   }
 
-  let refreshToken = await RefreshToken.findOne({ token: requestToken }).exec();
+  const refreshToken = await RefreshToken.findAll({where :{ token: requestToken }});
 
-  if (!refreshToken) {
+  if (refreshToken.length === 0) {
     res.status(403).json({ message: "Refresh token is not in database!" });
-    // console.log("Refresh token is not in database!");
     return;
   }
 
-  if (RefreshToken.verifyExpiration(refreshToken)) {
-    RefreshToken.findByIdAndRemove(refreshToken._id, { useFindAndModify: false }).exec();
-
-    // console.log("Refresh token was expired. Please make a new signin request");
+  if (verifyExpiration(refreshToken[0])) {
+    await RefreshToken.destroy({where:{id:refreshToken[0].id}});
     res.status(403).json({
       message: "Refresh token was expired. Please make a new signin request",
     });
     return;
   }
 
-  const user = await User.findOne({_id:refreshToken.user}).exec();
+  const user = await User.findByPk(refreshToken.userId);
 
-  let newAccessToken = jwt.sign({ id: user.farm }, config.secret, {
+  let newAccessToken = jwt.sign({ id: user.farmId }, config.secret, {
     expiresIn: config.jwtExpiration,
   });
 
@@ -195,3 +141,62 @@ exports.refreshToken = async (req, res) => {
     refreshToken: refreshToken.token,
   });
 };
+
+const createRefreshToken = async (user,exp) => {
+  let expiredAt = new Date();
+  expiredAt.setMilliseconds(
+    expiredAt.getMilliseconds() + exp
+  );
+  
+  const _token = uuidv4();
+
+  const newRefreshToken = {
+    token: _token,
+    userId: user.id,
+    expiryDate: expiredAt.getTime(),
+  };
+
+  let refreshToken = await RefreshToken.create(newRefreshToken);
+
+  return refreshToken.token;
+};
+
+const verifyExpiration = (token) => {
+  return token.expiryDate.getTime() < new Date().getTime();
+}
+
+const createMasterData = async (farm,t) => {
+    const notiParams = [
+      { code : 'REPRO_ESTRUST' ,name : 'การเป็นสัด', before: 7 , after: 7 , farmId : farm },
+      { code : 'REPRO_MATING' ,name : 'การผสม', farmId : farm },
+      { code : 'REPRO_CHECK' ,name : 'การตรวจท้อง', before: 5 , after: 5 ,farmId : farm },
+      { code : 'BIRTH' ,name : 'การคลอด', before: 7 , after: 7 ,farmId : farm },
+      { code : 'VACCINE_FMD' ,name : 'วัคซีนปากเท้าเปื่อย (FMD)',before: 15 , farmId : farm },
+      { code : 'VACCINE_LS' ,name : 'วัคซีนลัมพีสกิน (LUMPY SKIN)',before: 15 , farmId : farm },
+      { code : 'VACCINE_CDT' ,name : 'วัคซีนราดหลัง (CYDECTIN)',before: 7, farmId : farm },
+      { code : 'VACCINE_BIO' ,name : 'ยาบำรุง (BIO)',before: 3, farmId : farm },
+      { code : 'VACCINE_IVOMEC' ,name : 'ยาฆ่าพยาธิโคท้อง (IVOMEC)', farmId : farm },
+    ]
+
+    await NotiParam.bulkCreate(notiParams,{transaction:t});
+
+    const vaccines = [
+      { code : 'VACCINE_FMD',frequency: 6,name:'ปากเท้าเปื่อย (FMD)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farmId: farm},
+      { code : 'VACCINE_LS',frequency: 6,name:'ลัมพีสกิน (LUMPY SKIN)',remark:'แจ้งเตือน 15 วัน ก่อนถึงวันที่กำหนด',farmId: farm},
+      { code : 'VACCINE_CDT',frequency: 2,name:'ราดหลัง (CYDECTIN)',remark:'แจ้งเตือน 7 วัน ก่อนถึงวันที่กำหนด',farmId: farm},
+      { code : 'VACCINE_BIO',frequency: 1,name:'ยาบำรุง (BIO)',remark:'แจ้งเตือน 3 วัน ก่อนถึงวันที่กำหนด',farmId: farm},
+      { code : 'VACCINE_IVOMEC',frequency: 0,name:'ยาฆ่าพยาธิโคท้อง (IVOMEC)',remark:'แจ้งเตือนเมื่ออายุครรภ์ครบ 5,6 และ 7 เดือน',farmId: farm},
+    ]
+
+    await Vaccine.bulkCreate(vaccines,{transaction:t});
+
+    const param = {
+      code : 'RAW_MILK',
+      group : 'PRICE',
+      name : 'ราคาน้ำนมดิบ/กก.',
+      valueNumber : 20.5,
+      farmId : farm
+    }
+
+    await Param.create(param,{transaction:t})
+}

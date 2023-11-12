@@ -1,30 +1,25 @@
-const mongoose = require("mongoose")
+module.exports = (sequelize, Sequelize) => {
+    
+    const RecipeDetail = sequelize.define("recipeDetail", {
+        food : {
+            type : Sequelize.STRING,
+            comment : 'ชื่อวัตถุดิบ'
+        },
+        cost : {
+            type : Sequelize.DOUBLE,
+            comment : 'ราคา/หน่วย'
+        } ,
+        qty : {
+            type: Sequelize.INTEGER,
+            comment : 'จำนวน'
+        },
+        amount : {
+            type: Sequelize.DOUBLE,
+            comment : 'ราคารวม'
+        },
+    });
 
-const RecipeDetail = mongoose.model(
-    'recipeDetail',
-    new mongoose.Schema({
-        food:{
-            type: String,
-            required:true,
-        },
-        cost:{
-            type:Number,
-            required:true
-        },
-        qty:{
-            type: Number,
-            required:true,
-        },
-        amount:{
-            type: Number,
-            required:true,
-        },
-        recipe:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "recipe",
-            required:true,
-        },
-    }, { timestamps: true })
-)
+    return RecipeDetail;
+};
 
-module.exports = RecipeDetail
+

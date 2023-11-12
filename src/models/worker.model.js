@@ -49,3 +49,19 @@ const Worker = mongoose.model(
 )
 
 module.exports = Worker
+
+module.exports = (sequelize, Sequelize) => {
+    
+    const Worker = sequelize.define("worker", {
+        name : Sequelize.STRING,
+        age : Sequelize.INTEGER,
+        startDate : Sequelize.DATE,
+        endDate : Sequelize.DATE,
+        duty : Sequelize.STRING,
+        phoneNumber : Sequelize.STRING,
+        country : Sequelize.STRING,
+        remark : Sequelize.STRING,
+    });
+
+    return Worker;
+};
