@@ -51,7 +51,7 @@ exports.signin = (req, res) => {
     const password = req.body.password;
 
     let condition = username ? { username: { [Op.iLike]: `%${username}%` } } : null;
-
+    
     User.findAll({ where : condition})
       .then(data => {
         
@@ -130,7 +130,7 @@ exports.refreshToken = async (req, res) => {
     return;
   }
 
-  const user = await User.findByPk(refreshToken.userId);
+  const user = await User.findByPk(refreshToken[0].userId);
 
   let newAccessToken = jwt.sign({ id: user.farmId }, config.secret, {
     expiresIn: config.jwtExpiration,
